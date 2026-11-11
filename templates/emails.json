@@ -1,0 +1,22 @@
+{
+  "templates": [
+    {
+      "id": "intro",
+      "name": "Short introduction",
+      "subject": "A note about {{App Name}}",
+      "body": "Hi {{Contact Name}},\n\nI came across {{App Name}} while looking through independent {{Category}} apps.\n\nI work with early-stage app founders on product growth. If it is useful, I can send a few specific observations about {{App Name}}.\n\nIf you would rather I not write again, reply and I will remove you.\n\nBest,\nYOUR NAME"
+    },
+    {
+      "id": "direct",
+      "name": "Direct offer",
+      "subject": "{{App Name}} and early growth",
+      "body": "Hi {{Contact Name}},\n\n{{App Name}} looks like an early {{Category}} product with room to grow.\n\nI help solo founders and very small teams with positioning, onboarding, and the first growth loops. Happy to share what I would try first if you want a second pair of eyes.\n\nIf you would rather I not write again, reply and I will remove you.\n\nBest,\nYOUR NAME"
+    },
+    {
+      "id": "followup",
+      "name": "Short follow-up",
+      "subject": "Re: {{App Name}}",
+      "body": "Hi {{Contact Name}},\n\nI wrote recently about {{App Name}}. I will not follow up again after this.\n\nIf a short product-growth review of the app would be useful, reply and I will send it. If not, no action is needed and I will not contact you again.\n\nBest,\nYOUR NAME"
+    }
+  ]
+}

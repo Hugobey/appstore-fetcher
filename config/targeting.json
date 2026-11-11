@@ -1,0 +1,21 @@
+{
+  "confirmed": true,
+  "developer_type": "solo",
+  "platforms": "ios",
+  "categories": [
+    "Health & Fitness",
+    "Productivity",
+    "Lifestyle",
+    "Utilities",
+    "Entertainment"
+  ],
+  "custom_keywords": [],
+  "max_ratings": 100,
+  "max_app_age": "any",
+  "last_update": "90d",
+  "min_score": 40,
+  "target_prospects": 10,
+  "country": "us",
+  "template_id": "intro",
+  "saved_at": "2026-11-11T19:59:56+00:00"
+}

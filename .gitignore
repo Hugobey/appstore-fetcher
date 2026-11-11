@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+logs/
+data/session.json
+data/sessions/
+data/search_cache/
+data/suppression.json
+credentials/*
+!credentials/.gitkeep
+!credentials/*.example.json
+.env
+*.tmp

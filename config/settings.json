@@ -1,0 +1,76 @@
+{
+  "spreadsheet_id": "1ZWAZ5H1d6mo649vaGXlblVbfKms0EiLsphdcTtWEmiQ",
+  "worksheet_name": "",
+  "credentials_file": "credentials/google-service-account.json",
+  "apify_token_file": "credentials/apify_token",
+  "scoring_file": "config/scoring.json",
+  "templates_file": "templates/emails.json",
+  "suppression_file": "data/suppression.json",
+  "session_file": "data/session.json",
+  "log_file": "logs/prospecting.log",
+  "apify": {
+    "ios_actor": "epctex~appstore-scraper",
+    "android_actor": "epctex~google-play-scraper",
+    "country": "us",
+    "lang": "en-us",
+    "max_items_per_search": 40,
+    "end_page": 2,
+    "max_searches_per_run": 6,
+    "include_reviews": false,
+    "poll_interval_seconds": 3,
+    "run_timeout_seconds": 240,
+    "max_charge_usd_per_search": 0.25,
+    "min_remaining_usd": 0.05,
+    "cache_hours": 24,
+    "itunes_lookup_fallback": true,
+    "ios_search_fee_usd": 0.005,
+    "android_search_fee_usd": 0.003,
+    "dataset_item_fee_usd": 0.0001
+  },
+  "enrichment": {
+    "user_agent": "AppProspectingCLI/1.0 (personal research; respects robots.txt)",
+    "timeout_seconds": 12,
+    "max_bytes": 1000000,
+    "delay_seconds": 0.8,
+    "max_pages_per_site": 7,
+    "max_extra_links": 3
+  },
+  "http": {
+    "retries": 4,
+    "backoff_seconds": 1.0,
+    "timeout_seconds": 30
+  },
+  "outreach": {
+    "daily_limit": 20,
+    "gmail_client_file": "credentials/gmail-oauth.json",
+    "gmail_token_file": "credentials/gmail-token.json",
+    "sendable_statuses": ["New"]
+  },
+  "category_keywords": {
+    "Health & Fitness": ["habit tracker", "water reminder", "posture reminder"],
+    "Productivity": ["focus timer", "daily planner", "time tracker"],
+    "Lifestyle": ["daily journal", "mood tracker", "routine tracker"],
+    "Finance": ["budget planner", "expense tracker", "savings goal"],
+    "Education": ["study timer", "flashcard app", "language practice"],
+    "Utilities": ["qr scanner", "unit converter", "clipboard manager"],
+    "Social Networking": ["friends habit", "group chat local", "event planner friends"],
+    "Entertainment": ["ambient sounds", "puzzle game", "offline trivia"],
+    "Other": []
+  },
+  "developer_classification": {
+    "company_suffixes": ["inc", "llc", "ltd", "gmbh", "corp", "corporation", "pty", "sas", "bv", "ag", "plc", "limited", "company", "co."],
+    "solo_phrases": ["solo developer", "indie developer", "independent developer", "i built", "solo founder"],
+    "startup_phrases": ["startup", "early-stage", "seed stage", "small team", "two of us", "husband and wife", "we are a tiny"],
+    "agency_tokens": ["agency", "agencies", "consultancy", "consulting"],
+    "agency_phrases": ["app agency", "mobile agency", "digital agency", "design agency", "development agency", "we build apps", "we build mobile apps", "apps for clients", "for our clients", "client projects", "white-label", "white label"],
+    "product_tokens": ["studio", "studios", "labs", "lab", "games", "game", "software", "digital", "interactive", "entertainment"],
+    "business_words": ["app", "apps", "studio", "studios", "labs", "lab", "games", "game", "software", "digital", "media", "tech", "technologies", "solutions", "group", "holdings", "interactive", "entertainment", "agency", "agencies"],
+    "blocklist": ["google", "apple", "meta", "facebook", "instagram", "microsoft", "amazon", "netflix", "spotify", "adobe", "nike", "disney", "uber", "airbnb", "bytedance", "tiktok", "tencent", "supercell"],
+    "startup_installs": 1000,
+    "scaleup_installs": 100000,
+    "startup_ratings": 100,
+    "scaleup_ratings": 5000,
+    "startup_revenue_usd": 20000,
+    "scaleup_revenue_usd": 500000
+  }
+}

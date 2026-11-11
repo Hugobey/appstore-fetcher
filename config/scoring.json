@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "notes": "Edit points here. Set enabled to false to ignore a criterion. Unknown data is left out of the normalized score instead of receiving zero. minimum_known_max is the smallest known-point pool required before a lead can pass.",
+  "minimum_known_max": 40,
+  "criteria": [
+    {
+      "id": "ratings",
+      "type": "rating_count",
+      "enabled": true,
+      "label": "Rating count",
+      "max_points": 30,
+      "waive_for_icp": ["agency"],
+      "bands": [
+        {"id": "ratings_0_10", "min": 0, "max": 10, "points": 30, "label": "0–10 ratings"},
+        {"id": "ratings_11_30", "min": 11, "max": 30, "points": 25, "label": "11–30 ratings"}
+      ],
+      "bands_by_icp": {
+        "solo": [
+          {"min": 0, "max": 10, "points": 30, "label": "0–10 ratings"},
+          {"min": 11, "max": 99, "points": 25, "label": "11–99 ratings"}
+        ],
+        "startup": [
+          {"min": 100, "max": 4999, "points": 30, "label": "100–4,999 ratings"},
+          {"min": 0, "max": 99, "points": 15, "label": "Under 100 ratings"}
+        ],
+        "scaleup": [
+          {"min": 5000, "max": 100000000, "points": 30, "label": "5,000 or more ratings"}
+        ]
+      },
+      "install_bands_by_icp": {
+        "solo": [
+          {"min": 0, "max": 999, "points": 30, "label": "Under 1,000 installs"}
+        ],
+        "startup": [
+          {"min": 1000, "max": 99999, "points": 30, "label": "1,000–99,999 installs"},
+          {"min": 0, "max": 999, "points": 15, "label": "Under 1,000 installs"}
+        ],
+        "scaleup": [
+          {"min": 100000, "max": 10000000000, "points": 30, "label": "100,000 or more installs"}
+        ]
+      }
+    },
+    {
+      "id": "developer_type",
+      "type": "developer_type",
+      "enabled": true,
+      "label": "ICP",
+      "max_points": 20,
+      "points": {"solo": 20, "agency": 20, "startup": 20, "scaleup": 20},
+      "labels": {
+        "solo": "Solo developer",
+        "agency": "Agency",
+        "startup": "Startups",
+        "scaleup": "Scaleup"
+      }
+    },
+    {
+      "id": "recency",
+      "type": "updated_within_days",
+      "enabled": true,
+      "label": "Recent update",
+      "max_points": 20,
+      "bands": [
+        {"max_days": 30, "points": 20, "label": "Updated within 30 days"},
+        {"max_days": 90, "points": 12, "label": "Updated within 90 days"},
+        {"max_days": 180, "points": 5, "label": "Updated within 180 days"}
+      ]
+    },
+    {
+      "id": "launch_age",
+      "type": "launched_within_days",
+      "enabled": true,
+      "label": "Launch recency",
+      "max_points": 15,
+      "bands": [
+        {"max_days": 183, "points": 15, "label": "Launched within 6 months"},
+        {"max_days": 730, "points": 5, "label": "Launched within 2 years"}
+      ]
+    },
+    {
+      "id": "monetization",
+      "type": "monetization",
+      "enabled": true,
+      "label": "Monetization",
+      "max_points": 10,
+      "points": {"none_visible": 10, "basic": 5},
+      "labels": {
+        "none_visible": "No visible monetization",
+        "basic": "Basic monetization"
+      }
+    },
+    {
+      "id": "founder_contact",
+      "type": "founder_contact",
+      "enabled": true,
+      "label": "Verified founder contact",
+      "max_points": 5,
+      "points": 5
+    }
+  ]
+}
