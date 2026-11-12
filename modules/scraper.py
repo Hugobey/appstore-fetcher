@@ -37,10 +37,10 @@ SOURCE_DROP = {
 }
 
 
-def keyword_plan(targeting: dict, settings: dict) -> list[str]:
+def keyword_plan(targeting: dict, settings: dict, limit: int | None = None) -> list[str]:
     """Round-robin categories so one category cannot spend the whole search budget."""
     keyword_map = settings.get("category_keywords") or {}
-    limit = int(settings["apify"]["max_searches_per_run"])
+    limit = int(settings["apify"]["max_searches_per_run"] if limit is None else limit)
     pools: list[deque[str]] = []
     for category in targeting.get("categories") or []:
         words = [str(word).strip() for word in keyword_map.get(category) or [] if str(word).strip()]
@@ -73,6 +73,66 @@ def search_jobs(targeting: dict, settings: dict) -> list[tuple[str, str]]:
         for platform in platforms:
             jobs.append((platform, keyword))
     return jobs[: int(settings["apify"]["max_searches_per_run"])]
+
+
+def long_tail_keywords(keywords: list[str], categories: list[str]) -> list[str]:
+    """Secondary phrases used only after the selected keywords still miss the target."""
+    seen = {word.lower() for word in keywords}
+    tails: list[str] = []
+    patterns: list[str] = []
+    for word in keywords:
+        patterns.append(f"{word} app")
+        if "tracker" not in word.lower():
+            patterns.append(f"{word} tracker")
+    for category in categories:
+        if category and category != "Other":
+            patterns.append(f"{category} app")
+    for candidate in patterns:
+        key = candidate.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        tails.append(candidate)
+        if len(tails) >= max(len(keywords), 1):
+            break
+    return tails
+
+
+def discovery_jobs(targeting: dict, settings: dict) -> list[tuple[str, str, int]]:
+    """Base keywords, then the next page window, then long-tail phrases.
+
+    The caller stops at the target or at search_attempt_limit.
+    """
+    platforms = _platforms(targeting.get("platforms"))
+    keywords = keyword_plan(targeting, settings, limit=10_000)
+    window = max(1, int(settings["apify"].get("end_page") or 1))
+    jobs: list[tuple[str, str, int]] = []
+    seen: set[tuple[str, str, int]] = set()
+
+    def add(platform: str, keyword: str, page: int) -> None:
+        if platform == "android" and page > 1:
+            return
+        key = (platform, keyword.strip().lower(), page)
+        if key in seen:
+            return
+        seen.add(key)
+        jobs.append((platform, keyword, page))
+
+    for keyword in keywords:
+        for platform in platforms:
+            add(platform, keyword, 1)
+    for keyword in keywords:
+        for platform in platforms:
+            add(platform, keyword, 1 + window)
+    for keyword in long_tail_keywords(keywords, list(targeting.get("categories") or [])):
+        for platform in platforms:
+            add(platform, keyword, 1)
+    return jobs
+
+
+def search_attempt_limit(settings: dict) -> int:
+    """One planned wave plus one expansion wave. Both are capped by max_searches_per_run."""
+    return int(settings["apify"]["max_searches_per_run"]) * 2
 
 
 def _platforms(value: str | None) -> list[str]:
@@ -468,27 +528,29 @@ class ApifyClient:
             "cycle": (data or {}).get("monthlyUsageCycle") or {},
         }
 
-    def search(self, platform: str, keyword: str, country: str) -> tuple[list[dict], dict]:
-        cached = read_cache(platform, keyword, country, self.settings)
+    def search(self, platform: str, keyword: str, country: str, page: int = 1) -> tuple[list[dict], dict]:
+        cached = read_cache(platform, keyword, country, self.settings, page)
         if cached is not None:
             return cached, {"cached": True, "usage_usd": 0}
         actor = self.settings["apify"]["ios_actor" if platform == "ios" else "android_actor"]
-        run_input = self._input(platform, keyword, country)
+        run_input = self._input(platform, keyword, country, page)
         items, meta = self.run_actor(actor, run_input)
-        write_cache(platform, keyword, country, self.settings, items)
+        write_cache(platform, keyword, country, self.settings, items, page)
         meta["cached"] = False
         return items, meta
 
-    def _input(self, platform: str, keyword: str, country: str) -> dict:
+    def _input(self, platform: str, keyword: str, country: str, page: int = 1) -> dict:
         apify = self.settings["apify"]
+        start = max(1, int(page))
+        window = max(1, int(apify.get("end_page") or 1))
         if platform == "ios":
             return {
                 "term": keyword,
                 "mode": "search",
                 "country": country,
                 "lang": store_lang(apify, "ios"),
-                "page": 1,
-                "endPage": int(apify.get("end_page") or 1),
+                "page": start,
+                "endPage": start + window - 1,
                 "maxItems": int(apify["max_items_per_search"]),
                 "includeReviews": False,
                 "includeSimilarApps": False,
@@ -606,7 +668,7 @@ def usable_results(items: list) -> bool:
     return not all(isinstance(item, dict) and set(item) == {"demo"} for item in items)
 
 
-def cache_path(platform: str, keyword: str, country: str, settings: dict) -> Path:
+def cache_path(platform: str, keyword: str, country: str, settings: dict, page: int = 1) -> Path:
     apify = settings["apify"]
     raw = "|".join(
         [
@@ -616,14 +678,15 @@ def cache_path(platform: str, keyword: str, country: str, settings: dict) -> Pat
             str(apify.get("max_items_per_search")),
             str(apify.get("end_page")),
             store_lang(apify, platform),
+            str(page),
         ]
     )
     digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:20]
     return ROOT / "data" / "search_cache" / f"{digest}.json"
 
 
-def read_cache(platform: str, keyword: str, country: str, settings: dict) -> list[dict] | None:
-    path = cache_path(platform, keyword, country, settings)
+def read_cache(platform: str, keyword: str, country: str, settings: dict, page: int = 1) -> list[dict] | None:
+    path = cache_path(platform, keyword, country, settings, page)
     if not path.exists():
         return None
     try:
@@ -643,10 +706,10 @@ def read_cache(platform: str, keyword: str, country: str, settings: dict) -> lis
     return items
 
 
-def write_cache(platform: str, keyword: str, country: str, settings: dict, items: list[dict]) -> None:
+def write_cache(platform: str, keyword: str, country: str, settings: dict, items: list[dict], page: int = 1) -> None:
     if not usable_results(items):
         return
-    path = cache_path(platform, keyword, country, settings)
+    path = cache_path(platform, keyword, country, settings, page)
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "fetched_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),

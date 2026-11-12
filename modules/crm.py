@@ -40,6 +40,26 @@ EXTRA_HEADERS = [
     "Developer Website",
     "Notes",
 ]
+# A blank worksheet gets this row. Generated Body is intentionally absent.
+BLANK_HEADERS = [
+    "App Name",
+    "App Store URL",
+    "Contact Email",
+    "Contact Name",
+    "Status",
+    "Lead Score",
+    "Email Source",
+    "Email Type",
+    "Platform",
+    "Ratings",
+    "Review Count",
+    "Category",
+    "App Store ID",
+    "Developer Website",
+    "Email Subject",
+    "Sent Date",
+    "Notes",
+]
 STATUS_NEW = "New"
 STATUS_MISSING = "Missing email"
 STATUS_SUPPRESSED = "Suppressed"
@@ -86,6 +106,7 @@ def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status
         "App Name": lead.app_name,
         "Developer": lead.developer_name,
         "Target Email": primary.address if primary else "",
+        "Contact Email": primary.address if primary else "",
         "Contact Name": lead.contact_name,
         "App Store URL": lead.app_store_url,
         "Last Update Date": lead.last_update or "",
@@ -188,10 +209,10 @@ class GoogleSheetCRM:
                     "The sheet was not changed."
                 )
             try:
-                worksheet.update(values=[BASE_HEADERS], range_name="A1", value_input_option="RAW")
+                headers = install_blank_headers(worksheet)
             except Exception as exc:
                 raise CRMError(f"Could not write the header row: {exc}") from exc
-            return cls(spreadsheet, worksheet, 1, list(BASE_HEADERS))
+            return cls(spreadsheet, worksheet, 1, headers)
         headers = [str(cell).strip() for cell in values[header_index]]
         while headers and not headers[-1]:
             headers.pop()
@@ -216,7 +237,7 @@ class GoogleSheetCRM:
             records.append(record)
             platform = (record.get("platform_key") or record.get("parsed_platform"))
             app_id = record.get("app_store_id") or record.get("parsed_id")
-            index.add(platform, app_id, record.get("url"))
+            index.add(platform, app_id, record.get("url"), record.get("app_name"), record.get("developer"))
         return index, count, records
 
     def append_leads(self, leads: list[Lead], template: dict | None, suppressed: set[str]) -> tuple[int, int]:
@@ -277,7 +298,7 @@ def _row_record(headers: list[str], row: list[str], row_number: int) -> dict | N
         "row_number": row_number,
         "app_name": data.get("App Name", ""),
         "developer": data.get("Developer", ""),
-        "email": data.get("Target Email", ""),
+        "email": data.get("Target Email") or data.get("Contact Email", ""),
         "contact_name": data.get("Contact Name", ""),
         "url": data.get("App Store URL", ""),
         "status": data.get("Status", ""),
@@ -289,6 +310,26 @@ def _row_record(headers: list[str], row: list[str], row_number: int) -> dict | N
         "parsed_platform": platform,
         "parsed_id": parsed_id,
     }
+
+
+def install_blank_headers(worksheet) -> list[str]:
+    """Write, bold, and freeze the header row on a worksheet that has no CRM header."""
+    width = len(BLANK_HEADERS)
+    column_count = getattr(worksheet, "col_count", width) or width
+    if column_count < width and hasattr(worksheet, "add_cols"):
+        worksheet.add_cols(width - column_count)
+    worksheet.update(values=[BLANK_HEADERS], range_name="A1", value_input_option="RAW")
+    end = column_letter(width)
+    try:
+        worksheet.format(f"A1:{end}1", {"textFormat": {"bold": True}})
+    except Exception as exc:
+        LOGGER.warning("Could not bold the CRM header row: %s", exc)
+    try:
+        worksheet.freeze(rows=1)
+    except Exception as exc:
+        LOGGER.warning("Could not freeze the CRM header row: %s", exc)
+    LOGGER.info("Created CRM header row with %s columns.", width)
+    return list(BLANK_HEADERS)
 
 
 def _append_headers(worksheet, header_row: int, headers: list[str], missing: list[str]) -> list[str]:

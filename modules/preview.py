@@ -20,18 +20,38 @@ def frame(title: str, lines: list[str], width: int = 40) -> str:
 def print_configuration(state: dict, settings: dict, crm_summary: dict) -> None:
     from modules.wizard import describe, search_summary
 
-    lines = [f"{label:<20}{value}" for label, value in describe(state)]
-    lines.append("")
-    lines.append(f"{'CRM:':<20}{crm_summary.get('status', 'Connected')}")
-    lines.append(f"{'Existing leads:':<20}{crm_summary.get('existing_leads', 0)}")
+    rows = list(describe(state))
+    rows.append(("", ""))
+    rows.append(("CRM:", crm_summary.get("status", "Connected")))
+    rows.append(("Existing leads:", str(crm_summary.get("existing_leads", 0))))
     stored = "Targeting preferences loaded" if state.get("confirmed") else "Suggested defaults"
-    lines.append(f"{'Previously stored:':<20}{stored}")
-    lines.append("")
-    for label, value in search_summary(state, settings):
-        lines.append(f"{label:<20}{value}")
+    rows.append(("Previously stored:", stored))
+    rows.append(("", ""))
+    rows.extend(search_summary(state, settings))
+    if _print_rich_summary(rows):
+        return
+    lines = [f"{label:<20}{value}" for label, value in rows if label or value]
     print()
     print(frame("PROSPECTING CONFIGURATION", lines))
     print()
+
+
+def _print_rich_summary(rows: list[tuple[str, str]]) -> bool:
+    try:
+        from rich.console import Console
+        from rich.panel import Panel
+        from rich.table import Table
+    except ImportError:
+        return False
+    table = Table.grid(padding=(0, 2))
+    table.add_column(style="bold")
+    table.add_column()
+    for label, value in rows:
+        table.add_row(label, str(value))
+    Console().print()
+    Console().print(Panel(table, title="PROSPECTING CONFIGURATION", border_style="cyan", padding=(1, 2)))
+    Console().print()
+    return True
 
 
 def format_summary(stats: dict) -> str:

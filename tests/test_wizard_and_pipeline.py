@@ -5,7 +5,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from modules.config import load_scoring, load_settings, load_templates, validate_targeting
-from modules.demo import demo_enricher, demo_index, demo_itunes, demo_searcher
+from contextlib import nullcontext
+
+from modules.activity import Narrator
+from modules.deduplication import DedupIndex
+from modules.demo import demo_enricher, demo_index, demo_itunes, demo_searcher, sample_items
 from modules.pipeline import discover
 from modules.prompts import BACK, ScriptedPrompter
 from modules.scraper import ApifyClient, estimate_cost, keyword_plan, search_jobs
@@ -61,7 +65,7 @@ class WizardTests(unittest.TestCase):
 
         prompter.select = select
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
-        self.assertEqual(prompter.prompts[0], "Which ICP are you targeting?")
+        self.assertEqual(prompter.prompts[0], "🎯 Which ICP are you targeting?")
         self.assertIn(("Solo developer", "solo"), shown[0][1])
         self.assertIn(("Startups", "startup"), shown[0][1])
         self.assertIn(("iOS / Apple App Store", "ios"), shown[1][1])
@@ -167,6 +171,105 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(stats["already_in_crm"], 1)
         self.assertGreaterEqual(stats["filtered_out"], 4)
         self.assertFalse(stats["errors"])
+
+    def test_discovery_advances_to_the_next_page_until_the_target_is_met(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 30,
+                "max_app_age": "2y",
+                "last_update": "90d",
+                "min_score": 50,
+                "target_prospects": 1,
+                "country": "us",
+            }
+        )
+        by_name = {item["trackName"]: item for _platform, _keyword, item in sample_items()}
+        calls = []
+
+        def search(_platform, keyword, _country, page=1):
+            calls.append((keyword, page))
+            if page == 1:
+                return [by_name["Giant Tasks"]], {"cached": False}
+            return [by_name["Quiet Focus"]], {"cached": False}
+
+        voice = _Capture()
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=voice,
+        )
+        self.assertEqual(calls, [("focus timer", 1), ("focus timer", 2)])
+        self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Quiet Focus"})
+        self.assertTrue(any("expanding search for 1 more" in line for line in voice.lines))
+        self.assertTrue(any("[1/1 qualified leads found]" in line for line in voice.lines))
+
+    def test_a_repeated_app_is_enriched_once(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 30,
+                "max_app_age": "2y",
+                "last_update": "90d",
+                "min_score": 50,
+                "target_prospects": 1,
+                "country": "us",
+            }
+        )
+        quiet = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        seen = []
+
+        def search(_platform, _keyword, _country, page=1):
+            if page > 1:
+                return [], {"cached": False}
+            return [quiet, dict(quiet)], {"cached": False}
+
+        def enrich(lead):
+            seen.append(lead.app_store_id)
+            return demo_enricher(settings)(lead)
+
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=enrich,
+            itunes_fetcher=demo_itunes,
+            narrator=_Capture(),
+        )
+        self.assertEqual(seen, ["1001"])
+        self.assertEqual(len(discovery.qualified), 1)
+
+
+class _Capture(Narrator):
+    def __init__(self):
+        self.lines: list[str] = []
+        self.console = None
+
+    def line(self, message: str) -> None:
+        self.lines.append(message)
+
+    def spin(self, message: str):
+        self.line(message)
+        return nullcontext()
 
 
 if __name__ == "__main__":

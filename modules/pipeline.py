@@ -5,12 +5,21 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 
+import inspect
+
+from modules.activity import Narrator
 from modules.dates import utc_today
-from modules.deduplication import DedupIndex
+from modules.deduplication import DedupIndex, index_url, name_key
 from modules.enrichment import classify_email
 from modules.errors import ApifyError
 from modules.models import Lead
-from modules.scraper import ApifyInterrupted, fill_from_itunes, normalize_app, search_jobs
+from modules.scraper import (
+    ApifyInterrupted,
+    discovery_jobs,
+    fill_from_itunes,
+    normalize_app,
+    search_attempt_limit,
+)
 from modules.scoring import apply_score, classify_developer, hard_filter_reason, qualification_failure
 
 
@@ -56,10 +65,11 @@ def discover(
     searcher,
     enricher,
     today: date | None = None,
-    prior: list[tuple[str, str, list[dict]]] | None = None,
+    prior: list | None = None,
     on_raw=None,
     prompter=None,
     itunes_fetcher=None,
+    narrator: Narrator | None = None,
 ) -> Discovery:
     current = today or utc_today()
     stats = empty_stats()
@@ -68,41 +78,68 @@ def discover(
     missing_site: list[Lead] = []
     seen: set[str] = set()
     counted_crm: set[str] = set()
-    prior_map = {(platform, keyword): items for platform, keyword, items in (prior or [])}
+    known_ids = set(crm_index.ids)
+    known_urls = set(crm_index.urls)
+    known_names = set(crm_index.names)
+    prior_map = _prior_map(prior)
     target = int(targeting["target_prospects"])
     country = targeting.get("country") or settings["apify"].get("country") or "us"
     minimum_known = int(scoring.get("minimum_known_max") or 0)
+    jobs = discovery_jobs(targeting, settings)
+    cap = int(settings["apify"]["max_searches_per_run"])
+    limit = min(len(jobs), search_attempt_limit(settings))
+    voice = narrator or Narrator()
+    attempts = 0
+    announced = False
 
-    for platform, keyword in search_jobs(targeting, settings):
+    for platform, keyword, page in jobs:
         if len(qualified) >= target:
-            print(f"Reached the target of {target} qualified prospects. No further searches will start.")
+            voice.line(f"Reached the target of {target} qualified prospects. No further searches will start.")
             break
-        print(f"Searching {'App Store' if platform == 'ios' else 'Google Play'} for {keyword!r}...")
+        if attempts >= limit:
+            voice.line(f"Qualified prospects: {len(qualified)}/{target}. Search limit of {limit} reached.")
+            break
+        if attempts >= cap and not announced:
+            remaining = target - len(qualified)
+            voice.line(
+                f"Qualified prospects: {len(qualified)}/{target} — expanding search for {remaining} more..."
+            )
+            announced = True
+        attempts += 1
+        store = "iOS App Store" if platform == "ios" else "Google Play"
+        label = f"🔍 Scraping {store} for \"{keyword}\" (Page {page})..."
         try:
-            if (platform, keyword) in prior_map:
-                items = prior_map[(platform, keyword)]
-                print(f"  Using {len(items)} saved result(s) from the interrupted run.")
+            saved = prior_map.get((platform, keyword, page))
+            if saved is not None:
+                items = saved
+                voice.line(f"  Using {len(items)} saved result(s) from the interrupted run.")
             else:
-                items, meta = searcher(platform, keyword, country)
+                with voice.spin(label):
+                    items, meta = _call_searcher(searcher, platform, keyword, country, page)
                 if meta.get("cached"):
-                    print(f"  Using {len(items)} cached result(s) from the last {settings['apify'].get('cache_hours', 24)} hours.")
+                    voice.line(
+                        f"  Using {len(items)} cached result(s) from the last "
+                        f"{settings['apify'].get('cache_hours', 24)} hours."
+                    )
                 else:
-                    print(f"  Retrieved {len(items)} result(s).")
+                    voice.line(f"  Retrieved {len(items)} result(s).")
                 if on_raw:
-                    on_raw(platform, keyword, items)
+                    on_raw(platform, keyword, items, page)
         except ApifyInterrupted as exc:
-            print(exc)
+            voice.line(str(exc))
             stats["errors"].append(str(exc))
             items = exc.items
             if on_raw and items:
-                on_raw(platform, keyword, items)
+                on_raw(platform, keyword, items, page)
             _consume(
                 items, platform, keyword, targeting, settings, scoring, crm_index, seen, counted_crm,
-                stats, qualified, missing_email, missing_site, enricher, current, minimum_known, itunes_fetcher,
+                known_ids, known_urls, known_names,
+                stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
+                itunes_fetcher, voice, target,
             )
             break
         except ApifyError as exc:
-            print(exc)
+            voice.line(str(exc))
             stats["errors"].append(str(exc))
             if prompter is None:
                 continue
@@ -116,8 +153,15 @@ def discover(
             continue
         _consume(
             items, platform, keyword, targeting, settings, scoring, crm_index, seen, counted_crm,
-            stats, qualified, missing_email, missing_site, enricher, current, minimum_known, itunes_fetcher,
+            known_ids, known_urls, known_names,
+            stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
+            itunes_fetcher, voice, target,
         )
+    else:
+        if len(qualified) < target:
+            voice.line(
+                f"Qualified prospects: {len(qualified)}/{target}. No further keywords or pages are left."
+            )
 
     _check_partition(stats)
     return Discovery(
@@ -127,6 +171,42 @@ def discover(
         stats=stats,
         template_id=targeting.get("template_id") or "intro",
     )
+
+
+def _prior_map(prior: list | None) -> dict[tuple[str, str, int], list]:
+    saved: dict[tuple[str, str, int], list] = {}
+    for entry in prior or []:
+        if len(entry) >= 4:
+            platform, keyword, items, page = entry[0], entry[1], entry[2], entry[3]
+        else:
+            platform, keyword, items = entry[0], entry[1], entry[2]
+            page = 1
+        saved[(platform, keyword, int(page or 1))] = items
+    return saved
+
+
+def _call_searcher(searcher, platform: str, keyword: str, country: str, page: int):
+    if page != 1 and not _accepts_page(searcher):
+        return [], {"cached": False, "usage_usd": 0}
+    if _accepts_page(searcher):
+        return searcher(platform, keyword, country, page)
+    return searcher(platform, keyword, country)
+
+
+def _accepts_page(searcher) -> bool:
+    try:
+        signature = inspect.signature(searcher)
+    except (TypeError, ValueError):
+        return True
+    parameters = list(signature.parameters.values())
+    if any(item.kind == inspect.Parameter.VAR_POSITIONAL for item in parameters):
+        return True
+    positional = [
+        item
+        for item in parameters
+        if item.kind in {inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD}
+    ]
+    return len(positional) >= 4
 
 
 def _consume(
@@ -139,6 +219,9 @@ def _consume(
     crm_index,
     seen,
     counted_crm,
+    known_ids,
+    known_urls,
+    known_names,
     stats,
     qualified,
     missing_email,
@@ -147,45 +230,73 @@ def _consume(
     today,
     minimum_known,
     itunes_fetcher,
+    narrator: Narrator,
+    target: int,
 ) -> None:
-    batch: list[Lead] = []
+    fresh: list[Lead] = []
+    duplicates = 0
     for item in items:
         lead = normalize_app(item, platform, keyword)
         if lead is None:
             continue
         key = lead.dedup_id()
-        if crm_index.contains_lead(lead):
-            if key not in counted_crm:
+        if key in seen or crm_index.contains_lead(lead):
+            duplicates += 1
+            if _from_crm(lead, known_ids, known_urls, known_names) and key not in counted_crm:
                 counted_crm.add(key)
                 seen.add(key)
                 stats["discovered"] += 1
                 stats["already_in_crm"] += 1
             continue
-        if key in seen:
-            continue
         seen.add(key)
+        crm_index.add_lead(lead)
         stats["discovered"] += 1
-        batch.append(lead)
-    if batch and platform == "ios":
-        fill_from_itunes(batch, settings, itunes_fetcher)
-    for lead in batch:
-        _qualify_one(
-            lead, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
-            enricher, today, minimum_known,
-        )
+        fresh.append(lead)
+    candidates: list[Lead] = []
+    filtered = 0
+    for lead in fresh:
+        lead.developer_type = classify_developer(lead, settings)
+        reclassify_store_emails(lead)
+        reason = hard_filter_reason(lead, targeting, today)
+        if reason:
+            lead.filter_reason = reason
+            stats["filtered_out"] += 1
+            stats["filtered_hard"] += 1
+            filtered += 1
+            continue
+        candidates.append(lead)
+    narrator.line(
+        f"🧹 Filtered {len(items)} raw apps → {len(candidates)} new candidates "
+        f"({duplicates} duplicates skipped, {filtered} filtered by criteria)..."
+    )
+    if candidates and platform == "ios":
+        fill_from_itunes(candidates, settings, itunes_fetcher)
+    if candidates:
+        narrator.line("⚡ Scoring & ranking qualified prospects...")
+    for index, lead in enumerate(candidates, start=1):
+        with narrator.spin(
+            f"🌐 Crawling developer sites & /privacy pages for emails [{index}/{len(candidates)}]..."
+        ):
+            _enrich_and_score(
+                lead, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+                enricher, today, minimum_known, narrator, target,
+            )
 
 
-def _qualify_one(
-    lead, targeting, settings, scoring, stats, qualified, missing_email, missing_site, enricher, today, minimum_known,
+def _from_crm(lead: Lead, known_ids: set[str], known_urls: set[str], known_names: set[str]) -> bool:
+    if f"{lead.platform}:{lead.app_store_id}".lower() in known_ids:
+        return True
+    indexed = index_url(lead.app_store_url, lead.platform, lead.app_store_id)
+    if indexed and indexed in known_urls:
+        return True
+    named = name_key(lead.app_name, lead.developer_name)
+    return bool(named and named in known_names)
+
+
+def _enrich_and_score(
+    lead, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+    enricher, today, minimum_known, narrator: Narrator, target: int,
 ) -> None:
-    lead.developer_type = classify_developer(lead, settings)
-    reclassify_store_emails(lead)
-    reason = hard_filter_reason(lead, targeting, today)
-    if reason:
-        lead.filter_reason = reason
-        stats["filtered_out"] += 1
-        stats["filtered_hard"] += 1
-        return
     try:
         enricher(lead)
     except Exception as exc:
@@ -194,14 +305,14 @@ def _qualify_one(
         stats["filtered_out"] += 1
         stats["enrichment_errors"] += 1
         stats["errors"].append(f"{lead.app_name}: {exc}")
-        print(f"Enrichment failed for {lead.app_name}: {exc}")
+        narrator.line(f"Enrichment failed for {lead.app_name}: {exc}")
         return
     score = apply_score(lead, scoring, today, icp=targeting.get("developer_type"))
     if lead.enrichment_status in {"blocked", "error"}:
         stats["filtered_out"] += 1
         stats["enrichment_errors"] += 1
         stats["errors"].append(f"{lead.app_name}: {lead.enrichment_note}")
-        print(f"{lead.app_name}: {lead.enrichment_note}")
+        narrator.line(f"{lead.app_name}: {lead.enrichment_note}")
         return
     failure = qualification_failure(score, int(targeting["min_score"]), minimum_known)
     if failure:
@@ -219,7 +330,8 @@ def _qualify_one(
         return
     stats["qualified"] += 1
     qualified.append(lead)
-    print(f"  Qualified {lead.app_name} ({lead.score_normalized}/100)")
+    narrator.line(f"  Qualified {lead.app_name} ({lead.score_normalized}/100)")
+    narrator.line(f"[{len(qualified)}/{target} qualified leads found]")
 
 
 def _check_partition(stats: dict) -> None:

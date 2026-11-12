@@ -24,7 +24,7 @@ def run_wizard(prompter, targeting: dict, settings: dict, templates: list[dict],
     state = validate_targeting(targeting)
     if state.get("confirmed"):
         choice = prompter.select(
-            "Saved targeting preferences loaded.",
+            "💾 Saved targeting preferences loaded.",
             [
                 ("Continue to the summary", "continue"),
                 ("Review each question", "review"),
@@ -79,7 +79,7 @@ def _confirm_loop(prompter, state, settings, templates, crm_summary) -> dict | N
     while True:
         print_configuration(state, settings, crm_summary)
         choice = prompter.select(
-            "Configuration",
+            "✅ Configuration",
             [
                 ("Start scraping", "start"),
                 ("Edit configuration", "edit"),
@@ -112,7 +112,7 @@ def _edit_one(prompter, state, templates) -> dict | None:
         ("Email template", "template"),
         ("Back to the summary", "back"),
     ]
-    choice = prompter.select("Which setting do you want to change?", options)
+    choice = prompter.select("✏️ Which setting do you want to change?", options)
     if choice in {None, "back"}:
         return {}
     dispatch = {
@@ -146,7 +146,7 @@ def _as_choices(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
 
 def _ask_developer(prompter, state, allow_back=False):
     answer = prompter.select(
-        "Which ICP are you targeting?",
+        "🎯 Which ICP are you targeting?",
         _with_back(_as_choices(DEVELOPER_TYPES), allow_back),
         default=state.get("developer_type"),
     )
@@ -157,7 +157,7 @@ def _ask_developer(prompter, state, allow_back=False):
 
 def _ask_platform(prompter, state, allow_back=False):
     answer = prompter.select(
-        "Which platforms should we scrape?",
+        "📱 Which platforms should we scrape?",
         _with_back(_as_choices(PLATFORMS), allow_back),
         default=state.get("platforms"),
     )
@@ -169,11 +169,11 @@ def _ask_platform(prompter, state, allow_back=False):
 def _ask_categories(prompter, state, allow_back=False):
     while True:
         if allow_back:
-            back = prompter.select("Categories", [("Continue", "continue"), ("← Back", BACK)], default="continue")
+            back = prompter.select("📂 Categories", [("Continue", "continue"), ("← Back", BACK)], default="continue")
             if back is None or back == BACK:
                 return back
         selected = prompter.checkbox(
-            "Which categories should we search? You can select more than one.",
+            "📂 Which categories should we search? You can select more than one.",
             CATEGORIES,
             default=state.get("categories") or [],
         )
@@ -181,7 +181,7 @@ def _ask_categories(prompter, state, allow_back=False):
             return None
         default_keywords = ", ".join(state.get("custom_keywords") or [])
         raw = prompter.text(
-            "Custom keywords, separated by commas. Press Enter to skip.",
+            "📂 Custom keywords, separated by commas. Press Enter to skip.",
             default=default_keywords,
         )
         if raw is None:
@@ -220,7 +220,7 @@ def _ask_ratings(prompter, state, allow_back=False):
     values = [value for _label, value in choices]
     default = suggested if suggested in values else "custom"
     answer = prompter.select(
-        "What is the maximum number of ratings an app can have?",
+        "⭐ What is the maximum number of ratings an app can have?",
         _with_back(choices, allow_back),
         default=default,
     )
@@ -237,7 +237,7 @@ def _ask_ratings(prompter, state, allow_back=False):
 
 def _ask_age(prompter, state, allow_back=False):
     answer = prompter.select(
-        "How old can the app be?",
+        "📅 How old can the app be?",
         _with_back(_as_choices(APP_AGES), allow_back),
         default=state.get("max_app_age"),
     )
@@ -248,7 +248,7 @@ def _ask_age(prompter, state, allow_back=False):
 
 def _ask_update(prompter, state, allow_back=False):
     answer = prompter.select(
-        "How recently must the app have been updated?",
+        "🔄 How recently must the app have been updated?",
         _with_back(_as_choices(UPDATE_WINDOWS), allow_back),
         default=state.get("last_update"),
     )
@@ -262,7 +262,7 @@ def _ask_score(prompter, state, allow_back=False):
     choices = [("40", 40), ("50", 50), ("60", 60), ("70", 70), ("Custom value", "custom")]
     default = current if current in {40, 50, 60, 70} else "custom"
     answer = prompter.select(
-        "What minimum lead score should be imported?",
+        "⚡ What minimum lead score should be imported?",
         _with_back(choices, allow_back),
         default=default,
     )
@@ -281,7 +281,7 @@ def _ask_volume(prompter, state, allow_back=False):
     choices = [("10", 10), ("20", 20), ("30", 30), ("50", 50), ("Custom value", "custom")]
     default = current if current in {10, 20, 30, 50} else "custom"
     answer = prompter.select(
-        "How many new prospects should we aim to collect?",
+        "🚀 How many new prospects should we aim to collect?",
         _with_back(choices, allow_back),
         default=default,
     )
@@ -297,7 +297,7 @@ def _ask_volume(prompter, state, allow_back=False):
 
 def _ask_country(prompter, state):
     while True:
-        raw = prompter.text("App Store country code", default=state.get("country") or "us")
+        raw = prompter.text("🌍 App Store country code", default=state.get("country") or "us")
         if raw is None:
             return None
         country = raw.strip().lower()
@@ -308,7 +308,11 @@ def _ask_country(prompter, state):
 
 def _ask_template(prompter, state, templates):
     choices = [(item["name"], item["id"]) for item in templates]
-    answer = prompter.select("Which email template should new leads use?", choices, default=state.get("template_id"))
+    answer = prompter.select(
+        "✉️ Which email template should new leads use?",
+        choices,
+        default=state.get("template_id"),
+    )
     if answer is None:
         return None
     return {"template_id": answer}
@@ -347,7 +351,10 @@ def describe(state: dict) -> list[tuple[str, str]]:
 
 
 def search_summary(state: dict, settings: dict) -> list[tuple[str, str]]:
+    from modules.scraper import discovery_jobs, search_attempt_limit
+
     jobs = search_jobs(state, settings)
+    expanded = min(len(discovery_jobs(state, settings)), search_attempt_limit(settings))
     ios = sum(1 for platform, _keyword in jobs if platform == "ios")
     android = sum(1 for platform, _keyword in jobs if platform == "android")
     bits = []
@@ -358,7 +365,7 @@ def search_summary(state: dict, settings: dict) -> list[tuple[str, str]]:
     cap = settings["apify"]["max_items_per_search"]
     return [
         ("Storefront:", str(state.get("country", "us")).upper()),
-        ("Searches:", f"up to {' and '.join(bits) or '0'} ({cap} apps each)"),
-        ("Apify estimate:", f"up to ${estimate_cost(jobs, settings):.2f} if every search runs"),
+        ("Searches:", f"up to {' and '.join(bits) or '0'} ({cap} apps each), {expanded} if the target is short"),
+        ("Apify estimate:", f"up to ${estimate_cost(jobs, settings):.2f} for the first wave"),
         ("Charge cap:", f"${float(settings['apify']['max_charge_usd_per_search']):.2f} per search"),
     ]

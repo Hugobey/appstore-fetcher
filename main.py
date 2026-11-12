@@ -33,7 +33,8 @@ from modules.outreach import (
 from modules.pipeline import discover
 from modules.preview import review_prospects
 from modules.prompts import QuestionaryPrompter
-from modules.scraper import ApifyClient, estimate_cost, missing_token_message, search_jobs
+from modules.activity import Narrator
+from modules.scraper import ApifyClient, discovery_jobs, estimate_cost, missing_token_message, search_attempt_limit
 from modules.session import (
     append_raw,
     archive_session,
@@ -106,9 +107,11 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
         )
         return _review(discovery, None, templates, settings, prompter, None, None, demo=True)
 
+    voice = Narrator()
     crm = GoogleSheetCRM.connect(settings)
-    index, count, _records = crm.load_rows()
-    print(f"CRM connected. Existing leads: {count}.")
+    with voice.spin("📊 Indexing existing CRM leads..."):
+        index, count, _records = crm.load_rows()
+    voice.line(f"CRM connected. Existing leads: {count}.")
     crm_summary = {"status": "Connected", "existing_leads": count}
     session_path = project_path(settings.get("session_file", "data/session.json"))
     session = load_session(session_path)
@@ -153,16 +156,16 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
         raise ApifyError(missing_token_message())
     client = ApifyClient(token, settings)
     confirmed = _android_guard(client, confirmed, prompter)
-    jobs = search_jobs(confirmed, settings)
-    _quota_guard(client, settings, estimate_cost(jobs, settings), prompter)
+    jobs = discovery_jobs(confirmed, settings)[: search_attempt_limit(settings)]
+    _quota_guard(client, settings, estimate_cost([(platform, keyword) for platform, keyword, _page in jobs], settings), prompter)
     if session is None or session.get("stage") != "running":
         session = new_session(session_path, confirmed)
     else:
         session["targeting"] = confirmed
         save_session(session_path, session)
 
-    def on_raw(platform: str, keyword: str, items: list[dict]) -> None:
-        append_raw(session_path, session, platform, keyword, items)
+    def on_raw(platform: str, keyword: str, items: list[dict], page: int = 1) -> None:
+        append_raw(session_path, session, platform, keyword, items, page)
 
     discovery = discover(
         confirmed,
@@ -174,6 +177,7 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
         prior=prior,
         on_raw=on_raw,
         prompter=prompter,
+        narrator=voice,
     )
     store_discovery(session_path, session, discovery)
     return _review(discovery, crm, templates, settings, prompter, session, session_path)

@@ -32,6 +32,24 @@ def _pairs(choices: list) -> list[tuple[str, object]]:
     return pairs
 
 
+def _style():
+    import questionary
+
+    return questionary.Style(
+        [
+            ("qmark", "fg:cyan bold"),
+            ("question", "bold"),
+            ("answer", "fg:cyan bold"),
+            ("pointer", "fg:cyan bold"),
+            ("highlighted", "fg:cyan bold"),
+            ("selected", "fg:magenta"),
+            ("instruction", "fg:#858585"),
+            ("text", ""),
+            ("disabled", "fg:#858585 italic"),
+        ]
+    )
+
+
 class QuestionaryPrompter:
     def select(self, message: str, choices: list, default=None):
         import questionary
@@ -43,7 +61,7 @@ class QuestionaryPrompter:
         if default in values:
             kwargs["default"] = default
         try:
-            answer = questionary.select(message, choices=built, **kwargs).ask()
+            answer = questionary.select(message, choices=built, style=_style(), qmark="❯", **kwargs).ask()
         except KeyboardInterrupt:
             return None
         return answer
@@ -60,6 +78,8 @@ class QuestionaryPrompter:
             answer = questionary.checkbox(
                 message,
                 choices=built,
+                style=_style(),
+                qmark="❯",
                 instruction="Space toggles, Enter confirms",
             ).ask()
         except KeyboardInterrupt:
@@ -70,7 +90,7 @@ class QuestionaryPrompter:
         import questionary
 
         try:
-            answer = questionary.text(message, default=default or "").ask()
+            answer = questionary.text(message, default=default or "", style=_style(), qmark="❯").ask()
         except KeyboardInterrupt:
             return None
         return answer
@@ -79,7 +99,7 @@ class QuestionaryPrompter:
         import questionary
 
         try:
-            return questionary.confirm(message, default=default).ask()
+            return questionary.confirm(message, default=default, style=_style(), qmark="❯").ask()
         except KeyboardInterrupt:
             return None
 

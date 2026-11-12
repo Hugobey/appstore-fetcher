@@ -14,8 +14,8 @@
   "max_app_age": "any",
   "last_update": "90d",
   "min_score": 40,
-  "target_prospects": 10,
+  "target_prospects": 5,
   "country": "us",
   "template_id": "intro",
-  "saved_at": "2026-11-11T19:59:56+00:00"
+  "saved_at": "2026-11-12T11:58:00+00:00"
 }

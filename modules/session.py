@@ -53,11 +53,13 @@ def save_session(path: Path, data: dict) -> None:
     save_json(path, data)
 
 
-def append_raw(path: Path, session: dict, platform: str, keyword: str, items: list[dict]) -> None:
+def append_raw(path: Path, session: dict, platform: str, keyword: str, items: list[dict], page: int = 1) -> None:
     destination = raw_path(path, session["id"])
     with destination.open("a", encoding="utf-8") as handle:
         for item in items:
-            handle.write(json.dumps({"platform": platform, "keyword": keyword, "item": item}) + "\n")
+            handle.write(
+                json.dumps({"platform": platform, "keyword": keyword, "page": page, "item": item}) + "\n"
+            )
     completed = [platform, keyword]
     if completed not in session["completed_jobs"]:
         session["completed_jobs"].append(completed)
@@ -77,9 +79,13 @@ def load_raw(path: Path, session: dict) -> list[tuple[str, str, list[dict]]]:
         except json.JSONDecodeError as exc:
             print(f"Skipped a damaged saved result: {exc}")
             continue
-        key = (payload.get("platform") or "", payload.get("keyword") or "")
+        key = (
+            payload.get("platform") or "",
+            payload.get("keyword") or "",
+            int(payload.get("page") or 1),
+        )
         grouped.setdefault(key, []).append(payload.get("item") or {})
-    return [(platform, keyword, items) for (platform, keyword), items in grouped.items()]
+    return [(platform, keyword, items, page) for (platform, keyword, page), items in grouped.items()]
 
 
 def store_discovery(path: Path, session: dict, discovery) -> dict:

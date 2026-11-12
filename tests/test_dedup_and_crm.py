@@ -6,12 +6,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from modules.crm import (
     BASE_HEADERS,
+    BLANK_HEADERS,
     build_import_row,
     find_header_row,
     headers_to_add,
+    install_blank_headers,
     safe_cell,
 )
-from modules.deduplication import DedupIndex, canonical_url, identity_from_url
+from modules.deduplication import DedupIndex, canonical_url, identity_from_url, index_url
 from modules.models import EmailFound, Lead
 from modules.outreach import render_template
 
@@ -46,6 +48,42 @@ class DedupTests(unittest.TestCase):
         index.add("ios", "1001", "https://apps.apple.com/fr/app/id1001")
         self.assertTrue(index.contains("ios", "1001", "https://apps.apple.com/us/app/other/id1001"))
         self.assertFalse(index.contains("android", "1001", ""))
+
+    def test_index_url_drops_country_query_and_trailing_slash(self):
+        self.assertEqual(
+            index_url("https://apps.apple.com/fr/app/quiet-focus/id1001?uo=4"),
+            "https://apps.apple.com/app/id1001",
+        )
+        self.assertEqual(
+            index_url("https://apps.apple.com/us/app/quiet-focus/id1001/"),
+            "https://apps.apple.com/app/id1001",
+        )
+        index = DedupIndex()
+        index.add(None, None, "https://apps.apple.com/fr/app/quiet-focus/id1001?uo=4", "Quiet Focus", "Jane Doe")
+        self.assertTrue(index.contains("ios", "1001", "https://apps.apple.com/us/app/other/id1001"))
+        self.assertTrue(index.contains("ios", "9999", "", "Quiet Focus", "Jane Doe"))
+        self.assertFalse(index.contains("ios", "9999", "", "Quiet Focus", ""))
+
+    def test_blank_sheet_headers_exclude_the_generated_body(self):
+        sheet = _FakeSheet()
+        headers = install_blank_headers(sheet)
+        self.assertEqual(headers, BLANK_HEADERS)
+        self.assertNotIn("Generated Body", headers)
+        self.assertIn("Contact Email", headers)
+        self.assertEqual(sheet.updated, BLANK_HEADERS)
+        self.assertEqual(sheet.frozen, 1)
+        self.assertIn("bold", sheet.formatted[1]["textFormat"])
+        self.assertTrue(sheet.formatted[1]["textFormat"]["bold"])
+
+    def test_contact_email_column_is_filled(self):
+        lead = Lead(
+            platform="ios",
+            app_store_id="1001",
+            app_name="Quiet",
+            emails=[EmailFound("jane@example.com", "founder", "https://example.com", "")],
+        )
+        row = build_import_row(lead, ["Contact Email", "Target Email"], None, set())
+        self.assertEqual(row, ["jane@example.com", "jane@example.com"])
 
     def test_session_duplicate_is_remembered(self):
         index = DedupIndex()
@@ -105,6 +143,26 @@ class CrmShapeTests(unittest.TestCase):
     def test_blank_contact_name_does_not_leave_a_broken_greeting(self):
         lead = Lead(platform="ios", app_store_id="1", app_name="Quiet", category="Productivity")
         self.assertEqual(render_template("Hi {{Contact Name}},", lead), "Hi,")
+
+
+class _FakeSheet:
+    def __init__(self):
+        self.col_count = 5
+        self.updated = None
+        self.formatted = None
+        self.frozen = None
+
+    def add_cols(self, count):
+        self.col_count += count
+
+    def update(self, values, range_name, value_input_option):
+        self.updated = values[0]
+
+    def format(self, cell_range, cell_format):
+        self.formatted = (cell_range, cell_format)
+
+    def freeze(self, rows=0):
+        self.frozen = rows
 
 
 if __name__ == "__main__":

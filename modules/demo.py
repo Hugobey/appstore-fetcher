@@ -208,7 +208,9 @@ def demo_searcher():
     for platform, keyword, item in sample_items():
         grouped.setdefault((platform, keyword), []).append(item)
 
-    def search(platform: str, keyword: str, _country: str):
+    def search(platform: str, keyword: str, _country: str, page: int = 1):
+        if int(page) > 1:
+            return [], {"cached": False, "usage_usd": 0}
         return grouped.get((platform, keyword), []), {"cached": False, "usage_usd": 0}
 
     return search
