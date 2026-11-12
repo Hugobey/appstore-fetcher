@@ -46,6 +46,8 @@ class Lead:
     score_known_max: int = 0
     score_breakdown: list[dict] = field(default_factory=list)
     score_missing: list[str] = field(default_factory=list)
+    estimated_mrr: str = ""
+    mrr_numeric: int | None = None
     source: dict = field(default_factory=dict)
 
     def dedup_id(self) -> str:

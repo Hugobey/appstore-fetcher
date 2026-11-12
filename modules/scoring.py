@@ -436,15 +436,33 @@ def hard_filter_reason(lead: Lead, targeting: dict, today: date | None = None) -
         updated = days_since(lead.last_update, current)
         if updated is not None and updated > UPDATE_DAYS[update_key]:
             return f"updated {updated} days ago, past the {update_key} window"
-    return _developer_filter_reason(lead.developer_type, targeting.get("developer_type"))
+    chosen = targeting.get("developer_types") or targeting.get("developer_type")
+    return _developer_filter_reason(lead.developer_type, chosen)
 
 
-def _developer_filter_reason(kind: str, target: str | None) -> str | None:
+def selected_developer_types(targeting: dict) -> list[str]:
+    raw = targeting.get("developer_types")
+    if not isinstance(raw, list) or not raw:
+        raw = [targeting.get("developer_type")]
+    selected = []
+    for item in raw:
+        mapped = LEGACY_DEVELOPER_TYPES.get(item, item)
+        if mapped and mapped not in selected:
+            selected.append(mapped)
+    return selected
+
+
+def _developer_filter_reason(kind: str, target) -> str | None:
     if kind == "large":
         return "developer matches a known large publisher"
-    selected = LEGACY_DEVELOPER_TYPES.get(target, target)
-    if not selected or kind in {None, "", "unknown"} or kind == selected:
+    selected = []
+    values = target if isinstance(target, (list, tuple, set)) else [target]
+    for item in values:
+        mapped = LEGACY_DEVELOPER_TYPES.get(item, item)
+        if mapped and mapped not in selected:
+            selected.append(mapped)
+    if not selected or kind in {None, "", "unknown"} or kind in selected:
         return None
     found = TEAM_LABELS.get(kind, kind)
-    wanted = label_for(DEVELOPER_TYPES, selected)
+    wanted = " or ".join(label_for(DEVELOPER_TYPES, item) for item in selected)
     return f"ICP looks like {found}, not {wanted}"

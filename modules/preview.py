@@ -104,6 +104,9 @@ def format_lead(index: int, lead: Lead, today: date | None = None) -> str:
             f"   Ratings: {ratings}{installs}{revenue}",
             f"   Last update: {days_ago_label(lead.last_update, today)}",
             f"   Score: {score}",
+        ]
+        + ([f"   Estimated MRR: {lead.estimated_mrr}"] if lead.estimated_mrr else [])
+        + [
             f"   Email: {email}",
             f"   Email source: {source}",
         ]

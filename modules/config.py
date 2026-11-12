@@ -22,6 +22,7 @@ DEFAULT_TARGETING = {
     "last_update": "90d",
     "min_score": 50,
     "target_prospects": 30,
+    "max_mrr": None,
     "country": "us",
     "template_id": "intro",
     "saved_at": None,
@@ -162,9 +163,22 @@ def validate_targeting(data: dict) -> dict:
     merged.update(data or {})
     developer_ids = {key for key, _label in DEVELOPER_TYPES}
     platform_ids = {key for key, _label in PLATFORMS}
-    merged["developer_type"] = LEGACY_DEVELOPER_TYPES.get(merged["developer_type"], merged["developer_type"])
-    if merged["developer_type"] not in developer_ids:
-        raise ConfigError(f"Unknown developer type: {merged['developer_type']}")
+    raw_types = merged.get("developer_types")
+    if isinstance(merged.get("developer_type"), list):
+        raw_types = merged["developer_type"]
+    if not isinstance(raw_types, list) or not raw_types:
+        raw_types = [merged.get("developer_type") or "solo"]
+    normalized_types = []
+    for item in raw_types:
+        mapped = LEGACY_DEVELOPER_TYPES.get(item, item)
+        if mapped not in developer_ids:
+            raise ConfigError(f"Unknown developer type: {mapped}")
+        if mapped not in normalized_types:
+            normalized_types.append(mapped)
+    if not normalized_types:
+        raise ConfigError("Select at least one ICP.")
+    merged["developer_types"] = normalized_types
+    merged["developer_type"] = normalized_types[0]
     if merged["platforms"] not in platform_ids:
         raise ConfigError(f"Unknown platform: {merged['platforms']}")
     if merged["max_app_age"] not in AGE_DAYS and merged["max_app_age"] != "any":
@@ -189,6 +203,7 @@ def validate_targeting(data: dict) -> dict:
         raise ConfigError("Minimum score must be between 0 and 100.")
     if not 1 <= merged["target_prospects"] <= 500:
         raise ConfigError("Target prospects must be between 1 and 500.")
+    merged["max_mrr"] = _max_mrr(merged.get("max_mrr"))
     categories = merged.get("categories") or []
     if not isinstance(categories, list):
         raise ConfigError("Categories must be a list.")

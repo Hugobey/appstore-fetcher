@@ -13,6 +13,7 @@ from modules.errors import CRMError
 from modules.labels import TEAM_LABELS
 from modules.models import Lead
 from modules.outreach import render_template
+from modules.sheets_crm import CRM_COLUMNS, apply_crm_layout
 
 LOGGER = logging.getLogger("prospecting.crm")
 
@@ -40,30 +41,19 @@ EXTRA_HEADERS = [
     "Developer Website",
     "Notes",
 ]
-# A blank worksheet gets this row. Generated Body is intentionally absent.
-BLANK_HEADERS = [
-    "App Name",
-    "App Store URL",
-    "Contact Email",
-    "Contact Name",
-    "Status",
-    "Lead Score",
-    "Email Source",
-    "Email Type",
-    "Platform",
-    "Ratings",
-    "Review Count",
-    "Category",
-    "App Store ID",
-    "Developer Website",
-    "Email Subject",
-    "Sent Date",
-    "Notes",
-]
+# A blank worksheet gets this row. Generated Body and Email Subject are absent.
+BLANK_HEADERS = list(CRM_COLUMNS)
 STATUS_NEW = "New"
+STATUS_TO_CONTACT = "To Contact"
 STATUS_MISSING = "Missing email"
 STATUS_SUPPRESSED = "Suppressed"
 STATUS_SENT = "Sent"
+_LAYOUT_COLUMNS = [
+    "Contact Email",
+    "Follow-Up Date",
+    "Last Contacted",
+    "Estimated MRR",
+]
 
 
 def column_letter(number: int) -> str:
@@ -95,7 +85,8 @@ def find_header_row(values: list[list[str]]) -> int | None:
 
 def headers_to_add(existing: list[str]) -> list[str]:
     present = {str(cell).strip().lower() for cell in existing if str(cell).strip()}
-    return [header for header in EXTRA_HEADERS if header.lower() not in present]
+    wanted = list(EXTRA_HEADERS) + list(_LAYOUT_COLUMNS)
+    return [header for header in wanted if header.lower() not in present]
 
 
 def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status: str) -> list[str]:
@@ -111,10 +102,13 @@ def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status
         "App Store URL": lead.app_store_url,
         "Last Update Date": lead.last_update or "",
         "Status": status,
+        "Follow-Up Date": "",
+        "Last Contacted": "",
         "Email Subject": subject,
         "Generated Body": body,
         "Sent Date": "",
         "Lead Score": "" if lead.score_normalized is None else lead.score_normalized,
+        "Estimated MRR": lead.estimated_mrr or "",
         "Email Source": primary.source_url if primary else "",
         "Email Type": _email_type_label(primary.email_type) if primary else "",
         "Platform": "iOS" if lead.platform == "ios" else "Android",
@@ -158,14 +152,14 @@ def import_status(lead: Lead, suppressed: set[str]) -> tuple[str, str, str]:
     primary = lead.primary_email
     if primary and primary.address.lower() in suppressed:
         return STATUS_SUPPRESSED, "", ""
-    return (STATUS_NEW if primary else STATUS_MISSING), "", ""
+    return (STATUS_TO_CONTACT if primary else STATUS_MISSING), "", ""
 
 
 def build_import_row(lead: Lead, headers: list[str], template: dict | None, suppressed: set[str]) -> list[str]:
     status, _subject, _body = import_status(lead, suppressed)
     subject = ""
     body = ""
-    if status == STATUS_NEW and template is not None:
+    if status not in {STATUS_MISSING, STATUS_SUPPRESSED} and template is not None:
         subject = render_template(template.get("subject", ""), lead)
         body = render_template(template.get("body", ""), lead)
     return row_for_lead(lead, headers, subject, body, status)
@@ -264,7 +258,7 @@ class GoogleSheetCRM:
 
     def mark_sent(self, row_number: int, expected_url: str, sent_on: date) -> None:
         headers = {name: position + 1 for position, name in enumerate(self.headers)}
-        for required in ("Status", "Sent Date", "App Store URL"):
+        for required in ("Status", "App Store URL"):
             if required not in headers:
                 raise CRMError(f"The CRM is missing the {required} column, so the send was not recorded.")
         try:
@@ -273,16 +267,28 @@ class GoogleSheetCRM:
             raise CRMError(f"Could not re-read row {row_number} before updating it: {exc}") from exc
         if canonical_url(current) != canonical_url(expected_url) and current.strip() != (expected_url or "").strip():
             raise CRMError(f"Row {row_number} no longer matches {expected_url}. It was not updated.")
-        status_cell = f"{column_letter(headers['Status'])}{row_number}"
-        sent_cell = f"{column_letter(headers['Sent Date'])}{row_number}"
-        try:
-            self.worksheet.batch_update(
-                [
-                    {"range": status_cell, "values": [[STATUS_SENT]]},
-                    {"range": sent_cell, "values": [[sent_on.isoformat()]]},
-                ],
-                value_input_option="RAW",
+        updates = [
+            {
+                "range": f"{column_letter(headers['Status'])}{row_number}",
+                "values": [[STATUS_SENT]],
+            }
+        ]
+        if "Sent Date" in headers:
+            updates.append(
+                {
+                    "range": f"{column_letter(headers['Sent Date'])}{row_number}",
+                    "values": [[sent_on.isoformat()]],
+                }
             )
+        if "Last Contacted" in headers:
+            updates.append(
+                {
+                    "range": f"{column_letter(headers['Last Contacted'])}{row_number}",
+                    "values": [[sent_on.isoformat()]],
+                }
+            )
+        try:
+            self.worksheet.batch_update(updates, value_input_option="RAW")
         except Exception as exc:
             raise CRMError(f"The message was sent, but row {row_number} could not be updated: {exc}") from exc
 
@@ -313,21 +319,13 @@ def _row_record(headers: list[str], row: list[str], row_number: int) -> dict | N
 
 
 def install_blank_headers(worksheet) -> list[str]:
-    """Write, bold, and freeze the header row on a worksheet that has no CRM header."""
+    """Write and style the header row on a worksheet that has no CRM header."""
     width = len(BLANK_HEADERS)
     column_count = getattr(worksheet, "col_count", width) or width
     if column_count < width and hasattr(worksheet, "add_cols"):
         worksheet.add_cols(width - column_count)
     worksheet.update(values=[BLANK_HEADERS], range_name="A1", value_input_option="RAW")
-    end = column_letter(width)
-    try:
-        worksheet.format(f"A1:{end}1", {"textFormat": {"bold": True}})
-    except Exception as exc:
-        LOGGER.warning("Could not bold the CRM header row: %s", exc)
-    try:
-        worksheet.freeze(rows=1)
-    except Exception as exc:
-        LOGGER.warning("Could not freeze the CRM header row: %s", exc)
+    apply_crm_layout(worksheet, BLANK_HEADERS, header_row=1)
     LOGGER.info("Created CRM header row with %s columns.", width)
     return list(BLANK_HEADERS)
 

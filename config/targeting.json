@@ -6,16 +6,23 @@
     "Health & Fitness",
     "Productivity",
     "Lifestyle",
+    "Finance",
+    "Education",
     "Utilities",
     "Entertainment"
   ],
   "custom_keywords": [],
-  "max_ratings": 100,
+  "max_ratings": 500,
   "max_app_age": "any",
   "last_update": "90d",
-  "min_score": 40,
-  "target_prospects": 5,
+  "min_score": 50,
+  "target_prospects": 30,
   "country": "us",
   "template_id": "intro",
-  "saved_at": "2026-11-12T11:58:00+00:00"
+  "saved_at": "2026-11-12T16:50:10+00:00",
+  "developer_types": [
+    "solo",
+    "agency",
+    "startup"
+  ]
 }

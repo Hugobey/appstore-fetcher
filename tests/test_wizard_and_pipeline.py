@@ -10,10 +10,12 @@ from contextlib import nullcontext
 from modules.activity import Narrator
 from modules.deduplication import DedupIndex
 from modules.demo import demo_enricher, demo_index, demo_itunes, demo_searcher, sample_items
+from modules.models import Lead
 from modules.pipeline import discover
 from modules.prompts import BACK, ScriptedPrompter
 from modules.scraper import ApifyClient, estimate_cost, keyword_plan, search_jobs
-from modules.wizard import run_wizard
+from modules.scoring import classify_developer, hard_filter_reason
+from modules.wizard import _ask_country, run_wizard
 
 
 class WizardTests(unittest.TestCase):
@@ -57,19 +59,33 @@ class WizardTests(unittest.TestCase):
             ]
         )
         shown = []
+        checked = []
         original = prompter.select
+        original_checkbox = prompter.checkbox
 
         def select(message, choices, default=None):
             shown.append((message, list(choices)))
             return original(message, choices, default)
 
+        def checkbox(message, choices, default=None):
+            checked.append((message, list(choices), default))
+            return original_checkbox(message, choices, default)
+
         prompter.select = select
+        prompter.checkbox = checkbox
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
         self.assertEqual(prompter.prompts[0], "🎯 Which ICP are you targeting?")
-        self.assertIn(("Solo developer", "solo"), shown[0][1])
-        self.assertIn(("Startups", "startup"), shown[0][1])
-        self.assertIn(("iOS / Apple App Store", "ios"), shown[1][1])
+        self.assertEqual(checked[0][0], "🎯 Which ICP are you targeting?")
+        self.assertIn(("Solo developer", "solo"), checked[0][1])
+        self.assertIn(("Agency", "agency"), checked[0][1])
+        self.assertIn(("Startups", "startup"), checked[0][1])
+        self.assertIn(("iOS / Apple App Store", "ios"), shown[0][1])
+        update_choices = next(choices for message, choices in shown if message.startswith("🔄"))
+        volume_choices = next(choices for message, choices in shown if message.startswith("🚀"))
+        self.assertIn(("Within 90 days (Recommended)", "90d"), update_choices)
+        self.assertIn(("30 (Recommended)", 30), volume_choices)
         self.assertEqual(result["developer_type"], "startup")
+        self.assertEqual(result["developer_types"], ["startup"])
         self.assertEqual(result["categories"], ["Health & Fitness"])
         self.assertEqual(result["custom_keywords"], ["water reminder"])
         self.assertEqual(result["max_ratings"], 10)
@@ -92,6 +108,45 @@ class WizardTests(unittest.TestCase):
         self.assertEqual(result["max_ratings"], 10)
         self.assertEqual(result["platforms"], "ios")
         self.assertEqual(result["min_score"], 50)
+
+    def test_country_prompt_marks_us_as_recommended(self):
+        prompter = ScriptedPrompter(["us"])
+        result = _ask_country(prompter, {"country": "us"})
+        self.assertIn("(Recommended: us)", prompter.prompts[0])
+        self.assertEqual(result["country"], "us")
+
+    def test_several_icps_keep_a_matching_lead_and_drop_the_others(self):
+        agency = Lead(
+            platform="ios",
+            app_store_id="a",
+            developer_name="Bright Agency",
+            description="Client apps",
+            install_count=2_000_000,
+        )
+        agency.developer_type = classify_developer(agency, self.settings)
+        self.assertEqual(agency.developer_type, "agency")
+        both = validate_targeting(
+            {
+                "developer_types": ["solo", "agency"],
+                "categories": ["Productivity"],
+                "max_ratings": "any",
+                "max_app_age": "any",
+                "last_update": "any",
+            }
+        )
+        self.assertEqual(both["developer_type"], "solo")
+        self.assertEqual(both["developer_types"], ["solo", "agency"])
+        self.assertIsNone(hard_filter_reason(agency, both))
+        solo = validate_targeting(
+            {
+                "developer_type": "solo",
+                "categories": ["Productivity"],
+                "max_ratings": "any",
+                "max_app_age": "any",
+                "last_update": "any",
+            }
+        )
+        self.assertIsNotNone(hard_filter_reason(agency, solo))
 
     def test_cancel_on_the_summary_does_not_return_a_configuration(self):
         saved = dict(self.base)
@@ -166,6 +221,11 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(quiet.primary_email.address, "jane@quiet.example")
         self.assertEqual(quiet.primary_email.email_type, "founder")
         self.assertEqual(quiet.contact_name, "Jane Doe")
+        self.assertEqual(quiet.estimated_mrr, "$15k/mo")
+        self.assertEqual(
+            next(lead for lead in discovery.missing_site if lead.app_name == "Paper Day").estimated_mrr,
+            "",
+        )
         self.assertEqual({lead.app_name for lead in discovery.missing_site}, {"Paper Day"})
         self.assertEqual({lead.app_name for lead in discovery.missing_email}, {"Pocket Budget"})
         self.assertEqual(stats["already_in_crm"], 1)
@@ -214,6 +274,9 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Quiet Focus"})
         self.assertTrue(any("expanding search for 1 more" in line for line in voice.lines))
         self.assertTrue(any("[1/1 qualified leads found]" in line for line in voice.lines))
+        mrr_at = next(index for index, line in enumerate(voice.lines) if "Fetching estimated MRR" in line)
+        qualified_at = next(index for index, line in enumerate(voice.lines) if "Qualified Quiet Focus" in line)
+        self.assertLess(mrr_at, qualified_at)
 
     def test_a_repeated_app_is_enriched_once(self):
         settings = load_settings()
@@ -257,6 +320,105 @@ class PipelineTests(unittest.TestCase):
         )
         self.assertEqual(seen, ["1001"])
         self.assertEqual(len(discovery.qualified), 1)
+
+    def test_target_of_five_stops_enrichment_and_saves_exactly_five(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=6, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "90d",
+                "min_score": 40,
+                "target_prospects": 5,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        apps = []
+        for offset in range(8):
+            item = dict(base)
+            app_id = 2001 + offset
+            item["trackId"] = app_id
+            item["trackName"] = f"Quiet Focus {offset}"
+            item["trackViewUrl"] = f"https://apps.apple.com/us/app/quiet-focus-{offset}/id{app_id}"
+            apps.append(item)
+        calls = []
+
+        def search(_platform, keyword, _country, page=1):
+            calls.append((keyword, page))
+            if page > 1:
+                return [], {"cached": False}
+            return list(apps), {"cached": False}
+
+        crawled = []
+
+        def enrich(lead):
+            crawled.append(lead.app_store_id)
+            return demo_enricher(settings)(lead)
+
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=enrich,
+            itunes_fetcher=demo_itunes,
+            narrator=_Capture(),
+        )
+        self.assertEqual(calls, [("focus timer", 1)])
+        self.assertEqual(len(crawled), 5)
+        self.assertEqual(len(discovery.qualified), 5)
+        self.assertEqual(discovery.target, 5)
+        stats = discovery.stats
+        self.assertEqual(stats["discovered"], 8)
+        self.assertEqual(stats["qualified"], 5)
+        self.assertEqual(stats["filtered_out"], 3)
+        accounted = (
+            stats["already_in_crm"]
+            + stats["filtered_out"]
+            + stats["missing_developer_site"]
+            + stats["missing_public_email"]
+            + stats["qualified"]
+        )
+        self.assertEqual(accounted, stats["discovered"])
+        self.assertFalse(stats["errors"])
+
+
+class SaveCapTests(unittest.TestCase):
+    def test_review_slices_the_sheet_payload_to_the_target(self):
+        from main import _review
+        from modules.pipeline import Discovery, empty_stats
+
+        settings = load_settings()
+        templates = load_templates(settings)
+        leads = [Lead(platform="ios", app_store_id=str(3000 + index), app_name=f"App {index}") for index in range(8)]
+        discovery = Discovery(qualified=leads, stats=empty_stats(), target=5)
+        saved = {}
+
+        class _Sheet:
+            def append_leads(self, rows, template, suppressed):
+                del template, suppressed
+                saved["rows"] = list(rows)
+                return len(rows), 0
+
+        code = _review(
+            discovery,
+            _Sheet(),
+            templates,
+            settings,
+            ScriptedPrompter(["all", "import"]),
+            None,
+            None,
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(len(saved["rows"]), 5)
 
 
 class _Capture(Narrator):

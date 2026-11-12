@@ -90,6 +90,7 @@ def remove_suppression(settings: dict, email: str) -> bool:
 
 def sendable_rows(records: list[dict], settings: dict, suppressed: set[str]) -> tuple[list[dict], list[str]]:
     allowed = {status.lower() for status in settings.get("outreach", {}).get("sendable_statuses", ["New"])}
+    allowed.add("to contact")
     today = datetime.now(timezone.utc).date().isoformat()
     sent_today = sum(1 for record in records if str(record.get("sent_date", "")).startswith(today))
     limit = int(settings.get("outreach", {}).get("daily_limit", 20))

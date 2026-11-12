@@ -145,14 +145,25 @@ def _as_choices(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
 
 
 def _ask_developer(prompter, state, allow_back=False):
-    answer = prompter.select(
-        "🎯 Which ICP are you targeting?",
-        _with_back(_as_choices(DEVELOPER_TYPES), allow_back),
-        default=state.get("developer_type"),
-    )
-    if answer is None or answer == BACK:
-        return answer
-    return {"developer_type": answer}
+    del allow_back
+    current = list(state.get("developer_types") or [])
+    if not current and state.get("developer_type"):
+        current = [state["developer_type"]]
+    while True:
+        answer = prompter.checkbox(
+            "🎯 Which ICP are you targeting?",
+            _as_choices(DEVELOPER_TYPES),
+            default=current,
+        )
+        if answer is None:
+            return None
+        if isinstance(answer, str):
+            answer = [answer]
+        selected = [item for item in answer if item and item != BACK]
+        if not selected:
+            print("Select at least one ICP.")
+            continue
+        return {"developer_type": selected[0], "developer_types": selected}
 
 
 def _ask_platform(prompter, state, allow_back=False):
@@ -212,9 +223,20 @@ def _suggested_rating_cap(icp: str, current):
     return current
 
 
+def _rating_icp(state: dict) -> str:
+    """The broadest selected ICP decides which rating caps are offered."""
+    selected = list(state.get("developer_types") or [])
+    if not selected and state.get("developer_type"):
+        selected = [state["developer_type"]]
+    for name in ("scaleup", "startup", "agency", "solo"):
+        if name in selected:
+            return name
+    return "solo"
+
+
 def _ask_ratings(prompter, state, allow_back=False):
     current = state.get("max_ratings")
-    icp = state.get("developer_type") or "solo"
+    icp = _rating_icp(state)
     choices = _rating_choices(icp)
     suggested = _suggested_rating_cap(icp, current)
     values = [value for _label, value in choices]
@@ -246,11 +268,21 @@ def _ask_age(prompter, state, allow_back=False):
     return {"max_app_age": answer}
 
 
+def _with_recommended(choices: list, recommended) -> list:
+    marked = []
+    for label, value in choices:
+        text = str(label)
+        if value == recommended and "(Recommended)" not in text:
+            text = f"{text} (Recommended)"
+        marked.append((text, value))
+    return marked
+
+
 def _ask_update(prompter, state, allow_back=False):
     answer = prompter.select(
         "🔄 How recently must the app have been updated?",
-        _with_back(_as_choices(UPDATE_WINDOWS), allow_back),
-        default=state.get("last_update"),
+        _with_back(_with_recommended(_as_choices(UPDATE_WINDOWS), "90d"), allow_back),
+        default=state.get("last_update") or "90d",
     )
     if answer is None or answer == BACK:
         return answer
@@ -278,8 +310,16 @@ def _ask_score(prompter, state, allow_back=False):
 
 def _ask_volume(prompter, state, allow_back=False):
     current = state.get("target_prospects")
-    choices = [("10", 10), ("20", 20), ("30", 30), ("50", 50), ("Custom value", "custom")]
-    default = current if current in {10, 20, 30, 50} else "custom"
+    choices = _with_recommended(
+        [("10", 10), ("20", 20), ("30", 30), ("50", 50), ("Custom value", "custom")],
+        30,
+    )
+    if current in {10, 20, 30, 50}:
+        default = current
+    elif current is None:
+        default = 30
+    else:
+        default = "custom"
     answer = prompter.select(
         "🚀 How many new prospects should we aim to collect?",
         _with_back(choices, allow_back),
@@ -297,7 +337,10 @@ def _ask_volume(prompter, state, allow_back=False):
 
 def _ask_country(prompter, state):
     while True:
-        raw = prompter.text("🌍 App Store country code", default=state.get("country") or "us")
+        raw = prompter.text(
+            "🌍 App Store country code (Recommended: us)",
+            default=state.get("country") or "us",
+        )
         if raw is None:
             return None
         country = raw.strip().lower()
@@ -338,8 +381,12 @@ def describe(state: dict) -> list[tuple[str, str]]:
     if state.get("custom_keywords"):
         categories = categories + [f"keywords: {', '.join(state['custom_keywords'])}"]
     cap = state.get("max_ratings")
+    selected = list(state.get("developer_types") or [])
+    if not selected and state.get("developer_type"):
+        selected = [state.get("developer_type")]
+    icp = ", ".join(label_for(DEVELOPER_TYPES, item) for item in selected)
     return [
-        ("ICP:", label_for(DEVELOPER_TYPES, state.get("developer_type"))),
+        ("ICP:", icp),
         ("Platform:", PLATFORM_LABELS.get(state.get("platforms"), state.get("platforms"))),
         ("Categories:", ", ".join(categories) or "None"),
         ("Maximum ratings:", "No maximum" if cap == "any" else str(cap)),

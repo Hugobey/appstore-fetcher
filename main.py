@@ -17,6 +17,7 @@ from modules.config import (
     save_targeting,
 )
 from modules.crm import GoogleSheetCRM, build_import_row
+from modules.sheets_crm import apply_crm_layout
 from modules.demo import demo_enricher, demo_index, demo_itunes, demo_searcher
 from modules.enrichment import enrich_lead
 from modules.errors import ApifyError, ConfigError, ProspectingError
@@ -34,6 +35,7 @@ from modules.pipeline import discover
 from modules.preview import review_prospects
 from modules.prompts import QuestionaryPrompter
 from modules.activity import Narrator
+from modules.agent_ui import AgentDashboard, is_high_mrr, sheet_url
 from modules.scraper import ApifyClient, discovery_jobs, estimate_cost, missing_token_message, search_attempt_limit
 from modules.session import (
     append_raw,
@@ -55,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         settings = load_settings()
         _setup_logging(project_path(settings.get("log_file", "logs/prospecting.log")))
-        if args.command == "check":
+        if args.command == "check" or (args.format_sheet and args.command is None):
             return check_crm(settings)
         if args.command == "suppress":
             path = add_suppression(settings, args.email, args.reason)
@@ -87,31 +89,67 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
     targeting, warning = load_targeting()
     if warning:
         print(warning)
-    if demo:
-        print("Demo mode. Apify and Google Sheets are not called, and nothing is written to the CRM.")
-        crm_summary = {"status": "Demo mode", "existing_leads": 1}
-        confirmed = run_wizard(prompter, targeting, settings, templates, crm_summary)
-        if confirmed is None:
-            print("Cancelled.")
-            return 130
-        save_targeting(confirmed)
-        discovery = discover(
-            confirmed,
-            settings,
-            scoring,
-            demo_index(),
-            searcher=demo_searcher(),
-            enricher=demo_enricher(settings),
-            itunes_fetcher=demo_itunes,
-            prompter=prompter,
-        )
-        return _review(discovery, None, templates, settings, prompter, None, None, demo=True)
+    board = _new_dashboard(settings, targeting, demo=demo)
+    try:
+        if demo:
+            return _scrape_demo(settings, prompter, scoring, templates, targeting, board)
+        return _scrape_live(settings, prompter, scoring, templates, targeting, board)
+    finally:
+        board.stop(summary=False)
 
+
+def _scrape_demo(settings, prompter, scoring, templates, targeting, board: AgentDashboard) -> int:
+    print("Demo mode. Apify and Google Sheets are not called, and nothing is written to the CRM.")
+    count = 1
+    if board.enabled:
+        board.start()
+        board.focus(1, "Indexing existing CRM leads...")
+        demo_index()
+        board.complete(1, f"Indexed {count} lead")
+        board.pause()
+    crm_summary = {"status": "Demo mode", "existing_leads": count}
+    confirmed = run_wizard(prompter, targeting, settings, templates, crm_summary)
+    if confirmed is None:
+        print("Cancelled.")
+        return 130
+    save_targeting(confirmed)
+    board.target = int(confirmed["target_prospects"])
+    panel = board if board.enabled else None
+    if panel is not None:
+        panel.resume()
+    discovery = discover(
+        confirmed,
+        settings,
+        scoring,
+        demo_index(),
+        searcher=demo_searcher(),
+        enricher=demo_enricher(settings),
+        itunes_fetcher=demo_itunes,
+        prompter=prompter,
+        demo=True,
+        dashboard=panel,
+    )
+    if panel is not None:
+        panel.pause()
+    return _review(discovery, None, templates, settings, prompter, None, None, demo=True, dashboard=panel)
+
+
+def _scrape_live(settings, prompter, scoring, templates, targeting, board: AgentDashboard) -> int:
     voice = Narrator()
+    panel = board if board.enabled else None
+    if panel is not None:
+        panel.start()
+        panel.focus(1, "Indexing existing CRM leads...")
     crm = GoogleSheetCRM.connect(settings)
-    with voice.spin("📊 Indexing existing CRM leads..."):
+    if panel is None:
+        with voice.spin("📊 Indexing existing CRM leads..."):
+            index, count, _records = crm.load_rows()
+    else:
         index, count, _records = crm.load_rows()
-    voice.line(f"CRM connected. Existing leads: {count}.")
+        noun = "lead" if count == 1 else "leads"
+        panel.complete(1, f"Indexed {count} {noun}")
+        panel.pause()
+    print(f"CRM connected. Existing leads: {count}.")
     crm_summary = {"status": "Connected", "existing_leads": count}
     session_path = project_path(settings.get("session_file", "data/session.json"))
     session = load_session(session_path)
@@ -135,12 +173,15 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
         elif session.get("stage") == "ready":
             from modules.pipeline import Discovery
 
+            if panel is not None:
+                panel.stop(summary=False)
             discovery = Discovery(
                 qualified=leads_from(session, "qualified"),
                 missing_email=leads_from(session, "missing_email"),
                 missing_site=leads_from(session, "missing_site"),
                 stats=session.get("stats") or {},
                 template_id=(session.get("targeting") or {}).get("template_id") or "intro",
+                target=int((session.get("targeting") or {}).get("target_prospects") or 0),
             )
             return _review(discovery, crm, templates, settings, prompter, session, session_path)
         else:
@@ -151,6 +192,7 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
         print("Cancelled. Nothing was scraped.")
         return 130
     save_targeting(confirmed)
+    board.target = int(confirmed["target_prospects"])
     token = apify_token(settings)
     if not token:
         raise ApifyError(missing_token_message())
@@ -167,6 +209,8 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
     def on_raw(platform: str, keyword: str, items: list[dict], page: int = 1) -> None:
         append_raw(session_path, session, platform, keyword, items, page)
 
+    if panel is not None:
+        panel.resume()
     discovery = discover(
         confirmed,
         settings,
@@ -178,19 +222,37 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
         on_raw=on_raw,
         prompter=prompter,
         narrator=voice,
+        dashboard=panel,
     )
     store_discovery(session_path, session, discovery)
-    return _review(discovery, crm, templates, settings, prompter, session, session_path)
+    if panel is not None:
+        panel.pause()
+    return _review(discovery, crm, templates, settings, prompter, session, session_path, dashboard=panel)
 
 
-def _review(discovery, crm, templates, settings, prompter, session, session_path, demo: bool = False) -> int:
+def _new_dashboard(settings: dict, targeting: dict, *, demo: bool) -> AgentDashboard:
+    target = int((targeting or {}).get("target_prospects") or 0)
+    return AgentDashboard(target, sheet=sheet_url(str(settings.get("spreadsheet_id") or "")), demo=demo)
+
+
+def _review(discovery, crm, templates, settings, prompter, session, session_path, demo: bool = False, dashboard: AgentDashboard | None = None) -> int:
+    if dashboard is not None:
+        dashboard.pause()
     decision = review_prospects(prompter, discovery, templates)
     if not decision:
         print("Nothing was imported.")
         if session_path is not None:
             print(f"Results remain in {session_path}. Run the tool again and choose Resume.")
+        if dashboard is not None:
+            dashboard.remember_save([])
+            dashboard.complete(5, "No leads written")
+            dashboard.stop(summary=True)
         return 0
-    leads = decision["leads"]
+    leads = list(decision["leads"])
+    target = int(getattr(discovery, "target", 0) or 0)
+    if target and len(leads) > target:
+        print(f"Keeping the first {target} of {len(leads)} selected prospects.")
+        leads = leads[:target]
     template = decision["template"]
     suppressed = suppressed_addresses(settings)
     held = [
@@ -204,6 +266,13 @@ def _review(discovery, crm, templates, settings, prompter, session, session_path
             "They will be stored as Suppressed, with no email subject or body."
         )
     if demo or crm is None:
+        if dashboard is not None:
+            dashboard.resume()
+            dashboard.remember_save(leads)
+            dashboard.focus(5, "Demo mode is leaving the spreadsheet unchanged...")
+            noun = "lead" if len(leads) == 1 else "leads"
+            dashboard.complete(5, f"Prepared {len(leads)} {noun}. Spreadsheet unchanged")
+            dashboard.stop(summary=True)
         print(f"Demo mode would append {len(leads)} row(s). The spreadsheet was not changed.")
         for lead in leads:
             row = build_import_row(lead, [
@@ -211,8 +280,21 @@ def _review(discovery, crm, templates, settings, prompter, session, session_path
             ], template, suppressed)
             print("  " + " | ".join(row))
         return 0
+    if dashboard is not None:
+        dashboard.resume()
+        dashboard.focus(5, f"Writing {len(leads)} leads to the CRM...")
     added, skipped = crm.append_leads(leads, template, suppressed)
     print(f"Appended {added} prospect(s). Skipped {skipped} already in the CRM. Existing rows were not changed.")
+    if dashboard is not None:
+        dashboard.remember_save(leads)
+        dashboard.saved = added
+        if added == 0:
+            dashboard.high_mrr = 0
+        else:
+            dashboard.high_mrr = sum(1 for lead in leads if is_high_mrr(getattr(lead, "estimated_mrr", "")))
+        noun = "lead" if added == 1 else "leads"
+        dashboard.complete(5, f"Wrote {added} {noun}")
+        dashboard.stop(summary=True)
     if session is not None and session_path is not None:
         session["stage"] = "imported"
         save_session(session_path, session)
@@ -289,10 +371,12 @@ def _quota_guard(client: ApifyClient, settings: dict, estimate: float, prompter)
 
 def check_crm(settings: dict) -> int:
     crm = GoogleSheetCRM.connect(settings)
+    apply_crm_layout(crm.worksheet, crm.headers, crm.header_row)
     _index, count, _records = crm.load_rows()
     print(f"Connected to {crm.spreadsheet.title!r} / {crm.worksheet.title!r}.")
     print(f"Existing leads: {count}.")
     print(f"Columns: {', '.join(crm.headers)}")
+    print("CRM layout applied. Existing lead rows were not changed.")
     return 0
 
 
@@ -364,6 +448,11 @@ def _parser() -> argparse.ArgumentParser:
         "--demo",
         action="store_true",
         help="Run the wizard and scoring on built-in sample apps. Does not call Apify or Google Sheets.",
+    )
+    parser.add_argument(
+        "--format-sheet",
+        action="store_true",
+        help="Apply the CRM header, status dropdown, and row colors. Does not change lead rows.",
     )
     commands = parser.add_subparsers(dest="command")
     commands.add_parser("check", help="Connect to the CRM and print the lead count.")

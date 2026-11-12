@@ -8,11 +8,13 @@ from datetime import date
 import inspect
 
 from modules.activity import Narrator
+from modules.agent_ui import AgentDashboard, is_high_mrr
 from modules.dates import utc_today
 from modules.deduplication import DedupIndex, index_url, name_key
 from modules.enrichment import classify_email
 from modules.errors import ApifyError
 from modules.models import Lead
+from modules.mrr_enricher import enrich_estimated_mrr
 from modules.scraper import (
     ApifyInterrupted,
     discovery_jobs,
@@ -20,7 +22,7 @@ from modules.scraper import (
     normalize_app,
     search_attempt_limit,
 )
-from modules.scoring import apply_score, classify_developer, hard_filter_reason, qualification_failure
+from modules.scoring import apply_score, classify_developer, hard_filter_reason, qualification_failure, selected_developer_types
 
 
 @dataclass
@@ -30,6 +32,7 @@ class Discovery:
     missing_site: list[Lead] = field(default_factory=list)
     stats: dict = field(default_factory=dict)
     template_id: str = "intro"
+    target: int = 0
 
 
 def empty_stats() -> dict:
@@ -70,6 +73,8 @@ def discover(
     prompter=None,
     itunes_fetcher=None,
     narrator: Narrator | None = None,
+    demo: bool = False,
+    dashboard: AgentDashboard | None = None,
 ) -> Discovery:
     current = today or utc_today()
     stats = empty_stats()
@@ -94,39 +99,51 @@ def discover(
 
     for platform, keyword, page in jobs:
         if len(qualified) >= target:
-            voice.line(f"Reached the target of {target} qualified prospects. No further searches will start.")
+            _say(voice, dashboard, f"Reached the target of {target} qualified prospects. No further searches will start.")
             break
         if attempts >= limit:
-            voice.line(f"Qualified prospects: {len(qualified)}/{target}. Search limit of {limit} reached.")
+            _say(voice, dashboard, f"Qualified prospects: {len(qualified)}/{target}. Search limit of {limit} reached.")
             break
         if attempts >= cap and not announced:
             remaining = target - len(qualified)
-            voice.line(
-                f"Qualified prospects: {len(qualified)}/{target} — expanding search for {remaining} more..."
+            _say(
+                voice,
+                dashboard,
+                f"Qualified prospects: {len(qualified)}/{target} — expanding search for {remaining} more...",
             )
             announced = True
         attempts += 1
         store = "iOS App Store" if platform == "ios" else "Google Play"
-        label = f"🔍 Scraping {store} for \"{keyword}\" (Page {page})..."
+        label = f"Scraping {store} for \"{keyword}\" (Page {page})..."
+        if dashboard is not None:
+            dashboard.focus(2, label)
         try:
             saved = prior_map.get((platform, keyword, page))
             if saved is not None:
                 items = saved
-                voice.line(f"  Using {len(items)} saved result(s) from the interrupted run.")
+                if dashboard is None:
+                    voice.line(f"  Using {len(items)} saved result(s) from the interrupted run.")
             else:
-                with voice.spin(label):
-                    items, meta = _call_searcher(searcher, platform, keyword, country, page)
-                if meta.get("cached"):
-                    voice.line(
-                        f"  Using {len(items)} cached result(s) from the last "
-                        f"{settings['apify'].get('cache_hours', 24)} hours."
-                    )
+                if dashboard is None:
+                    with voice.spin(label):
+                        items, meta = _call_searcher(searcher, platform, keyword, country, page)
                 else:
-                    voice.line(f"  Retrieved {len(items)} result(s).")
+                    items, meta = _call_searcher(searcher, platform, keyword, country, page)
+                if dashboard is None:
+                    if meta.get("cached"):
+                        voice.line(
+                            f"  Using {len(items)} cached result(s) from the last "
+                            f"{settings['apify'].get('cache_hours', 24)} hours."
+                        )
+                    else:
+                        voice.line(f"  Retrieved {len(items)} result(s).")
                 if on_raw:
                     on_raw(platform, keyword, items, page)
         except ApifyInterrupted as exc:
-            voice.line(str(exc))
+            if dashboard is None:
+                voice.line(str(exc))
+            else:
+                dashboard.note(2, str(exc))
             stats["errors"].append(str(exc))
             items = exc.items
             if on_raw and items:
@@ -135,11 +152,15 @@ def discover(
                 items, platform, keyword, targeting, settings, scoring, crm_index, seen, counted_crm,
                 known_ids, known_urls, known_names,
                 stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
-                itunes_fetcher, voice, target,
+                itunes_fetcher, voice, target, demo, dashboard,
             )
             break
         except ApifyError as exc:
-            voice.line(str(exc))
+            if dashboard is None:
+                voice.line(str(exc))
+            else:
+                dashboard.note(2, str(exc))
+                dashboard.pause()
             stats["errors"].append(str(exc))
             if prompter is None:
                 continue
@@ -148,6 +169,8 @@ def discover(
                 [("Continue with the results already retrieved", "continue"), ("Stop", "stop")],
                 default="continue",
             )
+            if dashboard is not None and choice == "continue":
+                dashboard.resume()
             if choice != "continue":
                 break
             continue
@@ -155,14 +178,22 @@ def discover(
             items, platform, keyword, targeting, settings, scoring, crm_index, seen, counted_crm,
             known_ids, known_urls, known_names,
             stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
-            itunes_fetcher, voice, target,
+            itunes_fetcher, voice, target, demo, dashboard,
         )
     else:
         if len(qualified) < target:
-            voice.line(
-                f"Qualified prospects: {len(qualified)}/{target}. No further keywords or pages are left."
-            )
+            _say(voice, dashboard, f"Qualified prospects: {len(qualified)}/{target}. No further keywords or pages are left.")
 
+    _trim_qualified(qualified, stats, target)
+    if dashboard is not None:
+        unique = max(0, dashboard.funnel["raw_scanned"] - dashboard.funnel["duplicates_skipped"])
+        dashboard.complete(2, f"Scanned {dashboard.funnel['raw_scanned']} apps → {unique} unique candidates")
+        dashboard.complete(
+            3,
+            f"Emails {dashboard.funnel['emails_found']} · MRR hits {dashboard.funnel['mrr_hits']}",
+        )
+        dashboard.complete(4, f"Ranked {len(qualified)} qualified leads")
+        dashboard.set_qualified(len(qualified))
     _check_partition(stats)
     return Discovery(
         qualified=qualified,
@@ -170,6 +201,7 @@ def discover(
         missing_site=missing_site,
         stats=stats,
         template_id=targeting.get("template_id") or "intro",
+        target=target,
     )
 
 
@@ -232,6 +264,8 @@ def _consume(
     itunes_fetcher,
     narrator: Narrator,
     target: int,
+    demo: bool = False,
+    dashboard: AgentDashboard | None = None,
 ) -> None:
     fresh: list[Lead] = []
     duplicates = 0
@@ -265,22 +299,68 @@ def _consume(
             filtered += 1
             continue
         candidates.append(lead)
-    narrator.line(
-        f"🧹 Filtered {len(items)} raw apps → {len(candidates)} new candidates "
-        f"({duplicates} duplicates skipped, {filtered} filtered by criteria)..."
-    )
+    if dashboard is not None:
+        dashboard.add_funnel(raw_scanned=len(items), duplicates_skipped=duplicates, filtered_out=filtered)
+        dashboard.note(
+            2,
+            f"Filtered {len(items)} raw apps → {len(candidates)} new candidates "
+            f"({duplicates} duplicates skipped, {filtered} filtered by criteria)",
+        )
+    else:
+        narrator.line(
+            f"🧹 Filtered {len(items)} raw apps → {len(candidates)} new candidates "
+            f"({duplicates} duplicates skipped, {filtered} filtered by criteria)..."
+        )
+    if len(qualified) >= target:
+        _release_uncapped(candidates, stats)
+        return
     if candidates and platform == "ios":
         fill_from_itunes(candidates, settings, itunes_fetcher)
-    if candidates:
-        narrator.line("⚡ Scoring & ranking qualified prospects...")
-    for index, lead in enumerate(candidates, start=1):
-        with narrator.spin(
-            f"🌐 Crawling developer sites & /privacy pages for emails [{index}/{len(candidates)}]..."
-        ):
-            _enrich_and_score(
-                lead, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
-                enricher, today, minimum_known, narrator, target,
-            )
+    window: list[Lead] = []
+    pending = list(candidates)
+    while pending and len(qualified) < target:
+        lead = pending.pop(0)
+        index = len(candidates) - len(pending)
+        status = f"Crawling developer sites & /privacy pages for emails [{index}/{len(candidates)}]..."
+        if dashboard is not None:
+            dashboard.focus(3, status)
+        try:
+            if dashboard is None:
+                with narrator.spin(f"🌐 {status}"):
+                    enricher(lead)
+            else:
+                enricher(lead)
+        except Exception as exc:
+            lead.enrichment_status = "error"
+            lead.enrichment_note = str(exc)
+            stats["filtered_out"] += 1
+            stats["enrichment_errors"] += 1
+            stats["errors"].append(f"{lead.app_name}: {exc}")
+            if dashboard is None:
+                narrator.line(f"Enrichment failed for {lead.app_name}: {exc}")
+            continue
+        if lead.primary_email and lead.enrichment_status not in {"blocked", "error"}:
+            if dashboard is not None:
+                dashboard.add_funnel(emails_found=1)
+            window.append(lead)
+            if len(window) >= target - len(qualified):
+                _score_window(
+                    window, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+                    enricher, today, minimum_known, narrator, target, demo, dashboard,
+                )
+                window = []
+            continue
+        _score_prepared_lead(
+            lead, targeting, scoring, stats, qualified, missing_email, missing_site,
+            today, minimum_known, narrator, target, dashboard,
+        )
+    if window and len(qualified) < target:
+        _score_window(
+            window, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+            enricher, today, minimum_known, narrator, target, demo, dashboard,
+        )
+    if len(qualified) >= target and pending:
+        _release_uncapped(pending, stats)
 
 
 def _from_crm(lead: Lead, known_ids: set[str], known_urls: set[str], known_names: set[str]) -> bool:
@@ -293,26 +373,51 @@ def _from_crm(lead: Lead, known_ids: set[str], known_urls: set[str], known_names
     return bool(named and named in known_names)
 
 
-def _enrich_and_score(
-    lead, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
-    enricher, today, minimum_known, narrator: Narrator, target: int,
+def _score_window(
+    window, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+    enricher, today, minimum_known, narrator, target, demo, dashboard,
 ) -> None:
-    try:
-        enricher(lead)
-    except Exception as exc:
-        lead.enrichment_status = "error"
-        lead.enrichment_note = str(exc)
-        stats["filtered_out"] += 1
-        stats["enrichment_errors"] += 1
-        stats["errors"].append(f"{lead.app_name}: {exc}")
-        narrator.line(f"Enrichment failed for {lead.app_name}: {exc}")
+    """MRR, then score only until the target is full. Extras are not scored."""
+    del enricher, settings
+    if not window:
         return
-    score = apply_score(lead, scoring, today, icp=targeting.get("developer_type"))
+    if dashboard is not None:
+        dashboard.focus(3, "Fetching estimated MRR for qualified leads (concurrently)...")
+    else:
+        narrator.line("💰 Fetching estimated MRR for qualified leads (concurrently)...")
+    enrich_estimated_mrr(window, demo=demo)
+    if dashboard is not None:
+        dashboard.add_funnel(mrr_hits=sum(1 for lead in window if is_high_mrr(lead.estimated_mrr)))
+        dashboard.focus(4, "Applying score weights...")
+    else:
+        narrator.line("⚡ Scoring & ranking qualified prospects...")
+    for lead in window:
+        if len(qualified) >= target:
+            _release_uncapped([lead], stats)
+            continue
+        _score_prepared_lead(
+            lead, targeting, scoring, stats, qualified, missing_email, missing_site,
+            today, minimum_known, narrator, target, dashboard,
+        )
+
+
+def _score_prepared_lead(
+    lead, targeting, scoring, stats, qualified, missing_email, missing_site,
+    today, minimum_known, narrator: Narrator, target: int,
+    dashboard: AgentDashboard | None = None,
+) -> None:
+    if len(qualified) >= target:
+        _release_uncapped([lead], stats)
+        return
+    chosen = selected_developer_types(targeting)
+    icp = lead.developer_type if lead.developer_type in chosen else (chosen[0] if chosen else targeting.get("developer_type"))
+    score = apply_score(lead, scoring, today, icp=icp)
     if lead.enrichment_status in {"blocked", "error"}:
         stats["filtered_out"] += 1
         stats["enrichment_errors"] += 1
         stats["errors"].append(f"{lead.app_name}: {lead.enrichment_note}")
-        narrator.line(f"{lead.app_name}: {lead.enrichment_note}")
+        if dashboard is None:
+            narrator.line(f"{lead.app_name}: {lead.enrichment_note}")
         return
     failure = qualification_failure(score, int(targeting["min_score"]), minimum_known)
     if failure:
@@ -328,10 +433,39 @@ def _enrich_and_score(
         stats["missing_public_email"] += 1
         missing_email.append(lead)
         return
+    if len(qualified) >= target:
+        _release_uncapped([lead], stats)
+        return
     stats["qualified"] += 1
     qualified.append(lead)
-    narrator.line(f"  Qualified {lead.app_name} ({lead.score_normalized}/100)")
-    narrator.line(f"[{len(qualified)}/{target} qualified leads found]")
+    if dashboard is not None:
+        dashboard.set_qualified(len(qualified))
+        dashboard.note(4, f"Locked {lead.app_name} ({lead.score_normalized}/100)")
+    else:
+        narrator.line(f"  Qualified {lead.app_name} ({lead.score_normalized}/100)")
+        narrator.line(f"[{len(qualified)}/{target} qualified leads found]")
+
+
+def _release_uncapped(leads: list[Lead], stats: dict) -> None:
+    for lead in leads:
+        lead.filter_reason = "target reached"
+        stats["filtered_out"] += 1
+
+
+def _trim_qualified(qualified: list[Lead], stats: dict, target: int) -> None:
+    if target < 0 or len(qualified) <= target:
+        return
+    overflow = qualified[target:]
+    del qualified[target:]
+    stats["qualified"] = len(qualified)
+    _release_uncapped(overflow, stats)
+
+
+def _say(voice: Narrator, dashboard: AgentDashboard | None, message: str) -> None:
+    if dashboard is not None:
+        dashboard.note(2, message)
+        return
+    voice.line(message)
 
 
 def _check_partition(stats: dict) -> None:
