@@ -17,7 +17,6 @@ from modules.labels import (
 )
 from modules.preview import print_configuration
 from modules.prompts import BACK
-from modules.scraper import estimate_cost, search_jobs
 
 
 def run_wizard(prompter, targeting: dict, settings: dict, templates: list[dict], crm_summary: dict) -> dict | None:
@@ -72,6 +71,7 @@ def _steps():
         _ask_update,
         _ask_score,
         _ask_volume,
+        _ask_max_mrr,
     ]
 
 
@@ -102,12 +102,13 @@ def _edit_one(prompter, state, templates) -> dict | None:
     options = [
         ("ICP", "developer"),
         ("Platforms", "platform"),
-        ("Categories and keywords", "categories"),
+        ("Categories", "categories"),
         ("Maximum ratings", "ratings"),
         ("Maximum app age", "age"),
         ("Last update", "update"),
         ("Minimum score", "score"),
         ("Target prospects", "volume"),
+        ("Max MRR", "max_mrr"),
         ("Storefront country", "country"),
         ("Email template", "template"),
         ("Back to the summary", "back"),
@@ -124,6 +125,7 @@ def _edit_one(prompter, state, templates) -> dict | None:
         "update": lambda: _ask_update(prompter, state, allow_back=False),
         "score": lambda: _ask_score(prompter, state, allow_back=False),
         "volume": lambda: _ask_volume(prompter, state, allow_back=False),
+        "max_mrr": lambda: _ask_max_mrr(prompter, state, allow_back=False),
         "country": lambda: _ask_country(prompter, state),
         "template": lambda: _ask_template(prompter, state, templates),
     }
@@ -144,6 +146,15 @@ def _as_choices(pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
     return [(label, value) for value, label in pairs]
 
 
+def _icp_choices() -> list[tuple[str, str]]:
+    choices = []
+    for value, label in DEVELOPER_TYPES:
+        if value in {"solo", "startup"}:
+            label = f"{label} (Recommended)"
+        choices.append((label, value))
+    return choices
+
+
 def _ask_developer(prompter, state, allow_back=False):
     del allow_back
     current = list(state.get("developer_types") or [])
@@ -152,7 +163,7 @@ def _ask_developer(prompter, state, allow_back=False):
     while True:
         answer = prompter.checkbox(
             "🎯 Which ICP are you targeting?",
-            _as_choices(DEVELOPER_TYPES),
+            _icp_choices(),
             default=current,
         )
         if answer is None:
@@ -177,6 +188,16 @@ def _ask_platform(prompter, state, allow_back=False):
     return {"platforms": answer}
 
 
+def _category_choices() -> list[tuple[str, str]]:
+    choices = []
+    for name in CATEGORIES:
+        if name in {"Health & Fitness", "Productivity"}:
+            choices.append((f"{name} (Recommended)", name))
+        else:
+            choices.append((name, name))
+    return choices
+
+
 def _ask_categories(prompter, state, allow_back=False):
     while True:
         if allow_back:
@@ -184,41 +205,50 @@ def _ask_categories(prompter, state, allow_back=False):
             if back is None or back == BACK:
                 return back
         selected = prompter.checkbox(
-            "📂 Which categories should we search? You can select more than one.",
-            CATEGORIES,
+            "📂 Which App Store categories should we search? You can select more than one.",
+            _category_choices(),
             default=state.get("categories") or [],
         )
         if selected is None:
             return None
-        default_keywords = ", ".join(state.get("custom_keywords") or [])
-        raw = prompter.text(
-            "📂 Custom keywords, separated by commas. Press Enter to skip.",
-            default=default_keywords,
-        )
-        if raw is None:
-            return None
-        keywords = [part.strip() for part in raw.split(",") if part.strip()]
-        if not selected and not keywords:
-            print("Select at least one category or enter a custom keyword.")
+        if isinstance(selected, str):
+            selected = [selected]
+        selected = [item for item in selected if item and item != BACK]
+        if not selected:
+            print("Select at least one category.")
             continue
-        return {"categories": selected, "custom_keywords": keywords}
+        return {"categories": selected, "custom_keywords": []}
 
 
 def _rating_choices(icp: str) -> list[tuple[str, object]]:
     if icp == "startup":
-        return [("500", 500), ("2,000", 2000), ("10,000", 10000), ("No maximum", "any"), ("Custom value", "custom")]
+        return [
+            ("Under 250 ratings", 250),
+            ("500", 500),
+            ("2,000", 2000),
+            ("10,000", 10000),
+            ("No maximum", "any"),
+            ("Custom value", "custom"),
+        ]
     if icp == "scaleup":
         return [("10,000", 10000), ("100,000", 100000), ("No maximum", "any"), ("Custom value", "custom")]
     if icp == "agency":
         return [("1,000", 1000), ("10,000", 10000), ("No maximum", "any"), ("Custom value", "custom")]
-    return [("10", 10), ("30", 30), ("50", 50), ("100", 100), ("Custom value", "custom")]
+    return [
+        ("Under 10 ratings", 10),
+        ("Under 30 ratings", 30),
+        ("Under 50 ratings", 50),
+        ("Under 100 ratings", 100),
+        ("Under 250 ratings", 250),
+        ("Custom value", "custom"),
+    ]
 
 
 def _suggested_rating_cap(icp: str, current):
-    """A low cap removes startups and scaleups before the ICP check can see them."""
+    """A very low cap removes growth-stage indies before the ICP check can see them."""
     if icp in {"startup", "scaleup", "agency"} and current in {10, 30, 50, 100}:
         if icp == "startup":
-            return 10000
+            return 250
         return "any"
     return current
 
@@ -237,10 +267,15 @@ def _rating_icp(state: dict) -> str:
 def _ask_ratings(prompter, state, allow_back=False):
     current = state.get("max_ratings")
     icp = _rating_icp(state)
-    choices = _rating_choices(icp)
+    choices = _with_recommended(_rating_choices(icp), 250)
     suggested = _suggested_rating_cap(icp, current)
     values = [value for _label, value in choices]
-    default = suggested if suggested in values else "custom"
+    if suggested in values:
+        default = suggested
+    elif current in values:
+        default = current
+    else:
+        default = 250 if 250 in values else "custom"
     answer = prompter.select(
         "⭐ What is the maximum number of ratings an app can have?",
         _with_back(choices, allow_back),
@@ -281,8 +316,8 @@ def _with_recommended(choices: list, recommended) -> list:
 def _ask_update(prompter, state, allow_back=False):
     answer = prompter.select(
         "🔄 How recently must the app have been updated?",
-        _with_back(_with_recommended(_as_choices(UPDATE_WINDOWS), "90d"), allow_back),
-        default=state.get("last_update") or "90d",
+        _with_back(_with_recommended(_as_choices(UPDATE_WINDOWS), "180d"), allow_back),
+        default=state.get("last_update") or "180d",
     )
     if answer is None or answer == BACK:
         return answer
@@ -335,12 +370,69 @@ def _ask_volume(prompter, state, allow_back=False):
     return {"target_prospects": answer}
 
 
+def _ask_max_mrr(prompter, state, allow_back=False):
+    current = state.get("max_mrr")
+    choices = _with_recommended(
+        [
+            ("No limit", "any"),
+            ("Under $10k / mo", 10000),
+            ("Under $25k / mo", 25000),
+            ("Under $50k / mo", 50000),
+            ("Under $100k / mo", 100000),
+        ],
+        "any",
+    )
+    default = current if current in {10000, 25000, 50000, 100000} else "any"
+    answer = prompter.select(
+        "💰 Max MRR to include:",
+        _with_back(choices, allow_back),
+        default=default,
+    )
+    if answer is None or answer == BACK:
+        return answer
+    if answer == "any":
+        return {"max_mrr": None}
+    return {"max_mrr": int(answer)}
+
+
+def _max_mrr_label(value) -> str:
+    if value in (None, "", "any"):
+        return "No limit"
+    amount = int(value)
+    labels = {
+        10000: "Under $10k / mo",
+        25000: "Under $25k / mo",
+        50000: "Under $50k / mo",
+        100000: "Under $100k / mo",
+    }
+    return labels.get(amount, f"Under ${amount:,} / mo")
+
+
 def _ask_country(prompter, state):
+    choices = _with_recommended(
+        [
+            ("Global / Top English Markets (US, UK, CA, AU)", "global"),
+            ("United States (us)", "us"),
+            ("United Kingdom (gb)", "gb"),
+            ("Canada (ca)", "ca"),
+            ("Australia (au)", "au"),
+            ("Other country code", "custom"),
+        ],
+        "global",
+    )
+    current = str(state.get("country") or "global").strip().lower()
+    default = current if current in {"global", "us", "gb", "ca", "au"} else "custom"
+    answer = prompter.select(
+        "🌍 App Store storefront — Global / Top English Markets (US, UK, CA, AU) (Recommended)",
+        choices,
+        default=default,
+    )
+    if answer is None:
+        return None
+    if answer != "custom":
+        return {"country": answer}
     while True:
-        raw = prompter.text(
-            "🌍 App Store country code (Recommended: us)",
-            default=state.get("country") or "us",
-        )
+        raw = prompter.text("🌍 Other App Store country code", default="")
         if raw is None:
             return None
         country = raw.strip().lower()
@@ -378,8 +470,6 @@ def _ask_int(prompter, label: str, default: int, minimum: int, maximum: int) -> 
 
 def describe(state: dict) -> list[tuple[str, str]]:
     categories = list(state.get("categories") or [])
-    if state.get("custom_keywords"):
-        categories = categories + [f"keywords: {', '.join(state['custom_keywords'])}"]
     cap = state.get("max_ratings")
     selected = list(state.get("developer_types") or [])
     if not selected and state.get("developer_type"):
@@ -394,25 +484,23 @@ def describe(state: dict) -> list[tuple[str, str]]:
         ("Last update:", UPDATE_LABELS.get(state.get("last_update"), state.get("last_update"))),
         ("Minimum score:", str(state.get("min_score"))),
         ("Target prospects:", str(state.get("target_prospects"))),
+        ("Max MRR:", _max_mrr_label(state.get("max_mrr"))),
     ]
 
 
 def search_summary(state: dict, settings: dict) -> list[tuple[str, str]]:
-    from modules.scraper import discovery_jobs, search_attempt_limit
+    from modules.scraper import discovery_jobs, storefronts_for
 
-    jobs = search_jobs(state, settings)
-    expanded = min(len(discovery_jobs(state, settings)), search_attempt_limit(settings))
-    ios = sum(1 for platform, _keyword in jobs if platform == "ios")
-    android = sum(1 for platform, _keyword in jobs if platform == "android")
-    bits = []
-    if ios:
-        bits.append(f"{ios} iOS")
-    if android:
-        bits.append(f"{android} Android")
-    cap = settings["apify"]["max_items_per_search"]
+    charts = len(discovery_jobs(state, settings))
+    fronts = storefronts_for(state.get("country"))
     return [
-        ("Storefront:", str(state.get("country", "us")).upper()),
-        ("Searches:", f"up to {' and '.join(bits) or '0'} ({cap} apps each), {expanded} if the target is short"),
-        ("Apify estimate:", f"up to ${estimate_cost(jobs, settings):.2f} for the first wave"),
-        ("Charge cap:", f"${float(settings['apify']['max_charge_usd_per_search']):.2f} per search"),
+        (
+            "Storefront:",
+            "US, UK, CA, AU" if str(state.get("country", "us")).lower() == "global" else str(state.get("country", "us")).upper(),
+        ),
+        (
+            "Discovery:",
+            f"{charts} App Store category charts across {len(fronts)} storefront(s), no keywords",
+        ),
+        ("Apify estimate:", "$0.00 (public category RSS and iTunes Lookup)"),
     ]

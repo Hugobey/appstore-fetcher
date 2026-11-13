@@ -207,11 +207,19 @@ def demo_searcher():
     grouped: dict[tuple[str, str], list[dict]] = {}
     for platform, keyword, item in sample_items():
         grouped.setdefault((platform, keyword), []).append(item)
+    # Sample rows are stored by their fixture group. Live discovery asks for genres.
+    feeds = {
+        "productivity": "focus timer",
+        "health & fitness": "habit tracker",
+        "focus timer": "focus timer",
+        "habit tracker": "habit tracker",
+    }
 
-    def search(platform: str, keyword: str, _country: str, page: int = 1):
+    def search(platform: str, category: str, _country: str, page: int = 1):
         if int(page) > 1:
             return [], {"cached": False, "usage_usd": 0}
-        return grouped.get((platform, keyword), []), {"cached": False, "usage_usd": 0}
+        group = feeds.get(str(category).strip().lower(), "")
+        return grouped.get((platform, group), []), {"cached": False, "usage_usd": 0}
 
     return search
 

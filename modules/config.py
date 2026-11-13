@@ -14,16 +14,17 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TARGETING = {
     "confirmed": False,
     "developer_type": "solo",
+    "developer_types": ["solo", "startup"],
     "platforms": "ios",
     "categories": ["Productivity", "Health & Fitness"],
     "custom_keywords": [],
-    "max_ratings": 30,
+    "max_ratings": 250,
     "max_app_age": "2y",
-    "last_update": "90d",
+    "last_update": "180d",
     "min_score": 50,
     "target_prospects": 30,
     "max_mrr": None,
-    "country": "us",
+    "country": "global",
     "template_id": "intro",
     "saved_at": None,
 }
@@ -158,16 +159,40 @@ def load_templates(settings: dict | None = None) -> list[dict]:
     return cleaned
 
 
+def _max_mrr(value) -> int | None:
+    """None means no ceiling. 'any' and blank are the wizard's no-limit choice."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        text = value.strip().lower().replace(",", "").replace("$", "").replace(" ", "")
+        text = text.removesuffix("/mo").removesuffix("/month")
+        if text in {"", "any", "none", "no", "nolimit", "unlimited"}:
+            return None
+        value = text
+    try:
+        amount = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ConfigError("Maximum MRR must be a whole number of dollars or 'any'.") from exc
+    if amount < 0:
+        raise ConfigError("Maximum MRR cannot be negative.")
+    return amount
+
+
 def validate_targeting(data: dict) -> dict:
+    incoming = dict(data or {})
     merged = dict(DEFAULT_TARGETING)
-    merged.update(data or {})
+    merged.update(incoming)
     developer_ids = {key for key, _label in DEVELOPER_TYPES}
     platform_ids = {key for key, _label in PLATFORMS}
-    raw_types = merged.get("developer_types")
-    if isinstance(merged.get("developer_type"), list):
-        raw_types = merged["developer_type"]
-    if not isinstance(raw_types, list) or not raw_types:
-        raw_types = [merged.get("developer_type") or "solo"]
+    # A saved file that only has developer_type must not inherit the wider default list.
+    if isinstance(incoming.get("developer_type"), list):
+        raw_types = incoming["developer_type"]
+    elif isinstance(incoming.get("developer_types"), list) and incoming.get("developer_types"):
+        raw_types = incoming["developer_types"]
+    elif incoming.get("developer_type"):
+        raw_types = [incoming["developer_type"]]
+    else:
+        raw_types = list(DEFAULT_TARGETING.get("developer_types") or ["solo"])
     normalized_types = []
     for item in raw_types:
         mapped = LEGACY_DEVELOPER_TYPES.get(item, item)
@@ -215,11 +240,11 @@ def validate_targeting(data: dict) -> dict:
         raise ConfigError("Custom keywords must be a list.")
     merged["custom_keywords"] = [str(item).strip() for item in keywords if str(item).strip()]
     merged["categories"] = list(categories)
-    if not merged["categories"] and not merged["custom_keywords"]:
-        raise ConfigError("Select at least one category or custom keyword.")
-    country = str(merged.get("country") or "us").strip().lower()
-    if len(country) != 2 or not country.isalpha():
-        raise ConfigError("Storefront country must be a 2-letter code, such as us.")
+    if not merged["categories"]:
+        raise ConfigError("Select at least one category.")
+    country = str(merged.get("country") or "global").strip().lower()
+    if country != "global" and (len(country) != 2 or not country.isalpha()):
+        raise ConfigError("Storefront country must be a 2-letter code, such as us, or 'global'.")
     merged["country"] = country
     merged["confirmed"] = bool(merged.get("confirmed"))
     merged["template_id"] = str(merged.get("template_id") or "intro")

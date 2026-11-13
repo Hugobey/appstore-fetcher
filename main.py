@@ -8,7 +8,6 @@ import logging
 import sys
 
 from modules.config import (
-    apify_token,
     load_scoring,
     load_settings,
     load_targeting,
@@ -36,7 +35,8 @@ from modules.preview import review_prospects
 from modules.prompts import QuestionaryPrompter
 from modules.activity import Narrator
 from modules.agent_ui import AgentDashboard, is_high_mrr, sheet_url
-from modules.scraper import ApifyClient, discovery_jobs, estimate_cost, missing_token_message, search_attempt_limit
+from modules.category_feed import category_searcher
+from modules.scraper import ApifyClient
 from modules.session import (
     append_raw,
     archive_session,
@@ -101,12 +101,6 @@ def scrape(settings: dict, prompter, demo: bool = False) -> int:
 def _scrape_demo(settings, prompter, scoring, templates, targeting, board: AgentDashboard) -> int:
     print("Demo mode. Apify and Google Sheets are not called, and nothing is written to the CRM.")
     count = 1
-    if board.enabled:
-        board.start()
-        board.focus(1, "Indexing existing CRM leads...")
-        demo_index()
-        board.complete(1, f"Indexed {count} lead")
-        board.pause()
     crm_summary = {"status": "Demo mode", "existing_leads": count}
     confirmed = run_wizard(prompter, targeting, settings, templates, crm_summary)
     if confirmed is None:
@@ -116,7 +110,12 @@ def _scrape_demo(settings, prompter, scoring, templates, targeting, board: Agent
     board.target = int(confirmed["target_prospects"])
     panel = board if board.enabled else None
     if panel is not None:
-        panel.resume()
+        panel.start()
+        panel.set_scout("Scanning category feeds")
+        panel.set_analyst("Waiting for a qualified lead")
+        panel.focus(1, "Indexing existing CRM leads...")
+        demo_index()
+        board.complete(1, f"Indexed {count} lead")
     discovery = discover(
         confirmed,
         settings,
@@ -137,18 +136,9 @@ def _scrape_demo(settings, prompter, scoring, templates, targeting, board: Agent
 def _scrape_live(settings, prompter, scoring, templates, targeting, board: AgentDashboard) -> int:
     voice = Narrator()
     panel = board if board.enabled else None
-    if panel is not None:
-        panel.start()
-        panel.focus(1, "Indexing existing CRM leads...")
     crm = GoogleSheetCRM.connect(settings)
-    if panel is None:
-        with voice.spin("📊 Indexing existing CRM leads..."):
-            index, count, _records = crm.load_rows()
-    else:
+    with voice.spin("📊 Indexing existing CRM leads..."):
         index, count, _records = crm.load_rows()
-        noun = "lead" if count == 1 else "leads"
-        panel.complete(1, f"Indexed {count} {noun}")
-        panel.pause()
     print(f"CRM connected. Existing leads: {count}.")
     crm_summary = {"status": "Connected", "existing_leads": count}
     session_path = project_path(settings.get("session_file", "data/session.json"))
@@ -193,13 +183,11 @@ def _scrape_live(settings, prompter, scoring, templates, targeting, board: Agent
         return 130
     save_targeting(confirmed)
     board.target = int(confirmed["target_prospects"])
-    token = apify_token(settings)
-    if not token:
-        raise ApifyError(missing_token_message())
-    client = ApifyClient(token, settings)
-    confirmed = _android_guard(client, confirmed, prompter)
-    jobs = discovery_jobs(confirmed, settings)[: search_attempt_limit(settings)]
-    _quota_guard(client, settings, estimate_cost([(platform, keyword) for platform, keyword, _page in jobs], settings), prompter)
+    if confirmed.get("platforms") == "android":
+        print("Discovery uses App Store categories. Google Play has no genre RSS in this run, so nothing was scraped.")
+        return 0
+    if confirmed.get("platforms") == "both":
+        print("Discovery uses App Store categories. Google Play is skipped for this run.")
     if session is None or session.get("stage") != "running":
         session = new_session(session_path, confirmed)
     else:
@@ -210,13 +198,18 @@ def _scrape_live(settings, prompter, scoring, templates, targeting, board: Agent
         append_raw(session_path, session, platform, keyword, items, page)
 
     if panel is not None:
-        panel.resume()
+        panel.start()
+        panel.set_scout("Scanning category feeds")
+        panel.set_analyst("Waiting for a qualified lead")
+        panel.focus(1, "Indexing existing CRM leads...")
+        noun = "lead" if count == 1 else "leads"
+        panel.complete(1, f"Indexed {count} {noun}")
     discovery = discover(
         confirmed,
         settings,
         scoring,
         index,
-        searcher=client.search,
+        searcher=category_searcher(settings),
         enricher=lambda lead: enrich_lead(lead, settings),
         prior=prior,
         on_raw=on_raw,
@@ -228,6 +221,18 @@ def _scrape_live(settings, prompter, scoring, templates, targeting, board: Agent
     if panel is not None:
         panel.pause()
     return _review(discovery, crm, templates, settings, prompter, session, session_path, dashboard=panel)
+
+
+def _apply_saved_layout(crm) -> None:
+    """Refresh header, status colors, and column widths. Lead cells stay as they are."""
+    worksheet = getattr(crm, "worksheet", None)
+    headers = getattr(crm, "headers", None)
+    if worksheet is None or not headers:
+        return
+    try:
+        apply_crm_layout(worksheet, list(headers), header_row=int(getattr(crm, "header_row", 1) or 1))
+    except Exception as exc:
+        print(f"Sheet formatting could not be applied: {exc}")
 
 
 def _new_dashboard(settings: dict, targeting: dict, *, demo: bool) -> AgentDashboard:
@@ -283,6 +288,7 @@ def _review(discovery, crm, templates, settings, prompter, session, session_path
     if dashboard is not None:
         dashboard.resume()
         dashboard.focus(5, f"Writing {len(leads)} leads to the CRM...")
+    _apply_saved_layout(crm)
     added, skipped = crm.append_leads(leads, template, suppressed)
     print(f"Appended {added} prospect(s). Skipped {skipped} already in the CRM. Existing rows were not changed.")
     if dashboard is not None:

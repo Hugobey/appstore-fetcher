@@ -1,6 +1,11 @@
 {
   "confirmed": true,
   "developer_type": "solo",
+  "developer_types": [
+    "solo",
+    "agency",
+    "startup"
+  ],
   "platforms": "ios",
   "categories": [
     "Health & Fitness",
@@ -12,17 +17,13 @@
     "Entertainment"
   ],
   "custom_keywords": [],
-  "max_ratings": 500,
+  "max_ratings": 250,
   "max_app_age": "any",
-  "last_update": "90d",
+  "last_update": "180d",
   "min_score": 50,
-  "target_prospects": 30,
+  "target_prospects": 10,
+  "max_mrr": 100000,
   "country": "us",
   "template_id": "intro",
-  "saved_at": "2026-11-12T16:50:10+00:00",
-  "developer_types": [
-    "solo",
-    "agency",
-    "startup"
-  ]
+  "saved_at": "2026-11-13T14:13:20+00:00"
 }

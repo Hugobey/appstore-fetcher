@@ -5,8 +5,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from modules.config import load_settings
+import threading
+import time
+
 from modules.enrichment import (
     classify_email,
+    crawl_leads,
     decode_cloudflare_email,
     enrich_lead,
     extract_contact_name,
@@ -189,6 +193,120 @@ class EnrichmentTests(unittest.TestCase):
         self.assertEqual(lead.enrichment_status, "ok")
         self.assertEqual(lead.primary_email.address, "support@habits.example")
         self.assertEqual(lead.primary_email.email_type, "support")
+
+    def test_indie_prefixes_are_kept_and_automated_addresses_are_dropped(self):
+        html = """
+        <p>hello@studio.dev contact@studio.dev support@studio.dev team@studio.dev</p>
+        <p>hi@studio.dev info@studio.dev founder@studio.dev jane@studio.dev</p>
+        <p>noreply@studio.dev no-reply@studio.dev</p>
+        <p>hello@wix.com privacy@apple.com alerts@sentry.io user@example.com</p>
+        <p>owner [at] studio [dot] dev</p>
+        """
+        emails = extract_emails(html)
+        for address in (
+            "hello@studio.dev",
+            "contact@studio.dev",
+            "support@studio.dev",
+            "team@studio.dev",
+            "hi@studio.dev",
+            "info@studio.dev",
+            "founder@studio.dev",
+            "jane@studio.dev",
+            "owner@studio.dev",
+        ):
+            self.assertIn(address, emails)
+        for address in (
+            "noreply@studio.dev",
+            "no-reply@studio.dev",
+            "hello@wix.com",
+            "privacy@apple.com",
+            "alerts@sentry.io",
+            "user@example.com",
+        ):
+            self.assertNotIn(address, emails)
+        self.assertEqual(classify_email("founder@studio.dev", "", "Jane Doe", "solo")[0], "general")
+        self.assertEqual(classify_email("hello@studio.dev", "", "Jane Doe", "solo")[0], "general")
+        self.assertEqual(classify_email("support@studio.dev", "", "Jane Doe", "solo")[0], "support")
+
+    def test_support_url_and_mailto_are_both_used(self):
+        item = dict(IOS_ITEM)
+        item["sellerUrl"] = "https://studio.example"
+        item["supportUrl"] = "https://help.studio.example/support"
+        lead = normalize_app(item, "ios", "photo")
+        self.assertEqual(lead.developer_website, "https://studio.example")
+        self.assertEqual(lead.support_url, "https://help.studio.example/support")
+        pages = {
+            "https://help.studio.example/support": (200, "<p>hello@studio.example</p>", "https://help.studio.example/support"),
+        }
+
+        def fetch(url):
+            if url.endswith("/robots.txt"):
+                return 404, None, url
+            return pages.get(url.split("?")[0].rstrip("/"), (404, None, url))
+
+        enrich_lead(lead, load_settings(), fetcher=fetch, sleep=lambda _s: None, public_check=lambda _url: True)
+        self.assertEqual(lead.primary_email.address, "hello@studio.example")
+
+        mailed = dict(IOS_ITEM)
+        mailed["trackId"] = "42"
+        mailed["sellerUrl"] = "mailto:niklas.baudy%40vanniktech.de"
+        mailed.pop("supportUrl", None)
+        mailed_lead = normalize_app(mailed, "ios", "photo")
+        self.assertEqual(mailed_lead.developer_website, "")
+        self.assertEqual(mailed_lead.emails[0].address, "niklas.baudy@vanniktech.de")
+        called = []
+
+        def explode(url):
+            called.append(url)
+            raise AssertionError(url)
+
+        enrich_lead(mailed_lead, load_settings(), fetcher=explode, sleep=lambda _s: None, public_check=lambda _url: True)
+        self.assertEqual(called, [])
+        self.assertEqual(mailed_lead.enrichment_status, "ok")
+
+    def test_a_blocked_page_does_not_drop_the_rest_of_the_site(self):
+        settings = load_settings()
+        pages = {
+            "https://indie.example": (403, None, "https://indie.example"),
+            "https://indie.example/contact": (200, "<p>contact@indie.example</p>", "https://indie.example/contact"),
+        }
+
+        def fetch(url):
+            if url.endswith("/robots.txt"):
+                return 404, None, url
+            return pages.get(url.split("?")[0].rstrip("/"), (404, None, url))
+
+        lead = Lead(
+            platform="ios",
+            app_store_id="9",
+            app_name="Indie",
+            developer_website="https://indie.example",
+            developer_type="solo",
+        )
+        enrich_lead(lead, settings, fetcher=fetch, sleep=lambda _s: None, public_check=lambda _url: True)
+        self.assertEqual(lead.enrichment_status, "ok")
+        self.assertEqual(lead.primary_email.address, "contact@indie.example")
+
+    def test_parallel_crawl_overlaps(self):
+        state = {"current": 0, "max": 0}
+        lock = threading.Lock()
+
+        def enrich(lead):
+            with lock:
+                state["current"] += 1
+                state["max"] = max(state["max"], state["current"])
+            time.sleep(0.3)
+            with lock:
+                state["current"] -= 1
+            lead.enrichment_status = "ok"
+
+        leads = [Lead(platform="ios", app_store_id=str(index), app_name=f"App {index}") for index in range(24)]
+        started = time.monotonic()
+        crawl_leads(leads, enrich, workers=12)
+        elapsed = time.monotonic() - started
+        self.assertGreaterEqual(state["max"], 8)
+        self.assertLess(elapsed, 2.5)
+        self.assertTrue(all(lead.enrichment_status == "ok" for lead in leads))
 
 
 if __name__ == "__main__":

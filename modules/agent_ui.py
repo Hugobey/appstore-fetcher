@@ -7,15 +7,18 @@ active phase, a rotating aside, an elapsed clock, and a rolling ETA.
 from __future__ import annotations
 
 import sys
+import threading
 import time
 
 PHASES = (
     (1, "Phase 1 — CRM Memory Sync"),
-    (2, "Phase 2 — App Store Discovery"),
-    (3, "Phase 3 — Contact & Revenue Enrichment"),
-    (4, "Phase 4 — Lead Scoring & Ranking"),
+    (2, "Phase 2 — Category Discovery"),
+    (3, "Phase 3 — Contact & Email Extraction"),
+    (4, "Phase 4 — Streaming MRR & Scoring"),
     (5, "Phase 5 — CRM Sync & Formatting"),
 )
+# First paint, before any lead has locked in. 5 leads → 00:00:35, 15 → 00:01:45.
+BASELINE_SECONDS_PER_LEAD = 7
 SPINNER = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 WITTY_LINES = (
     "Bribing the App Store API with virtual cookies...",
@@ -26,17 +29,41 @@ WITTY_LINES = (
     "Scanning solo founder footprints in the wild...",
 )
 WITTY_EVERY_SECONDS = 2.5
-ETA_WARMUP_SECONDS = 3.0
 
 
 def clock(seconds: float) -> str:
     total = max(0, int(seconds))
-    return f"{total // 60:02d}:{total % 60:02d}"
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
 
 def is_high_mrr(value: str | None) -> bool:
     text = (value or "").strip()
     return bool(text) and text.upper() != "N/A"
+
+
+_BOTTLENECKS = {
+    "update_window": "update window",
+    "ratings_above_cap": "ratings cap",
+    "no_website": "no developer website",
+    "no_email_found": "no public email",
+    "email_filtered_out": "filtered contact addresses",
+    "icp_mismatch": "ICP mismatch",
+    "mrr_exceeded": "MRR ceiling",
+}
+
+
+def _top_bottleneck(rejections: dict | None) -> str:
+    ranked = sorted(
+        ((name, int(count)) for name, count in (rejections or {}).items() if int(count or 0) > 0),
+        key=lambda item: (-item[1], item[0]),
+    )
+    if not ranked:
+        return ""
+    name, count = ranked[0]
+    label = _BOTTLENECKS.get(name, name.replace("_", " "))
+    return f"Top bottleneck: {label} ({count})"
 
 
 def sheet_url(spreadsheet_id: str) -> str:
@@ -53,17 +80,19 @@ class AgentDashboard:
         self.sheet = sheet
         self.demo = demo
         self.enabled = _live_enabled() if enabled is None else enabled
-        self.started_at = time.monotonic()
+        self.started_at = None
         self.funnel = {
             "raw_scanned": 0,
             "duplicates_skipped": 0,
             "filtered_out": 0,
+            "candidates": 0,
             "emails_found": 0,
             "mrr_hits": 0,
             "qualified_count": 0,
         }
         self.saved = 0
         self.high_mrr = 0
+        self.rejections: dict = {}
         self.phases = {
             number: {
                 "title": title,
@@ -77,12 +106,21 @@ class AgentDashboard:
         }
         self._live = None
         self._console = None
-        self._witty_origin = self.started_at
+        self._witty_origin = None
         self._finished = False
+        self._ui_lock = threading.Lock()
+        self.scout_text = "Scanning category feeds"
+        self.analyst_text = "Waiting for a qualified lead"
+        self.feed: list[str] = []
+
+    def begin_clock(self) -> None:
+        """Start the elapsed clock once. Wizard time stays outside this origin."""
+        if self.started_at is None:
+            self.started_at = time.monotonic()
+            self._witty_origin = self.started_at
 
     def start(self) -> None:
-        self.started_at = time.monotonic()
-        self._witty_origin = self.started_at
+        """Open the panel. The elapsed clock starts later, when scraping begins."""
         if not self.enabled or self._live is not None:
             return
         try:
@@ -140,7 +178,7 @@ class AgentDashboard:
         self._stamp()
         for other, phase in self.phases.items():
             if other != number and phase["state"] == "active":
-                phase["state"] = "pending"
+                phase["state"] = "paused"
                 phase["tick"] = None
         phase = self.phases[number]
         phase["state"] = "active"
@@ -178,30 +216,61 @@ class AgentDashboard:
         self.funnel["qualified_count"] = max(0, int(count))
         self.refresh()
 
+    def set_scout(self, text: str) -> None:
+        self.scout_text = text
+        self.refresh()
+
+    def set_analyst(self, text: str) -> None:
+        self.analyst_text = text
+        self.refresh()
+
+    def push_feed(self, message: str) -> None:
+        self.feed.append(message)
+        if len(self.feed) > 6:
+            del self.feed[:-6]
+        self.refresh()
+
+    def agent_line(self) -> str:
+        qualified = self.funnel["qualified_count"]
+        return (
+            f"🤖 Scout Agent: {self.scout_text} [{qualified}/{self.target} qualified]"
+            f"  │  🔍 Analyst Agent: {self.analyst_text}"
+        )
+
     def remember_save(self, leads: list) -> None:
         capped = list(leads)
         self.saved = len(capped)
         self.high_mrr = sum(1 for lead in capped if is_high_mrr(getattr(lead, "estimated_mrr", "")))
 
     def elapsed(self, at: float | None = None) -> float:
-        moment = self.started_at if at is None else at
-        if at is None:
-            moment = time.monotonic()
+        if self.started_at is None:
+            return 0.0
+        moment = time.monotonic() if at is None else at
         return max(0.0, moment - self.started_at)
 
     def eta_text(self, at: float | None = None) -> str:
-        moment = time.monotonic() if at is None else at
-        elapsed = max(0.0, moment - self.started_at)
+        """Baseline of 7s per requested lead, then the observed rate once leads lock in.
+
+        The baseline is shown as soon as the panel exists, including before the
+        elapsed clock starts. A finished target reports 00:00:00.
+        """
         qualified = self.funnel["qualified_count"]
         remaining = max(0, self.target - qualified)
-        if qualified <= 0 or elapsed < ETA_WARMUP_SECONDS:
-            return "Calculating ETA..."
-        if remaining == 0:
-            return "~0s remaining"
-        seconds = int(round(elapsed / qualified * remaining))
-        return f"~{seconds}s remaining"
+        if self.target <= 0 or remaining == 0:
+            return "ETA: 00:00:00"
+        baseline = self.target * BASELINE_SECONDS_PER_LEAD
+        if self.started_at is None or qualified <= 0:
+            return f"ETA: {clock(baseline)}"
+        moment = time.monotonic() if at is None else at
+        elapsed = max(0.0, moment - self.started_at)
+        if elapsed <= 0:
+            return f"ETA: {clock(baseline)}"
+        seconds = elapsed / qualified * remaining
+        return f"ETA: {clock(seconds)}"
 
     def witty_line(self, at: float | None = None) -> str:
+        if self._witty_origin is None:
+            return WITTY_LINES[0]
         moment = time.monotonic() if at is None else at
         slot = int(max(0.0, moment - self._witty_origin) / WITTY_EVERY_SECONDS)
         return WITTY_LINES[slot % len(WITTY_LINES)]
@@ -211,7 +280,8 @@ class AgentDashboard:
             return
         # Paint now. The refresh thread keeps the spinner and the witty line moving
         # between these updates, including while a network call is blocked.
-        self._live.update(self, refresh=True)
+        with self._ui_lock:
+            self._live.update(self, refresh=True)
 
     def __rich__(self):
         return self.render()
@@ -226,13 +296,17 @@ class AgentDashboard:
         for number, _title in PHASES:
             rows.append(self._phase_text(number, now))
         footer = Text()
-        footer.append(f"Elapsed {clock(self.elapsed(now))}", style="cyan")
-        footer.append("  ·  ")
+        footer.append(f"Elapsed: {clock(self.elapsed(now))}", style="cyan")
+        footer.append(" • ")
         footer.append(self.eta_text(now), style="magenta")
         qualified = self.funnel["qualified_count"]
         if self.target:
             footer.append("  ·  ")
             footer.append(f"[{qualified}/{self.target} qualified]", style="bold white")
+        rows.append(Text(""))
+        rows.append(Text(self.agent_line(), style="bold white"))
+        for item in self.feed[-3:]:
+            rows.append(Text(item, style="yellow"))
         rows.append(Text(""))
         rows.append(footer)
         return Panel(Group(*rows), title="Prospecting agent", border_style="cyan", padding=(1, 2))
@@ -242,7 +316,7 @@ class AgentDashboard:
         unique = max(0, scanned - self.funnel["duplicates_skipped"])
         enriched = self.funnel["emails_found"]
         lines = [
-            f"Total elapsed: {clock(self.elapsed())}",
+            f"Total time elapsed: {clock(self.elapsed())}",
             f"Funnel: Scanned {scanned} → Deduplicated {unique} → Enriched {enriched} → Exact Target Saved {self.saved}",
             f"High MRR: {self.high_mrr} lead(s) at $10k+/mo",
         ]
@@ -250,6 +324,10 @@ class AgentDashboard:
             lines.append(f"Google Sheet: {self.sheet}")
         if self.demo:
             lines.append("Demo mode did not change the spreadsheet.")
+        if self.target and self.saved < self.target:
+            bottleneck = _top_bottleneck(self.rejections)
+            if bottleneck:
+                lines.append(bottleneck)
         return lines
 
     def _phase_text(self, number: int, now: float):
@@ -263,6 +341,12 @@ class AgentDashboard:
             block.append(phase["title"], style="green")
             if phase["summary"]:
                 block.append(f"\n    {phase['summary']} in {phase['elapsed']:.1f}s", style="green")
+            return block
+        if state == "paused":
+            block.append("○ ", style="dim")
+            block.append(phase["title"], style="dim")
+            if phase["status"]:
+                block.append(f"\n    {phase['status']}", style="dim")
             return block
         if state == "active":
             block.append(f"{self._spinner(now)} ", style="bold white")

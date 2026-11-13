@@ -99,6 +99,7 @@ def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status
         "Target Email": primary.address if primary else "",
         "Contact Email": primary.address if primary else "",
         "Contact Name": lead.contact_name,
+        "Contact": _contact_cell(lead),
         "App Store URL": lead.app_store_url,
         "Last Update Date": lead.last_update or "",
         "Status": status,
@@ -120,6 +121,15 @@ def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status
         "Notes": notes,
     }
     return [safe_cell(values.get(header, "")) for header in headers]
+
+
+def _contact_cell(lead: Lead) -> str:
+    """One column for the person and the developer. Matching names are not repeated."""
+    contact = (lead.contact_name or "").strip()
+    developer = (lead.developer_name or "").strip()
+    if contact and developer and contact.lower() != developer.lower():
+        return f"{contact} ({developer})"
+    return contact or developer
 
 
 def _email_type_label(value: str) -> str:
@@ -303,9 +313,9 @@ def _row_record(headers: list[str], row: list[str], row_number: int) -> dict | N
     return {
         "row_number": row_number,
         "app_name": data.get("App Name", ""),
-        "developer": data.get("Developer", ""),
+        "developer": data.get("Developer") or data.get("Contact", ""),
         "email": data.get("Target Email") or data.get("Contact Email", ""),
-        "contact_name": data.get("Contact Name", ""),
+        "contact_name": data.get("Contact Name") or data.get("Contact", ""),
         "url": data.get("App Store URL", ""),
         "status": data.get("Status", ""),
         "subject": data.get("Email Subject", ""),

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import queue
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import date
 
@@ -11,16 +14,19 @@ from modules.activity import Narrator
 from modules.agent_ui import AgentDashboard, is_high_mrr
 from modules.dates import utc_today
 from modules.deduplication import DedupIndex, index_url, name_key
-from modules.enrichment import classify_email
+from modules.enrichment import classify_email, crawl_leads
 from modules.errors import ApifyError
 from modules.models import Lead
-from modules.mrr_enricher import enrich_estimated_mrr
+from modules.mrr_enricher import dollars_from_display, enrich_one_mrr
 from modules.scraper import (
+    ENGLISH_STOREFRONTS,
     ApifyInterrupted,
     discovery_jobs,
     fill_from_itunes,
+    keyword_plan,
     normalize_app,
-    search_attempt_limit,
+    storefronts_for,
+    synonym_keywords,
 )
 from modules.scoring import apply_score, classify_developer, hard_filter_reason, qualification_failure, selected_developer_types
 
@@ -47,16 +53,200 @@ def empty_stats() -> dict:
         "qualified": 0,
         "enrichment_errors": 0,
         "errors": [],
+        "rejections": {
+            "no_website": 0,
+            "no_email_found": 0,
+            "email_filtered_out": 0,
+            "icp_mismatch": 0,
+            "mrr_exceeded": 0,
+            "ratings_above_cap": 0,
+            "update_window": 0,
+        },
     }
+
+
+_UPDATE_LADDER = ("30d", "60d", "90d", "180d", "365d", "any")
+CRAWL_WAVE = 18
+RELAX_PASS_BUDGET = 4
+RELAX_SEARCH_BUDGET = 8
+
+
+def _wider_update(current: str) -> str | None:
+    if current == "any":
+        return None
+    if current not in _UPDATE_LADDER:
+        return "180d"
+    index = _UPDATE_LADDER.index(current)
+    if index + 1 >= len(_UPDATE_LADDER):
+        return None
+    return _UPDATE_LADDER[index + 1]
+
+
+def _wider_ratings(cap):
+    if cap in (None, "any"):
+        return cap
+    amount = int(cap)
+    widened = int(amount * 1.5)
+    if widened <= amount:
+        widened = amount + 1
+    return widened
+
+
+def _deferral_bucket(reason: str) -> str | None:
+    text = reason or ""
+    if "ratings is above" in text:
+        return "ratings"
+    if text.startswith("updated ") and "window" in text:
+        return "update"
+    return None
+
+
+def _count_rejection(stats: dict, reason: str) -> None:
+    text = reason or ""
+    if text.startswith("ICP") or "large publisher" in text:
+        key = "icp_mismatch"
+    elif "ratings is above" in text:
+        key = "ratings_above_cap"
+    elif text.startswith("updated ") and "window" in text:
+        key = "update_window"
+    elif text.startswith("Estimated MRR"):
+        key = "mrr_exceeded"
+    else:
+        return
+    stats["rejections"][key] = int(stats["rejections"].get(key) or 0) + 1
+
+
+def _count_contact_gap(stats: dict, lead: Lead) -> None:
+    if not lead.developer_website and not lead.support_url and not lead.emails:
+        key = "no_website"
+    elif int(getattr(lead, "rejected_email_count", 0) or 0) > 0:
+        key = "email_filtered_out"
+    else:
+        key = "no_email_found"
+    stats["rejections"][key] = int(stats["rejections"].get(key) or 0) + 1
+
+
+def _partition_deferred(leads: list[Lead], targeting: dict, today: date):
+    revived: list[Lead] = []
+    updates: list[Lead] = []
+    ratings: list[Lead] = []
+    stuck: list[Lead] = []
+    for lead in leads:
+        reason = hard_filter_reason(lead, targeting, today)
+        if not reason:
+            lead.filter_reason = ""
+            revived.append(lead)
+            continue
+        lead.filter_reason = reason
+        bucket = _deferral_bucket(reason)
+        if bucket == "update":
+            updates.append(lead)
+        elif bucket == "ratings":
+            ratings.append(lead)
+        else:
+            stuck.append(lead)
+    return revived, updates, ratings, stuck
 
 
 def reclassify_store_emails(lead: Lead) -> None:
     for email in lead.emails:
-        if not str(email.evidence).startswith("Google Play listing"):
+        evidence = str(email.evidence)
+        if evidence.startswith("Google Play listing"):
+            prefix = "Google Play listing. "
+        elif evidence.startswith("App Store listing"):
+            prefix = "App Store listing. "
+        else:
             continue
-        email_type, evidence = classify_email(email.address, "", lead.developer_name, lead.developer_type)
+        email_type, detail = classify_email(email.address, "", lead.developer_name, lead.developer_type)
         email.email_type = email_type
-        email.evidence = "Google Play listing. " + evidence
+        email.evidence = prefix + detail
+
+
+class _StreamingAnalyst:
+    """Background consumer. One tracker lookup at a time, while the scout keeps going."""
+
+    def __init__(self, *, demo: bool, getter, dashboard: AgentDashboard | None, voice: Narrator, stats: dict):
+        self.demo = demo
+        self.getter = getter
+        self.dashboard = dashboard
+        self.voice = voice
+        self.stats = stats
+        self.queue: queue.Queue = queue.Queue()
+        self._pending = 0
+        self._lock = threading.Lock()
+        self._idle = threading.Event()
+        self._idle.set()
+        self._index = 0
+        self._started = False
+        self._closed = False
+        self._thread = threading.Thread(target=self._run, name="analyst-mrr", daemon=True)
+
+    def start(self) -> None:
+        if self._started:
+            return
+        self._started = True
+        self._thread.start()
+
+    def submit(self, lead: Lead) -> None:
+        self.start()
+        with self._lock:
+            self._pending += 1
+            self._idle.clear()
+        self.queue.put(lead)
+
+    def wait_idle(self) -> None:
+        self._idle.wait()
+
+    def close(self) -> None:
+        if not self._started or self._closed:
+            return
+        self._closed = True
+        self.queue.put(None)
+        self._thread.join()
+
+    def _run(self) -> None:
+        while True:
+            lead = self.queue.get()
+            try:
+                if lead is None:
+                    return
+                try:
+                    self._fetch(lead)
+                except Exception as exc:
+                    self.stats["errors"].append(f"MRR lookup failed: {exc}")
+                    lead.estimated_mrr = lead.estimated_mrr or ""
+                    lead.mrr_numeric = None
+            finally:
+                if lead is not None:
+                    with self._lock:
+                        self._pending -= 1
+                        if self._pending <= 0:
+                            self._pending = 0
+                            self._idle.set()
+
+    def _fetch(self, lead: Lead) -> None:
+        index = self._index
+        self._index += 1
+        name = lead.app_name or "App"
+        if self.dashboard is not None:
+            self.dashboard.set_analyst(f"Fetching MRR for {name}...")
+        else:
+            self.voice.line(f"Checking MRR for {name}...")
+        display = enrich_one_mrr(
+            lead,
+            demo=self.demo,
+            getter=self.getter,
+            index=index,
+        )
+        if self.dashboard is not None and is_high_mrr(display):
+            self.dashboard.add_funnel(mrr_hits=1)
+        if (display or "").strip():
+            return
+        message = f"• {name}: No public MRR listed — keeping lead"
+        if self.dashboard is not None:
+            self.dashboard.push_feed(message)
+        else:
+            self.voice.line(message)
 
 
 def discover(
@@ -75,6 +265,7 @@ def discover(
     narrator: Narrator | None = None,
     demo: bool = False,
     dashboard: AgentDashboard | None = None,
+    mrr_getter=None,
 ) -> Discovery:
     current = today or utc_today()
     stats = empty_stats()
@@ -88,113 +279,407 @@ def discover(
     known_names = set(crm_index.names)
     prior_map = _prior_map(prior)
     target = int(targeting["target_prospects"])
-    country = targeting.get("country") or settings["apify"].get("country") or "us"
+    country = str(targeting.get("country") or settings["apify"].get("country") or "us").strip().lower()
     minimum_known = int(scoring.get("minimum_known_max") or 0)
-    jobs = discovery_jobs(targeting, settings)
+    jobs = [
+        (platform, keyword, page, front)
+        for platform, keyword, page in discovery_jobs(targeting, settings)
+        for front in storefronts_for(country)
+    ]
     cap = int(settings["apify"]["max_searches_per_run"])
-    limit = min(len(jobs), search_attempt_limit(settings))
+    # Category RSS is free, so the Apify search cap does not stop the chart list.
+    # `cap` still marks when the run has moved past the first planned wave.
+    limit = len(jobs)
+    mrr_checked: set[int] = set()
+    deferred_update: list[Lead] = []
+    deferred_ratings: list[Lead] = []
+    searched_fronts: set[str] = set()
+    used_keywords: list[str] = []
+    seen_queries: set[tuple[str, str, str]] = set()
+    network_ok = True
+    relax_budget = {"used": 0, "announced": False}
     voice = narrator or Narrator()
+    analyst = _StreamingAnalyst(
+        demo=demo,
+        getter=mrr_getter,
+        dashboard=dashboard,
+        voice=voice,
+        stats=stats,
+    )
     attempts = 0
     announced = False
+    index = 0
+    started: set[int] = set()
+    prefetch_future = None
+    prefetch_index = None
+    pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="apify-prefetch")
 
-    for platform, keyword, page in jobs:
-        if len(qualified) >= target:
-            _say(voice, dashboard, f"Reached the target of {target} qualified prospects. No further searches will start.")
-            break
-        if attempts >= limit:
-            _say(voice, dashboard, f"Qualified prospects: {len(qualified)}/{target}. Search limit of {limit} reached.")
-            break
-        if attempts >= cap and not announced:
-            remaining = target - len(qualified)
-            _say(
-                voice,
-                dashboard,
-                f"Qualified prospects: {len(qualified)}/{target} — expanding search for {remaining} more...",
-            )
-            announced = True
-        attempts += 1
-        store = "iOS App Store" if platform == "ios" else "Google Play"
-        label = f"Scraping {store} for \"{keyword}\" (Page {page})..."
+    def _drop_over_ceiling() -> None:
+        """Remove leads whose verified MRR is above the wizard ceiling.
+
+        Blank, missing, and rate-limited MRR stay. This does not start a search.
+        """
+        ceiling = targeting.get("max_mrr")
+        if ceiling is None:
+            return
+        kept: list[Lead] = []
+        for lead in qualified:
+            if id(lead) in mrr_checked:
+                kept.append(lead)
+                continue
+            known = lead.mrr_numeric if lead.mrr_numeric is not None else dollars_from_display(lead.estimated_mrr)
+            if known is not None and int(known) > int(ceiling):
+                mrr_checked.add(id(lead))
+                lead.filter_reason = f"Estimated MRR is above the ${int(ceiling):,} ceiling"
+                stats["qualified"] = max(0, int(stats["qualified"]) - 1)
+                stats["filtered_out"] += 1
+                stats["filtered_hard"] += 1
+                _count_rejection(stats, lead.filter_reason)
+                if dashboard is None:
+                    voice.line(f"  {lead.app_name}: {lead.filter_reason}")
+                continue
+            kept.append(lead)
+        qualified[:] = kept
         if dashboard is not None:
-            dashboard.focus(2, label)
-        try:
-            saved = prior_map.get((platform, keyword, page))
-            if saved is not None:
-                items = saved
-                if dashboard is None:
-                    voice.line(f"  Using {len(items)} saved result(s) from the interrupted run.")
+            dashboard.set_qualified(len(qualified))
+
+    def _confirm_full() -> None:
+        """When a ceiling is set, let in-flight MRR finish before the scout stops.
+
+        Missing MRR does not drop the lead and does not open another chart.
+        """
+        if targeting.get("max_mrr") is None:
+            return
+        analyst.wait_idle()
+        _drop_over_ceiling()
+
+    def _on_qualified(lead: Lead) -> None:
+        analyst.submit(lead)
+
+    def _announce_expansion() -> None:
+        nonlocal announced
+        if announced or attempts < cap:
+            return
+        remaining = target - len(qualified)
+        _say(
+            voice,
+            dashboard,
+            f"Qualified prospects: {len(qualified)}/{target} — expanding search for {remaining} more...",
+        )
+        announced = True
+
+    def _begin(job_index: int) -> bool:
+        nonlocal attempts
+        if job_index in started:
+            return True
+        if job_index < 0 or job_index >= len(jobs) or attempts >= limit or len(qualified) >= target:
+            return False
+        _announce_expansion()
+        attempts += 1
+        started.add(job_index)
+        return True
+
+    def launch_prefetch(hopeful: int) -> None:
+        nonlocal prefetch_future, prefetch_index
+        if prefetch_future is not None:
+            return
+        if len(qualified) + max(0, hopeful) >= target:
+            return
+        nxt = index + 1
+        if nxt < len(jobs):
+            platform, keyword, page, front = jobs[nxt]
+        else:
+            platform, keyword, page, front = "", "", 1, country
+        if nxt >= len(jobs) or (platform, keyword, page) in prior_map:
+            return
+        if not _begin(nxt):
+            return
+        prefetch_index = nxt
+
+        def _run(platform=platform, keyword=keyword, page=page, front=front):
+            return _call_searcher(searcher, platform, keyword, front, page)
+
+        prefetch_future = pool.submit(_run)
+
+    def _report_fresh(platform: str, keyword: str, items: list, page: int, meta: dict) -> None:
+        if dashboard is None:
+            if meta.get("cached"):
+                voice.line(
+                    f"  Using {len(items)} cached result(s) from the last "
+                    f"{settings['apify'].get('cache_hours', 24)} hours."
+                )
             else:
-                if dashboard is None:
-                    with voice.spin(label):
-                        items, meta = _call_searcher(searcher, platform, keyword, country, page)
-                else:
-                    items, meta = _call_searcher(searcher, platform, keyword, country, page)
-                if dashboard is None:
-                    if meta.get("cached"):
-                        voice.line(
-                            f"  Using {len(items)} cached result(s) from the last "
-                            f"{settings['apify'].get('cache_hours', 24)} hours."
+                voice.line(f"  Retrieved {len(items)} result(s).")
+        if on_raw:
+            on_raw(platform, keyword, items, page)
+
+    def _reject_stuck(leads: list[Lead]) -> None:
+        for lead in leads:
+            reason = lead.filter_reason or "filtered during discovery"
+            lead.filter_reason = reason
+            stats["filtered_out"] += 1
+            stats["filtered_hard"] += 1
+            _count_rejection(stats, reason)
+
+    def _flush_deferred() -> None:
+        leftover = list(deferred_update) + list(deferred_ratings)
+        deferred_update.clear()
+        deferred_ratings.clear()
+        _reject_stuck(leftover)
+
+    def _reprocess(leads: list[Lead], active: dict) -> None:
+        if not leads or len(qualified) >= target:
+            return
+        _crawl_and_score(
+            leads, active, settings, scoring, stats, qualified, missing_email, missing_site,
+            enricher, current, minimum_known, itunes_fetcher, voice, target, demo, dashboard,
+            None, mrr_getter, _confirm_full, _on_qualified,
+        )
+
+    def _replay(bucket: list[Lead], active: dict) -> list[Lead]:
+        revived, updates, ratings, stuck = _partition_deferred(bucket, active, current)
+        _reject_stuck(stuck)
+        deferred_update.extend(updates)
+        deferred_ratings.extend(ratings)
+        if revived:
+            _reprocess(revived, active)
+        return updates if bucket is deferred_update else ratings
+
+    def _widen_updates(active: dict) -> None:
+        while len(qualified) < target:
+            nxt = _wider_update(str(active.get("last_update") or ""))
+            if not nxt:
+                return
+            active["last_update"] = nxt
+            if not deferred_update:
+                return
+            pending = list(deferred_update)
+            deferred_update.clear()
+            _replay(pending, active)
+            if not deferred_update:
+                return
+
+    def _announce_relax() -> None:
+        if relax_budget["announced"]:
+            return
+        relax_budget["announced"] = True
+        message = f"Widening storefront & keyword net to hit {target}/{target} target..."
+        if dashboard is None:
+            voice.line(message)
+            return
+        active_phase = next((number for number, phase in dashboard.phases.items() if phase["state"] == "active"), None)
+        if active_phase == 3:
+            dashboard.note(3, message)
+        else:
+            dashboard.note(2, message)
+
+    def _platforms() -> list[str]:
+        choice = targeting.get("platforms")
+        if choice == "android":
+            return ["android"]
+        if choice == "both":
+            return ["ios", "android"]
+        return ["ios"]
+
+    def _search_relax(keywords: list[str], fronts: list[str], active: dict, ceiling: int) -> None:
+        nonlocal network_ok
+        for front in fronts:
+            for keyword in keywords:
+                for platform in _platforms():
+                    if len(qualified) >= target or relax_budget["used"] >= ceiling:
+                        return
+                    key = (platform, keyword.strip().lower(), front)
+                    if key in seen_queries:
+                        continue
+                    seen_queries.add(key)
+                    relax_budget["used"] += 1
+                    page = 1
+                    try:
+                        items, _meta = _call_searcher(searcher, platform, keyword, front, page)
+                    except ApifyInterrupted as exc:
+                        network_ok = False
+                        items = exc.items
+                        if on_raw and items:
+                            on_raw(platform, keyword, items, page)
+                        _consume(
+                            items, platform, keyword, active, settings, scoring, crm_index, seen, counted_crm,
+                            known_ids, known_urls, known_names,
+                            stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
+                            itunes_fetcher, voice, target, demo, dashboard, None, mrr_getter,
+                            deferred_update, deferred_ratings, _confirm_full, _on_qualified,
                         )
+                        return
+                    except ApifyError as exc:
+                        stats["errors"].append(str(exc))
+                        continue
+                    if on_raw and items:
+                        on_raw(platform, keyword, items, page)
+                    _consume(
+                        items, platform, keyword, active, settings, scoring, crm_index, seen, counted_crm,
+                        known_ids, known_urls, known_names,
+                        stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
+                        itunes_fetcher, voice, target, demo, dashboard, None, mrr_getter,
+                        deferred_update, deferred_ratings, _confirm_full, _on_qualified,
+                    )
+
+    def _relax() -> None:
+        if len(qualified) >= target:
+            return
+        if not deferred_update and not deferred_ratings and not network_ok:
+            return
+        _announce_relax()
+        active = dict(targeting)
+        _widen_updates(active)
+        if network_ok and len(qualified) < target:
+            extra_fronts = [front for front in ENGLISH_STOREFRONTS if front not in searched_fronts]
+            words = used_keywords[:6] or keyword_plan(targeting, settings)[:6]
+            _search_relax(words, extra_fronts, active, RELAX_PASS_BUDGET)
+        if len(qualified) < target and deferred_ratings and active.get("max_ratings") != "any":
+            active["max_ratings"] = _wider_ratings(active.get("max_ratings"))
+            pending = list(deferred_ratings)
+            deferred_ratings.clear()
+            _replay(pending, active)
+        if network_ok and len(qualified) < target:
+            base_words = used_keywords or keyword_plan(targeting, settings)
+            synonyms = synonym_keywords(base_words)
+            fronts = list(searched_fronts) or storefronts_for(country)
+            _search_relax(synonyms, fronts, active, RELAX_SEARCH_BUDGET)
+
+    def _finish() -> None:
+        _flush_deferred()
+        _trim_qualified(qualified, stats, target)
+        if dashboard is not None:
+            dashboard.rejections = dict(stats.get("rejections") or {})
+            scanned = dashboard.funnel["raw_scanned"]
+            candidates = dashboard.funnel["candidates"]
+            dashboard.complete(2, f"Scanned {scanned} apps → {candidates} candidates")
+            dashboard.complete(3, f"Extracting contacts [{len(qualified)}/{target} qualified]")
+            dashboard.complete(4, f"Ranked {len(qualified)} qualified leads")
+            dashboard.set_qualified(len(qualified))
+        _check_partition(stats)
+
+    try:
+        analyst.start()
+        if dashboard is not None:
+            dashboard.begin_clock()
+            dashboard.set_scout("Scanning category feeds")
+            dashboard.set_analyst("Waiting for a qualified lead")
+        while index < len(jobs):
+            if len(qualified) >= target:
+                _confirm_full()
+            if len(qualified) >= target:
+                _say(voice, dashboard, f"Reached the target of {target} qualified prospects. No further searches will start.")
+                break
+            if index not in started and attempts >= limit:
+                _say(voice, dashboard, f"Qualified prospects: {len(qualified)}/{target}. Search limit of {limit} reached.")
+                break
+            if not _begin(index):
+                _say(voice, dashboard, f"Qualified prospects: {len(qualified)}/{target}. Search limit of {limit} reached.")
+                break
+            platform, keyword, page, front = jobs[index]
+            searched_fronts.add(front)
+            if keyword not in used_keywords:
+                used_keywords.append(keyword)
+            seen_queries.add((platform, keyword.strip().lower(), front))
+            chart = "top free" if page == 1 else "top paid"
+            label = f"Pulling {chart} {keyword} ({front})..."
+            if dashboard is not None:
+                dashboard.focus(2, label)
+            use_prefetch = prefetch_future is not None and prefetch_index == index
+            try:
+                saved = prior_map.get((platform, keyword, page))
+                if use_prefetch:
+                    try:
+                        items, meta = prefetch_future.result()
+                    finally:
+                        prefetch_future = None
+                        prefetch_index = None
+                    _report_fresh(platform, keyword, items, page, meta)
+                elif saved is not None:
+                    items = saved
+                    if dashboard is None:
+                        voice.line(f"  Using {len(items)} saved result(s) from the interrupted run.")
+                else:
+                    if dashboard is None:
+                        with voice.spin(label):
+                            items, meta = _call_searcher(searcher, platform, keyword, front, page)
                     else:
-                        voice.line(f"  Retrieved {len(items)} result(s).")
-                if on_raw:
+                        items, meta = _call_searcher(searcher, platform, keyword, front, page)
+                    _report_fresh(platform, keyword, items, page, meta)
+            except ApifyInterrupted as exc:
+                network_ok = False
+                prefetch_future = None
+                prefetch_index = None
+                if dashboard is None:
+                    voice.line(str(exc))
+                else:
+                    dashboard.note(2, str(exc))
+                stats["errors"].append(str(exc))
+                items = exc.items
+                if on_raw and items:
                     on_raw(platform, keyword, items, page)
-        except ApifyInterrupted as exc:
-            if dashboard is None:
-                voice.line(str(exc))
-            else:
-                dashboard.note(2, str(exc))
-            stats["errors"].append(str(exc))
-            items = exc.items
-            if on_raw and items:
-                on_raw(platform, keyword, items, page)
+                _consume(
+                    items, platform, keyword, targeting, settings, scoring, crm_index, seen, counted_crm,
+                    known_ids, known_urls, known_names,
+                    stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
+                    itunes_fetcher, voice, target, demo, dashboard, launch_prefetch, mrr_getter,
+                    deferred_update, deferred_ratings, _confirm_full, _on_qualified,
+                )
+                break
+            except ApifyError as exc:
+                prefetch_future = None
+                prefetch_index = None
+                if dashboard is None:
+                    voice.line(str(exc))
+                else:
+                    dashboard.note(2, str(exc))
+                    dashboard.pause()
+                stats["errors"].append(str(exc))
+                if prompter is None:
+                    index += 1
+                    continue
+                choice = prompter.select(
+                    "A search failed.",
+                    [("Continue with the results already retrieved", "continue"), ("Stop", "stop")],
+                    default="continue",
+                )
+                if dashboard is not None and choice == "continue":
+                    dashboard.resume()
+                if choice != "continue":
+                    break
+                index += 1
+                continue
             _consume(
                 items, platform, keyword, targeting, settings, scoring, crm_index, seen, counted_crm,
                 known_ids, known_urls, known_names,
                 stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
-                itunes_fetcher, voice, target, demo, dashboard,
+                itunes_fetcher, voice, target, demo, dashboard, launch_prefetch, mrr_getter,
+                deferred_update, deferred_ratings, _confirm_full, _on_qualified,
             )
-            break
-        except ApifyError as exc:
-            if dashboard is None:
-                voice.line(str(exc))
-            else:
-                dashboard.note(2, str(exc))
-                dashboard.pause()
-            stats["errors"].append(str(exc))
-            if prompter is None:
-                continue
-            choice = prompter.select(
-                "A search failed.",
-                [("Continue with the results already retrieved", "continue"), ("Stop", "stop")],
-                default="continue",
-            )
-            if dashboard is not None and choice == "continue":
-                dashboard.resume()
-            if choice != "continue":
-                break
-            continue
-        _consume(
-            items, platform, keyword, targeting, settings, scoring, crm_index, seen, counted_crm,
-            known_ids, known_urls, known_names,
-            stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
-            itunes_fetcher, voice, target, demo, dashboard,
-        )
-    else:
+            index += 1
+        else:
+            if len(qualified) < target:
+                _say(voice, dashboard, f"Qualified prospects: {len(qualified)}/{target}. No further category charts are left.")
         if len(qualified) < target:
-            _say(voice, dashboard, f"Qualified prospects: {len(qualified)}/{target}. No further keywords or pages are left.")
-
-    _trim_qualified(qualified, stats, target)
-    if dashboard is not None:
-        unique = max(0, dashboard.funnel["raw_scanned"] - dashboard.funnel["duplicates_skipped"])
-        dashboard.complete(2, f"Scanned {dashboard.funnel['raw_scanned']} apps → {unique} unique candidates")
-        dashboard.complete(
-            3,
-            f"Emails {dashboard.funnel['emails_found']} · MRR hits {dashboard.funnel['mrr_hits']}",
-        )
-        dashboard.complete(4, f"Ranked {len(qualified)} qualified leads")
-        dashboard.set_qualified(len(qualified))
-    _check_partition(stats)
+            if prefetch_future is not None:
+                prefetch_future.cancel()
+                prefetch_future = None
+                prefetch_index = None
+            _relax()
+    except Exception as exc:
+        message = f"Discovery stopped early: {exc}"
+        stats["errors"].append(message)
+        print(message)
+    finally:
+        pending_prefetch = prefetch_future
+        prefetch_future = None
+        prefetch_index = None
+        if pending_prefetch is not None:
+            pending_prefetch.cancel()
+        pool.shutdown(wait=True, cancel_futures=True)
+        analyst.close()
+        _drop_over_ceiling()
+        _finish()
     return Discovery(
         qualified=qualified,
         missing_email=missing_email,
@@ -266,7 +751,15 @@ def _consume(
     target: int,
     demo: bool = False,
     dashboard: AgentDashboard | None = None,
+    on_shortfall=None,
+    mrr_getter=None,
+    deferred_update: list | None = None,
+    deferred_ratings: list | None = None,
+    on_full=None,
+    on_qualified=None,
 ) -> None:
+    held_update = deferred_update if deferred_update is not None else []
+    held_ratings = deferred_ratings if deferred_ratings is not None else []
     fresh: list[Lead] = []
     duplicates = 0
     for item in items:
@@ -294,13 +787,26 @@ def _consume(
         reason = hard_filter_reason(lead, targeting, today)
         if reason:
             lead.filter_reason = reason
+            bucket = _deferral_bucket(reason)
+            if bucket == "update":
+                held_update.append(lead)
+                continue
+            if bucket == "ratings":
+                held_ratings.append(lead)
+                continue
             stats["filtered_out"] += 1
             stats["filtered_hard"] += 1
+            _count_rejection(stats, reason)
             filtered += 1
             continue
         candidates.append(lead)
     if dashboard is not None:
-        dashboard.add_funnel(raw_scanned=len(items), duplicates_skipped=duplicates, filtered_out=filtered)
+        dashboard.add_funnel(
+            raw_scanned=len(items),
+            duplicates_skipped=duplicates,
+            filtered_out=filtered,
+            candidates=len(candidates),
+        )
         dashboard.note(
             2,
             f"Filtered {len(items)} raw apps → {len(candidates)} new candidates "
@@ -312,55 +818,94 @@ def _consume(
             f"({duplicates} duplicates skipped, {filtered} filtered by criteria)..."
         )
     if len(qualified) >= target:
-        _release_uncapped(candidates, stats)
+        if on_full is not None:
+            on_full()
+        if len(qualified) >= target:
+            _release_uncapped(candidates, stats)
+            return
+    if len(qualified) + len(candidates) < target and on_shortfall is not None:
+        on_shortfall(len(candidates))
+    _crawl_and_score(
+        candidates, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+        enricher, today, minimum_known, itunes_fetcher, narrator, target, demo, dashboard,
+        on_shortfall, mrr_getter, on_full, on_qualified,
+    )
+
+
+def _crawl_and_score(
+    candidates, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+    enricher, today, minimum_known, itunes_fetcher, narrator, target, demo, dashboard,
+    on_shortfall, mrr_getter, on_full=None, on_qualified=None,
+) -> None:
+    """Crawl a wave at a time. Each qualified contact is handed to the analyst immediately."""
+
+    def _locked() -> bool:
+        if len(qualified) < target:
+            return False
+        if on_full is not None:
+            on_full()
+        return len(qualified) >= target
+    if not candidates:
         return
-    if candidates and platform == "ios":
-        fill_from_itunes(candidates, settings, itunes_fetcher)
+    ios = [lead for lead in candidates if lead.platform == "ios"]
+    if ios:
+        fill_from_itunes(ios, settings, itunes_fetcher)
     window: list[Lead] = []
     pending = list(candidates)
-    while pending and len(qualified) < target:
-        lead = pending.pop(0)
-        index = len(candidates) - len(pending)
-        status = f"Crawling developer sites & /privacy pages for emails [{index}/{len(candidates)}]..."
-        if dashboard is not None:
-            dashboard.focus(3, status)
+
+    def _guard(lead: Lead) -> None:
         try:
-            if dashboard is None:
-                with narrator.spin(f"🌐 {status}"):
-                    enricher(lead)
-            else:
-                enricher(lead)
+            enricher(lead)
         except Exception as exc:
             lead.enrichment_status = "error"
             lead.enrichment_note = str(exc)
-            stats["filtered_out"] += 1
-            stats["enrichment_errors"] += 1
-            stats["errors"].append(f"{lead.app_name}: {exc}")
-            if dashboard is None:
-                narrator.line(f"Enrichment failed for {lead.app_name}: {exc}")
-            continue
-        if lead.primary_email and lead.enrichment_status not in {"blocked", "error"}:
-            if dashboard is not None:
-                dashboard.add_funnel(emails_found=1)
-            window.append(lead)
-            if len(window) >= target - len(qualified):
-                _score_window(
-                    window, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
-                    enricher, today, minimum_known, narrator, target, demo, dashboard,
+
+    while pending and len(qualified) < target:
+        if on_shortfall is not None and len(qualified) + len(pending) + len(window) < target:
+            on_shortfall(len(pending) + len(window))
+        slots = max(1, target - len(qualified))
+        wave_n = min(CRAWL_WAVE, slots)
+        batch = pending[:wave_n]
+        del pending[:wave_n]
+        status = f"Extracting contacts [{len(qualified)}/{target} qualified]..."
+        if dashboard is not None:
+            dashboard.focus(3, status)
+            crawl_leads(batch, _guard, workers=12)
+        else:
+            with narrator.spin(f"🌐 {status}"):
+                crawl_leads(batch, _guard, workers=12)
+        for offset, lead in enumerate(batch, start=1):
+            if lead.primary_email and lead.enrichment_status not in {"blocked", "error"}:
+                if dashboard is not None:
+                    dashboard.add_funnel(emails_found=1)
+                window.append(lead)
+                if len(window) >= target - len(qualified):
+                    _score_window(
+                        window, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
+                        enricher, today, minimum_known, narrator, target, demo, dashboard, mrr_getter,
+                        on_qualified,
+                    )
+                    window = []
+            else:
+                _score_prepared_lead(
+                    lead, targeting, scoring, stats, qualified, missing_email, missing_site,
+                    today, minimum_known, narrator, target, dashboard, on_qualified,
                 )
-                window = []
-            continue
-        _score_prepared_lead(
-            lead, targeting, scoring, stats, qualified, missing_email, missing_site,
-            today, minimum_known, narrator, target, dashboard,
-        )
+            if _locked():
+                _release_uncapped(batch[offset:], stats)
+                _release_uncapped(pending, stats)
+                pending.clear()
+                break
     if window and len(qualified) < target:
         _score_window(
             window, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
-            enricher, today, minimum_known, narrator, target, demo, dashboard,
+            enricher, today, minimum_known, narrator, target, demo, dashboard, mrr_getter,
+            on_qualified,
         )
-    if len(qualified) >= target and pending:
+    if _locked() and pending:
         _release_uncapped(pending, stats)
+    elif len(qualified) < target and on_shortfall is not None:
+        on_shortfall(len(pending))
 
 
 def _from_crm(lead: Lead, known_ids: set[str], known_urls: set[str], known_names: set[str]) -> bool:
@@ -375,21 +920,14 @@ def _from_crm(lead: Lead, known_ids: set[str], known_urls: set[str], known_names
 
 def _score_window(
     window, targeting, settings, scoring, stats, qualified, missing_email, missing_site,
-    enricher, today, minimum_known, narrator, target, demo, dashboard,
+    enricher, today, minimum_known, narrator, target, demo, dashboard, mrr_getter=None,
+    on_qualified=None,
 ) -> None:
-    """MRR, then score only until the target is full. Extras are not scored."""
-    del enricher, settings
+    """Score email-ready leads and enqueue each one for background MRR."""
+    del enricher, settings, demo, mrr_getter
     if not window:
         return
-    if dashboard is not None:
-        dashboard.focus(3, "Fetching estimated MRR for qualified leads (concurrently)...")
-    else:
-        narrator.line("💰 Fetching estimated MRR for qualified leads (concurrently)...")
-    enrich_estimated_mrr(window, demo=demo)
-    if dashboard is not None:
-        dashboard.add_funnel(mrr_hits=sum(1 for lead in window if is_high_mrr(lead.estimated_mrr)))
-        dashboard.focus(4, "Applying score weights...")
-    else:
+    if dashboard is None:
         narrator.line("⚡ Scoring & ranking qualified prospects...")
     for lead in window:
         if len(qualified) >= target:
@@ -397,7 +935,7 @@ def _score_window(
             continue
         _score_prepared_lead(
             lead, targeting, scoring, stats, qualified, missing_email, missing_site,
-            today, minimum_known, narrator, target, dashboard,
+            today, minimum_known, narrator, target, dashboard, on_qualified,
         )
 
 
@@ -405,6 +943,7 @@ def _score_prepared_lead(
     lead, targeting, scoring, stats, qualified, missing_email, missing_site,
     today, minimum_known, narrator: Narrator, target: int,
     dashboard: AgentDashboard | None = None,
+    on_qualified=None,
 ) -> None:
     if len(qualified) >= target:
         _release_uncapped([lead], stats)
@@ -425,14 +964,24 @@ def _score_prepared_lead(
         stats["filtered_out"] += 1
         stats["filtered_score"] += 1
         return
-    if lead.primary_email is None and not lead.developer_website:
+    if lead.primary_email is None and not lead.developer_website and not lead.support_url:
         stats["missing_developer_site"] += 1
         missing_site.append(lead)
+        _count_contact_gap(stats, lead)
         return
     if lead.primary_email is None:
         stats["missing_public_email"] += 1
         missing_email.append(lead)
+        _count_contact_gap(stats, lead)
         return
+    if not (lead.contact_name or "").strip():
+        developer = (lead.developer_name or "").strip()
+        if developer:
+            lead.contact_name = developer
+        else:
+            lead.filter_reason = "no public contact name"
+            stats["filtered_out"] += 1
+            return
     if len(qualified) >= target:
         _release_uncapped([lead], stats)
         return
@@ -440,10 +989,13 @@ def _score_prepared_lead(
     qualified.append(lead)
     if dashboard is not None:
         dashboard.set_qualified(len(qualified))
-        dashboard.note(4, f"Locked {lead.app_name} ({lead.score_normalized}/100)")
+        dashboard.set_scout("Scanning category feeds")
+        dashboard.note(3, f"Extracting contacts [{len(qualified)}/{target} qualified]...")
     else:
         narrator.line(f"  Qualified {lead.app_name} ({lead.score_normalized}/100)")
         narrator.line(f"[{len(qualified)}/{target} qualified leads found]")
+    if on_qualified is not None:
+        on_qualified(lead)
 
 
 def _release_uncapped(leads: list[Lead], stats: dict) -> None:

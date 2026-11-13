@@ -31,6 +31,7 @@ CATEGORIES = [
     "Finance",
     "Education",
     "Utilities",
+    "Photo & Video",
     "Social Networking",
     "Entertainment",
     "Other",
@@ -47,12 +48,13 @@ UPDATE_WINDOWS = [
     ("30d", "Within 30 days"),
     ("60d", "Within 60 days"),
     ("90d", "Within 90 days"),
-    ("180d", "Within 180 days"),
+    ("180d", "Last 180 days"),
+    ("365d", "Within 365 days"),
     ("any", "No restriction"),
 ]
 
 AGE_DAYS = {"6m": 183, "1y": 365, "2y": 730}
-UPDATE_DAYS = {"30d": 30, "60d": 60, "90d": 90, "180d": 180}
+UPDATE_DAYS = {"30d": 30, "60d": 60, "90d": 90, "180d": 180, "365d": 365}
 
 DEVELOPER_TYPE_LABELS = dict(DEVELOPER_TYPES)
 PLATFORM_LABELS = {"ios": "iOS", "android": "Android", "both": "iOS and Android"}
@@ -62,6 +64,7 @@ UPDATE_LABELS = {
     "60d": "60 days",
     "90d": "90 days",
     "180d": "180 days",
+    "365d": "365 days",
     "any": "No restriction",
 }
 TEAM_LABELS = {

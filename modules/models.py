@@ -21,6 +21,7 @@ class Lead:
     developer_name: str = ""
     app_store_url: str = ""
     developer_website: str = ""
+    support_url: str = ""
     description: str = ""
     category: str = ""
     release_date: str | None = None
@@ -39,6 +40,7 @@ class Lead:
     contact_page_url: str = ""
     enrichment_status: str = "pending"
     enrichment_note: str = ""
+    rejected_email_count: int = 0
     search_keyword: str = ""
     filter_reason: str = ""
     score_normalized: int | None = None

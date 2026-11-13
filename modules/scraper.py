@@ -7,7 +7,6 @@ import json
 import logging
 import re
 import time
-from collections import deque
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -16,7 +15,7 @@ import requests
 from modules.config import ROOT, project_path
 from modules.dates import iso_date
 from modules.deduplication import canonical_url
-from modules.enrichment import normalize_website
+from modules.enrichment import apply_store_links
 from modules.errors import ApifyError
 from modules.http_utils import HttpError, redact, request_with_retry
 from modules.models import EmailFound, Lead
@@ -37,42 +36,56 @@ SOURCE_DROP = {
 }
 
 
+ENGLISH_STOREFRONTS = ("us", "gb", "ca", "au")
+
+# Extra phrases used only after the primary keyword list still misses the target.
+SYNONYMS = {
+    "focus timer": ["pomodoro timer", "deep work timer"],
+    "habit tracker": ["daily habits", "streak tracker"],
+    "water reminder": ["hydration reminder"],
+    "budget planner": ["spending tracker"],
+    "expense tracker": ["spending log"],
+    "mood tracker": ["mood journal"],
+    "study timer": ["study planner"],
+    "qr scanner": ["barcode scanner"],
+    "daily planner": ["day planner"],
+    "time tracker": ["hours tracker"],
+}
+
+
+def storefronts_for(country: str | None) -> list[str]:
+    code = str(country or "us").strip().lower()
+    if code == "global":
+        return list(ENGLISH_STOREFRONTS)
+    return [code]
+
+
+def synonym_keywords(keywords: list[str]) -> list[str]:
+    seen = {word.lower() for word in keywords}
+    extras: list[str] = []
+    for word in keywords:
+        for alt in SYNONYMS.get(word.lower(), []):
+            if alt.lower() in seen:
+                continue
+            seen.add(alt.lower())
+            extras.append(alt)
+    return extras
+
+
 def keyword_plan(targeting: dict, settings: dict, limit: int | None = None) -> list[str]:
-    """Round-robin categories so one category cannot spend the whole search budget."""
-    keyword_map = settings.get("category_keywords") or {}
-    limit = int(settings["apify"]["max_searches_per_run"] if limit is None else limit)
-    pools: list[deque[str]] = []
-    for category in targeting.get("categories") or []:
-        words = [str(word).strip() for word in keyword_map.get(category) or [] if str(word).strip()]
-        if not words and category != "Other":
-            words = [category]
-        if words:
-            pools.append(deque(words))
-    custom = [str(word).strip() for word in targeting.get("custom_keywords") or [] if str(word).strip()]
-    if custom:
-        pools.append(deque(custom))
-    planned: list[str] = []
-    seen = set()
-    while len(planned) < limit and any(pools):
-        for pool in pools:
-            if not pool or len(planned) >= limit:
-                continue
-            word = pool.popleft()
-            key = word.lower()
-            if key in seen:
-                continue
-            seen.add(key)
-            planned.append(word)
-    return planned
+    """Category names in wizard order. Keyword maps and custom keywords are not searched."""
+    from modules.category_feed import category_plan
+
+    if limit is None:
+        limit = int(settings["apify"]["max_searches_per_run"])
+    return category_plan(targeting, settings, limit=limit)
 
 
 def search_jobs(targeting: dict, settings: dict) -> list[tuple[str, str]]:
-    platforms = _platforms(targeting.get("platforms"))
-    jobs = []
-    for keyword in keyword_plan(targeting, settings):
-        for platform in platforms:
-            jobs.append((platform, keyword))
-    return jobs[: int(settings["apify"]["max_searches_per_run"])]
+    """One iOS category chart job per selected genre. Android has no genre RSS."""
+    if targeting.get("platforms") == "android":
+        return []
+    return [("ios", category) for category in keyword_plan(targeting, settings, limit=10_000)]
 
 
 def long_tail_keywords(keywords: list[str], categories: list[str]) -> list[str]:
@@ -99,34 +112,29 @@ def long_tail_keywords(keywords: list[str], categories: list[str]) -> list[str]:
 
 
 def discovery_jobs(targeting: dict, settings: dict) -> list[tuple[str, str, int]]:
-    """Base keywords, then the next page window, then long-tail phrases.
+    """Free chart, then paid chart, for each selected App Store genre.
 
-    The caller stops at the target or at search_attempt_limit.
+    The second slot is `1 + end_page` so an `end_page` of 1 still means the paid chart.
+    Android is omitted: these feeds are App Store genres.
     """
-    platforms = _platforms(targeting.get("platforms"))
-    keywords = keyword_plan(targeting, settings, limit=10_000)
+    if targeting.get("platforms") == "android":
+        return []
+    categories = keyword_plan(targeting, settings, limit=10_000)
     window = max(1, int(settings["apify"].get("end_page") or 1))
     jobs: list[tuple[str, str, int]] = []
     seen: set[tuple[str, str, int]] = set()
 
-    def add(platform: str, keyword: str, page: int) -> None:
-        if platform == "android" and page > 1:
-            return
-        key = (platform, keyword.strip().lower(), page)
+    def add(category: str, page: int) -> None:
+        key = ("ios", category.strip().lower(), page)
         if key in seen:
             return
         seen.add(key)
-        jobs.append((platform, keyword, page))
+        jobs.append(("ios", category, page))
 
-    for keyword in keywords:
-        for platform in platforms:
-            add(platform, keyword, 1)
-    for keyword in keywords:
-        for platform in platforms:
-            add(platform, keyword, 1 + window)
-    for keyword in long_tail_keywords(keywords, list(targeting.get("categories") or [])):
-        for platform in platforms:
-            add(platform, keyword, 1)
+    for category in categories:
+        add(category, 1)
+    for category in categories:
+        add(category, 1 + window)
     return jobs
 
 
@@ -285,7 +293,7 @@ def _normalize_ios(item: dict, keyword: str) -> Lead | None:
         app_name=str(_first(item, "trackName", "trackCensoredName", "name") or "").strip(),
         developer_name=str(_first(item, "artistName", "sellerName", "developer") or "").strip(),
         app_store_url=canonical_url(str(url), "ios", app_id),
-        developer_website=normalize_website(_first(item, "sellerUrl", "sellerWebsite", "developerWebsite")),
+        developer_website="",
         description=str(description).strip(),
         category=str(_first(item, "primaryGenreName", "genre") or "").strip(),
         release_date=iso_date(_first(item, "releaseDate", "released")),
@@ -303,6 +311,11 @@ def _normalize_ios(item: dict, keyword: str) -> Lead | None:
     # The iOS actor's reviews field is an array of written reviews, not a count.
     if lead.review_count is None and isinstance(item.get("reviews"), (int, float)):
         lead.review_count = int(item["reviews"])
+    apply_store_links(
+        lead,
+        _first(item, "sellerUrl", "sellerWebsite", "developerWebsite"),
+        _first(item, "supportUrl", "supportURL"),
+    )
     if not lead.app_name:
         return None
     return lead
@@ -320,14 +333,13 @@ def _normalize_android(item: dict, keyword: str) -> Lead | None:
     if price is None and str(_first(item, "priceText") or "").lower() == "free":
         price = 0.0
     description = _first(item, "description", "summary", "descriptionText") or ""
-    website = normalize_website(_first(item, "developerWebsite", "developerUrl", "website", "privacyPolicy"))
     lead = Lead(
         platform="android",
         app_store_id=app_id,
         app_name=str(_first(item, "title", "name") or "").strip(),
         developer_name=str(_first(item, "developer", "developerLegalName", "artistName") or "").strip(),
         app_store_url=canonical_url(str(url), "android", app_id),
-        developer_website=website,
+        developer_website="",
         description=str(description).strip(),
         category=str(_first(item, "genre", "primaryGenreName") or "").strip(),
         release_date=iso_date(_first(item, "released", "releaseDate")),
@@ -345,6 +357,7 @@ def _normalize_android(item: dict, keyword: str) -> Lead | None:
     # adSupported is advertising, not an in-app purchase. Only keep it when a real IAP key exists.
     if "offersIAP" not in item and "inAppPurchases" not in item and "hasInAppPurchases" not in item:
         lead.has_iap = _bool_field(item, "offersIAP", "inAppPurchases", "hasInAppPurchases")
+    apply_store_links(lead, _first(item, "developerWebsite", "developerUrl", "website", "privacyPolicy"))
     store_email = _first(item, "developerEmail", "email")
     if isinstance(store_email, str) and "@" in store_email:
         from modules.enrichment import classify_email
@@ -363,8 +376,11 @@ def apply_itunes_record(lead: Lead, record: dict) -> None:
     """Fill gaps from Apple's public lookup. Do not overwrite actor values."""
     if not lead.description:
         lead.description = str(record.get("description") or "").strip()
-    if not lead.developer_website:
-        lead.developer_website = normalize_website(record.get("sellerUrl"))
+    apply_store_links(
+        lead,
+        None if lead.developer_website else record.get("sellerUrl"),
+        record.get("supportUrl") or record.get("supportURL"),
+    )
     if lead.rating_count is None:
         lead.rating_count = _int(record.get("userRatingCount"))
     if lead.average_rating is None:

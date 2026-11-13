@@ -7,7 +7,8 @@ import logging
 import re
 import socket
 import time
-from urllib.parse import urljoin, urlparse
+from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import unquote, urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 
 import requests
@@ -22,18 +23,23 @@ OBFUSCATED_RE = re.compile(
     r"([A-Z0-9._%+\-]+)\s*(?:\[at\]|\(at\)|\sat\s)\s*([A-Z0-9.\-]+)\s*(?:\[dot\]|\(dot\)|\sdot\s)\s*([A-Z]{2,})",
     re.IGNORECASE,
 )
-CONTACT_PATHS = (
+# Homepage, contact, and support stay inside the 3-page cap. Privacy follows when a slot remains.
+FAST_PATHS = (
     "/contact",
-    "/contact-us",
+    "/support",
     "/privacy",
     "/privacy-policy",
-    "/privacy_policy",
-    "/terms",
-    "/terms-of-service",
-    "/legal",
-    "/imprint",
-    "/about",
 )
+CONTACT_PATHS = FAST_PATHS
+HEAVY_EXTENSIONS = (
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ico",
+    ".pdf", ".mp4", ".mov", ".webm", ".zip", ".gz", ".css", ".js",
+    ".woff", ".woff2", ".mp3",
+)
+CRAWL_WORKERS = 12
+PAGE_CAP = 3
+CONNECT_TIMEOUT = 3.0
+READ_TIMEOUT = 5.0
 LINK_HINTS = ("contact", "privacy", "terms", "imprint", "legal", "about", "support")
 JUNK_DOMAINS = {
     "example.com",
@@ -42,7 +48,10 @@ JUNK_DOMAINS = {
     "domain.com",
     "email.com",
     "sentry.io",
+    "wix.com",
     "wixpress.com",
+    "wixsite.com",
+    "apple.com",
     "schema.org",
     "godaddy.com",
     "cloudflare.com",
@@ -54,7 +63,11 @@ JUNK_DOMAINS = {
 JUNK_LOCALS = {"user", "username", "name", "email", "yourname", "youremail", "example", "test", "emailaddress"}
 SKIP_LOCALS = {"noreply", "no-reply", "donotreply", "do-not-reply"}
 SUPPORT_LOCALS = {"support", "help", "customerservice", "customer", "feedback", "care", "service"}
-GENERAL_LOCALS = {"info", "contact", "hello", "hi", "team", "office", "mail", "enquiries", "inquiries", "admin", "sales"}
+GENERAL_LOCALS = {
+    "info", "contact", "hello", "hi", "team", "office", "mail",
+    "enquiries", "inquiries", "admin", "sales", "founder",
+}
+_IMAGE_TLDS = {"png", "jpg", "jpeg", "gif", "svg", "webp", "css", "js"}
 FOUNDER_WORDS = (
     "founder",
     "co-founder",
@@ -111,6 +124,8 @@ def normalize_website(url: str | None) -> str:
     text = url.strip()
     if not text or text.lower() in {"n/a", "none", "null"}:
         return ""
+    if text.lower().startswith("mailto:"):
+        return ""
     if not re.match(r"https?://", text, re.IGNORECASE):
         text = "https://" + text
     parsed = urlparse(text)
@@ -132,19 +147,46 @@ def _same_site(url: str, origin: str) -> bool:
     return host == root_host or host.endswith("." + root_host)
 
 
+def _junk_domain(domain: str) -> bool:
+    host = domain.lower().strip(".")
+    for junk in JUNK_DOMAINS:
+        if host == junk or host.endswith("." + junk):
+            return True
+    return False
+
+
+def _skipped_local(local: str) -> bool:
+    base = local.split("+", 1)[0].lower()
+    if base in SKIP_LOCALS or local.lower() in SKIP_LOCALS:
+        return True
+    compact = re.sub(r"[._\-]", "", base)
+    return compact in {"noreply", "donotreply", "noresponse"}
+
+
 def _clean_email(value: str) -> str | None:
-    email = value.strip().strip(".").lower()
+    email = unquote(value).strip().strip(".").lower()
     if not EMAIL_RE.fullmatch(email):
         return None
     local, _, domain = email.partition("@")
     tld = domain.rsplit(".", 1)[-1]
-    if tld in {"png", "jpg", "jpeg", "gif", "svg", "webp", "css", "js"}:
+    if tld in _IMAGE_TLDS:
         return None
-    if domain in JUNK_DOMAINS or local in JUNK_LOCALS or local in SKIP_LOCALS:
+    if _junk_domain(domain) or local in JUNK_LOCALS or _skipped_local(local):
         return None
     if not re.search(r"[a-z]", local):
         return None
     return email
+
+
+def _is_blocked_address(value: str) -> bool:
+    """A real mailbox we refuse (noreply, a store, or a site builder). Image false-positives are ignored."""
+    email = unquote(value or "").strip().strip(".").lower()
+    if not EMAIL_RE.fullmatch(email):
+        return False
+    local, _, domain = email.partition("@")
+    if domain.rsplit(".", 1)[-1] in _IMAGE_TLDS:
+        return False
+    return _junk_domain(domain) or local in JUNK_LOCALS or _skipped_local(local)
 
 
 def decode_cloudflare_email(hex_string: str) -> str | None:
@@ -159,14 +201,26 @@ def decode_cloudflare_email(hex_string: str) -> str | None:
     return _clean_email(decoded)
 
 
-def extract_emails(html: str) -> list[str]:
+def _scan_emails(html: str) -> tuple[list[str], int]:
     soup = BeautifulSoup(html or "", "html.parser")
     found: list[str] = []
+    rejected = 0
+    seen: set[str] = set()
 
     def add(value: str | None) -> None:
-        cleaned = _clean_email(value or "")
+        nonlocal rejected
+        raw = unquote(value or "").strip()
+        if not raw:
+            return
+        key = raw.lower()
+        if key in seen:
+            return
+        seen.add(key)
+        cleaned = _clean_email(raw)
         if cleaned and cleaned not in found:
             found.append(cleaned)
+        elif _is_blocked_address(raw):
+            rejected += 1
 
     for node in soup.select("[data-cfemail]"):
         add(decode_cloudflare_email(node.get("data-cfemail") or ""))
@@ -181,7 +235,46 @@ def extract_emails(html: str) -> list[str]:
         add(match)
     for local, domain, tld in OBFUSCATED_RE.findall(text):
         add(f"{local}@{domain}.{tld}")
-    return found
+    return found, rejected
+
+
+def extract_emails(html: str) -> list[str]:
+    kept, _rejected = _scan_emails(html)
+    return kept
+
+
+def split_store_link(value: str | None) -> tuple[str, str | None]:
+    """Split a store URL into an http(s) site and a mailto address. Never fetch a mailto."""
+    if value is None:
+        return "", None
+    text = str(value).strip()
+    if not text or text.lower() in {"n/a", "none", "null"}:
+        return "", None
+    if text.lower().startswith("mailto:"):
+        address = _clean_email(text.split(":", 1)[1].split("?", 1)[0])
+        return "", address
+    return normalize_website(text), None
+
+
+def apply_store_links(lead: Lead, seller_raw, support_raw=None) -> None:
+    """Keep seller and support links. A mailto becomes a lead email instead of a fake https URL."""
+    website, seller_email = split_store_link(seller_raw)
+    support, support_email = split_store_link(support_raw)
+    if not lead.developer_website and website:
+        lead.developer_website = website
+    if support and not lead.developer_website:
+        lead.developer_website = support
+        support = ""
+    if support and lead.developer_website and _origin(support) != _origin(lead.developer_website):
+        if not lead.support_url:
+            lead.support_url = support
+    known = {item.address.lower() for item in lead.emails}
+    for address in (seller_email, support_email):
+        if not address or address in known:
+            continue
+        known.add(address)
+        email_type, evidence = classify_email(address, "", lead.developer_name, lead.developer_type or "unknown")
+        lead.emails.append(EmailFound(address, email_type, "App Store listing", evidence))
 
 
 def _evidence_window(text: str, email: str) -> str:
@@ -295,63 +388,60 @@ def _visible_text(html: str) -> str:
     return soup.get_text(" ", strip=True)
 
 
-def enrich_lead(lead: Lead, settings: dict, *, fetcher=None, sleep=time.sleep, public_check=is_public_url) -> Lead:
-    """Crawl a few public pages. A failure is recorded on the lead and does not raise."""
-    config = settings.get("enrichment") or {}
-    user_agent = config.get("user_agent") or "AppProspectingCLI/1.0"
-    website = normalize_website(lead.developer_website)
-    lead.developer_website = website
-    if not website:
-        if lead.emails:
-            lead.enrichment_status = "ok"
-            lead.enrichment_note = "Email came from the store listing."
-            _finalize_contacts(lead)
-            return lead
-        lead.enrichment_status = "no_website"
-        lead.enrichment_note = "No developer website."
-        return lead
-    if not public_check(website):
-        lead.enrichment_status = "blocked"
-        lead.enrichment_note = "Developer website is not a public address."
-        return lead
+def _is_heavy_url(url: str) -> bool:
+    path = urlparse(url).path.lower()
+    return path.endswith(HEAVY_EXTENSIONS)
 
-    fetch = fetcher or _build_fetcher(config)
-    origin = _origin(website)
-    try:
-        robots = _robots_for(origin, fetch, user_agent, public_check)
-    except SiteBlocked as exc:
-        lead.enrichment_status = "blocked"
-        lead.enrichment_note = str(exc)
-        return lead
-    except Exception as exc:
-        LOGGER.warning("robots.txt check failed for %s: %s", origin, exc)
-        robots = None
 
-    pages = [website]
-    for path in CONTACT_PATHS:
+def _page_list(start_url: str) -> list[str]:
+    origin = _origin(start_url)
+    pages = [start_url]
+    for path in FAST_PATHS:
         pages.append(origin.rstrip("/") + path)
-    seen = set()
     ordered = []
+    seen = set()
     for page in pages:
         if page not in seen:
             seen.add(page)
             ordered.append(page)
+    return ordered
 
-    delay = float(config.get("delay_seconds") or 0)
-    max_pages = int(config.get("max_pages_per_site") or 7)
-    extra_limit = int(config.get("max_extra_links") or 3)
-    emails: list[EmailFound] = list(lead.emails)
-    known = {item.address.lower() for item in emails}
-    contact_page = ""
-    contact_name = lead.contact_name
+
+def _crawl_origin(
+    lead: Lead,
+    start_url: str,
+    *,
+    fetch,
+    user_agent: str,
+    public_check,
+    sleep,
+    delay: float,
+    max_pages: int,
+    emails: list[EmailFound],
+    known: set[str],
+) -> tuple[bool, int, list[str], str, str]:
+    """Fetch at most `max_pages` HTML documents on one host. A blocked page does not drop the lead."""
+    origin = _origin(start_url)
+    try:
+        robots = _robots_for(origin, fetch, user_agent, public_check)
+    except SiteBlocked as exc:
+        return False, 0, [str(exc)], "", lead.contact_name
+    except Exception as exc:
+        LOGGER.warning("robots.txt check failed for %s: %s", origin, exc)
+        robots = None
+
+    ordered = _page_list(start_url)
     fetched_any = False
     blocked_pages = 0
-    errors = []
-
+    errors: list[str] = []
+    contact_page = ""
+    contact_name = lead.contact_name
     index = 0
-    while index < len(ordered) and index < max_pages:
+    while index < len(ordered) and index < max_pages and not emails:
         page = ordered[index]
         index += 1
+        if _is_heavy_url(page):
+            continue
         if not _allowed(robots, user_agent, page):
             blocked_pages += 1
             LOGGER.info("Skipped %s because robots.txt disallows it.", page)
@@ -361,44 +451,101 @@ def enrich_lead(lead: Lead, settings: dict, *, fetcher=None, sleep=time.sleep, p
         try:
             status, body, final_url = fetch(page)
         except SiteBlocked as exc:
-            lead.enrichment_status = "blocked"
-            lead.enrichment_note = str(exc)
-            return lead
+            errors.append(str(exc))
+            continue
         except Exception as exc:
             errors.append(f"{page}: {exc}")
             LOGGER.warning("Could not fetch %s: %s", page, exc)
             continue
         if status in {401, 403, 429}:
-            lead.enrichment_status = "blocked"
-            lead.enrichment_note = f"{final_url or page} returned {status}."
-            return lead
+            errors.append(f"{final_url or page} returned {status}.")
+            continue
         if status >= 400 or not body:
             continue
         fetched_any = True
-        if any(part in (final_url or page) for part in ("/contact", "/about", "/imprint")):
+        if any(part in (final_url or page) for part in ("/contact", "/support", "/about", "/imprint")):
             contact_page = final_url or page
         text = _visible_text(body)
         if not contact_name:
             contact_name = extract_contact_name(text)
-        for address in extract_emails(body):
+        kept, rejected = _scan_emails(body)
+        lead.rejected_email_count = int(lead.rejected_email_count or 0) + rejected
+        for address in kept:
             if address in known:
                 continue
             known.add(address)
             email_type, evidence = classify_email(address, text, lead.developer_name, lead.developer_type)
             emails.append(EmailFound(address, email_type, final_url or page, evidence))
-        if index == 1:
-            for link in _candidate_links(body, final_url or page, origin, extra_limit):
-                if link not in seen:
-                    seen.add(link)
-                    ordered.append(link)
+    return fetched_any, blocked_pages, errors, contact_page, contact_name
+
+
+def enrich_lead(lead: Lead, settings: dict, *, fetcher=None, sleep=time.sleep, public_check=is_public_url) -> Lead:
+    """Crawl a few public pages on the seller site and, when needed, the support site."""
+    config = settings.get("enrichment") or {}
+    user_agent = config.get("user_agent") or "AppProspectingCLI/1.0"
+    website = normalize_website(lead.developer_website)
+    support = normalize_website(getattr(lead, "support_url", "") or "")
+    lead.developer_website = website
+    if support and website and _origin(support) == _origin(website):
+        support = ""
+    lead.support_url = support
+    if not website and not support:
+        if lead.emails:
+            lead.enrichment_status = "ok"
+            lead.enrichment_note = "Email came from the store listing."
+            _finalize_contacts(lead)
+            return lead
+        lead.enrichment_status = "no_website"
+        lead.enrichment_note = "No developer website."
+        return lead
+    if website and not public_check(website):
+        lead.enrichment_status = "blocked"
+        lead.enrichment_note = "Developer website is not a public address."
+        return lead
+    if support and not public_check(support):
+        support = ""
+        lead.support_url = ""
+
+    fetch = fetcher or _build_fetcher(config)
+    delay = float(config.get("delay_seconds") or 0)
+    max_pages = min(PAGE_CAP, int(config.get("max_pages_per_site") or PAGE_CAP))
+    emails: list[EmailFound] = list(lead.emails)
+    known = {item.address.lower() for item in emails}
+    contact_page = ""
+    fetched_any = False
+    blocked_pages = 0
+    errors: list[str] = []
+    for start in [url for url in (website, support) if url]:
+        if emails:
+            break
+        got_page, blocked, page_errors, found_contact, contact_name = _crawl_origin(
+            lead,
+            start,
+            fetch=fetch,
+            user_agent=user_agent,
+            public_check=public_check,
+            sleep=sleep,
+            delay=delay,
+            max_pages=max_pages,
+            emails=emails,
+            known=known,
+        )
+        fetched_any = fetched_any or got_page
+        blocked_pages += blocked
+        errors.extend(page_errors)
+        lead.contact_name = contact_name or lead.contact_name
+        if found_contact:
+            contact_page = found_contact
 
     lead.emails = emails
-    lead.contact_name = contact_name
-    lead.contact_page_url = contact_page or (emails[0].source_url if emails else "")
+    lead.contact_page_url = contact_page or (emails[0].source_url if emails else lead.contact_page_url)
     _finalize_contacts(lead)
     if emails:
         lead.enrichment_status = "ok"
         lead.enrichment_note = f"Found {len(emails)} public email(s)."
+    elif fetched_any and lead.rejected_email_count:
+        lead.enrichment_status = "no_email"
+        lead.enrichment_note = "Only automated or junk addresses were listed."
     elif fetched_any:
         lead.enrichment_status = "no_email"
         lead.enrichment_note = "Pages were fetched and no public email was listed."
@@ -411,6 +558,20 @@ def enrich_lead(lead: Lead, settings: dict, *, fetcher=None, sleep=time.sleep, p
     return lead
 
 
+def crawl_leads(leads: list, enrich, *, workers: int = CRAWL_WORKERS) -> None:
+    """Enrich many leads at once. One slow host occupies a single worker, not the whole run."""
+    if not leads:
+        return
+    if len(leads) == 1:
+        enrich(leads[0])
+        return
+    worker_count = max(1, min(int(workers), len(leads)))
+    with ThreadPoolExecutor(max_workers=worker_count, thread_name_prefix="site-crawl") as pool:
+        futures = [pool.submit(enrich, lead) for lead in leads]
+        for future in futures:
+            future.result()
+
+
 def _finalize_contacts(lead: Lead) -> None:
     primary = lead.primary_email
     if primary and not lead.contact_page_url:
@@ -419,13 +580,16 @@ def _finalize_contacts(lead: Lead) -> None:
 
 def _build_fetcher(config: dict):
     session = requests.Session()
-    timeout = float(config.get("timeout_seconds") or 12)
+    # Connect 3s and read 5s so one stalled server cannot hold a crawl worker.
+    timeout = (CONNECT_TIMEOUT, READ_TIMEOUT)
     max_bytes = int(config.get("max_bytes") or 1_000_000)
     user_agent = config.get("user_agent") or "AppProspectingCLI/1.0"
 
     def fetch(url: str) -> tuple[int, str | None, str]:
         current = url
         for _hop in range(5):
+            if _is_heavy_url(current):
+                return 204, None, current
             if not is_public_url(current):
                 raise SiteBlocked(f"{current} is not a public http(s) address")
             response = session.get(
@@ -433,7 +597,7 @@ def _build_fetcher(config: dict):
                 timeout=timeout,
                 allow_redirects=False,
                 stream=True,
-                headers={"User-Agent": user_agent, "Accept": "text/html,application/xhtml+xml"},
+                headers={"User-Agent": user_agent, "Accept": "text/html,application/xhtml+xml;q=0.9,text/plain;q=0.8"},
             )
             if response.status_code in {301, 302, 303, 307, 308}:
                 location = response.headers.get("Location")

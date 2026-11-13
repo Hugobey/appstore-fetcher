@@ -1,5 +1,5 @@
+import os
 import sys
-import threading
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,7 +8,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from modules.crm import BLANK_HEADERS, build_import_row
 from modules.models import EmailFound, Lead
-from modules.mrr_enricher import enrich_estimated_mrr, fetch_mrr, parse_mrr, tracker_url, tracker_url_for_lead
+from modules.mrr_enricher import (
+    apify_proxy_url,
+    enrich_estimated_mrr,
+    fetch_mrr,
+    parse_mrr,
+    read_mrr,
+    tracker_url,
+    tracker_url_for_lead,
+)
 from modules.sheets_crm import CRM_COLUMNS, STATUS_OPTIONS, layout_requests, rgb
 
 
@@ -74,6 +82,9 @@ class MrrParseTests(unittest.TestCase):
         self.assertEqual(parse_mrr("<p>$9k/mo</p>"), "")
         self.assertEqual(parse_mrr(""), "")
         self.assertEqual(parse_mrr("<html></html>"), "")
+        display, numeric = read_mrr(low)
+        self.assertEqual(display, "")
+        self.assertEqual(numeric, 4000)
 
 
 class MrrFetchTests(unittest.TestCase):
@@ -88,11 +99,16 @@ class MrrFetchTests(unittest.TestCase):
             return SimpleNamespace(status_code=200, text="<html></html>")
 
         sample = "https://www.appstoretracker.com/app/sleepsense-sleep-tracker-6791916451"
-        self.assertEqual(fetch_mrr(sample, getter=timed_out), "N/A")
-        self.assertEqual(fetch_mrr(sample, getter=blocked), "N/A")
+        self.assertEqual(fetch_mrr(sample, getter=timed_out), "")
+        self.assertEqual(fetch_mrr(sample, getter=blocked), "")
         self.assertEqual(fetch_mrr(sample, getter=empty), "")
 
-    def test_qualified_leads_are_fetched_concurrently(self):
+        def limited(url, headers=None, timeout=None):
+            return SimpleNamespace(status_code=429, text="Too Many Requests", url=url)
+
+        self.assertEqual(fetch_mrr(sample, getter=limited), "")
+
+    def test_qualified_leads_are_fetched_one_by_one(self):
         leads = [
             Lead(
                 platform="ios",
@@ -109,26 +125,26 @@ class MrrFetchTests(unittest.TestCase):
             )
         )
         state = {"active": 0, "max": 0, "calls": 0}
-        lock = threading.Lock()
-        barrier = threading.Barrier(5)
+        pauses = []
 
         def getter(url, headers=None, timeout=None):
             self.assertEqual(timeout, 5.0)
             self.assertIn("Mozilla", headers["User-Agent"])
-            with lock:
-                state["calls"] += 1
-                state["active"] += 1
-                state["max"] = max(state["max"], state["active"])
-            barrier.wait(timeout=2)
-            with lock:
-                state["active"] -= 1
-            return SimpleNamespace(status_code=200, text="<p>$22k/mo</p>")
+            self.assertEqual(state["active"], 0)
+            state["active"] += 1
+            state["calls"] += 1
+            state["max"] = max(state["max"], state["active"])
+            state["active"] -= 1
+            return SimpleNamespace(status_code=200, text="<p>Estimated MRR $22k/mo</p>", url=url)
 
-        enrich_estimated_mrr(leads, demo=False, getter=getter, max_workers=5)
+        enrich_estimated_mrr(leads, demo=False, getter=getter, pause=lambda: pauses.append(1))
         self.assertEqual(state["calls"], 5)
-        self.assertEqual(state["max"], 5)
+        self.assertEqual(state["max"], 1)
+        self.assertEqual(pauses, [1, 1, 1, 1])
         self.assertTrue(all(lead.estimated_mrr == "$22k/mo" for lead in leads[:5]))
+        self.assertTrue(all(lead.mrr_numeric == 22000 for lead in leads[:5]))
         self.assertEqual(leads[-1].estimated_mrr, "")
+        self.assertIsNone(leads[-1].mrr_numeric)
 
     def test_demo_mode_does_not_call_the_network(self):
         lead = Lead(
@@ -147,7 +163,114 @@ class MrrFetchTests(unittest.TestCase):
 
         enrich_estimated_mrr([lead, blank], demo=True, getter=getter)
         self.assertEqual(lead.estimated_mrr, "$15k/mo")
+        self.assertEqual(lead.mrr_numeric, 15000)
         self.assertEqual(blank.estimated_mrr, "")
+        self.assertIsNone(blank.mrr_numeric)
+
+    def test_foreign_page_and_empty_revenue_do_not_leak(self):
+        requested = "https://www.appstoretracker.com/app/quiet-focus-1001"
+        leaked = """
+            <html><head><title>App Store Tracker</title>
+            <link rel="canonical" href="https://www.appstoretracker.com/">
+            </head><body>
+              <dt>Revenue</dt><dd>$480K</dd><dd>Monthly, worldwide</dd>
+            </body></html>
+        """
+
+        def home(url, headers=None, timeout=None):
+            return SimpleNamespace(status_code=200, text=leaked, url="https://www.appstoretracker.com/")
+
+        self.assertEqual(fetch_mrr(requested, getter=home), "")
+
+        other = """
+            <html><head>
+              <link rel="canonical" href="https://www.appstoretracker.com/app/sleepsense-sleep-tracker-6791916451">
+            </head><body>
+              <dt>Revenue</dt><dd>$480K</dd><dd>Monthly, worldwide</dd>
+            </body></html>
+        """
+
+        def wrong(url, headers=None, timeout=None):
+            return SimpleNamespace(status_code=200, text=other, url=url)
+
+        self.assertEqual(fetch_mrr(requested, getter=wrong), "")
+
+        def matching(body):
+            def getter(url, headers=None, timeout=None):
+                return SimpleNamespace(status_code=200, text=body, url=url)
+
+            return getter
+
+        for marker in ("-", "$0", "N/A", "Null"):
+            dashed = f"""
+                <html><head>
+                  <link rel="canonical" href="https://www.appstoretracker.com/app/quiet-focus-1001">
+                </head><body>
+                  <dt>Revenue</dt><dd>{marker}</dd><dd>Monthly</dd>
+                  <p>Similar app Estimated MRR $480k/mo</p>
+                </body></html>
+            """
+            self.assertEqual(fetch_mrr(requested, getter=matching(dashed)), "")
+
+        owned = """
+            <html><head>
+              <link rel="canonical" href="https://www.appstoretracker.com/app/quiet-focus-1001">
+            </head><body>
+              <dt>Revenue</dt><dd>$15,000</dd><dd>Monthly, worldwide</dd>
+            </body></html>
+        """
+        self.assertEqual(fetch_mrr(requested, getter=matching(owned)), "$15k/mo")
+
+    def test_workers_do_not_share_a_parsed_figure(self):
+        leads = [
+            Lead(
+                platform="ios",
+                app_store_id="1001",
+                app_name="Quiet Focus",
+                app_store_url="https://apps.apple.com/us/app/quiet-focus/id1001",
+            ),
+            Lead(
+                platform="ios",
+                app_store_id="1002",
+                app_name="Little Habits",
+                app_store_url="https://apps.apple.com/us/app/little-habits/id1002",
+            ),
+        ]
+        pages = {
+            "1001": """
+                <html><head><link rel="canonical" href="https://www.appstoretracker.com/app/quiet-focus-1001"></head>
+                <body><p>Estimated MRR $15k/mo</p></body></html>
+            """,
+            "1002": """
+                <html><head><link rel="canonical" href="https://www.appstoretracker.com/app/little-habits-1002"></head>
+                <body>
+                  <dt>Revenue</dt><dd>-</dd>
+                  <p>Estimated MRR $480k/mo</p>
+                </body></html>
+            """,
+        }
+
+        def getter(url, headers=None, timeout=None):
+            key = "1001" if url.endswith("1001") or "-1001" in url else "1002"
+            return SimpleNamespace(status_code=200, text=pages[key], url=url)
+
+        enrich_estimated_mrr(leads, demo=False, getter=getter, max_workers=2)
+        self.assertEqual(leads[0].estimated_mrr, "$15k/mo")
+        self.assertEqual(leads[0].mrr_numeric, 15000)
+        self.assertEqual(leads[1].estimated_mrr, "")
+        self.assertIsNone(leads[1].mrr_numeric)
+
+    def test_proxy_is_used_only_when_the_token_is_configured(self):
+        previous = os.environ.pop("APIFY_TOKEN", None)
+        try:
+            self.assertEqual(apify_proxy_url(), "")
+            os.environ["APIFY_TOKEN"] = "token-value"
+            self.assertEqual(apify_proxy_url(), "http://auto:token-value@proxy.apify.com:8000")
+        finally:
+            if previous is None:
+                os.environ.pop("APIFY_TOKEN", None)
+            else:
+                os.environ["APIFY_TOKEN"] = previous
 
 
 class SheetLayoutTests(unittest.TestCase):
@@ -156,7 +279,19 @@ class SheetLayoutTests(unittest.TestCase):
         self.assertNotIn("Generated Body", CRM_COLUMNS)
         self.assertNotIn("Email Subject", CRM_COLUMNS)
         self.assertEqual(CRM_COLUMNS[4], "Status")
-        self.assertEqual(len(CRM_COLUMNS), 18)
+        self.assertEqual(len(CRM_COLUMNS), 13)
+        self.assertEqual(CRM_COLUMNS[2], "Contact")
+        for excluded in (
+            "Generated Body",
+            "Email Subject",
+            "Review Count",
+            "Email Type",
+            "App Store ID",
+            "Notes",
+            "Email Source",
+            "Contact Name",
+        ):
+            self.assertNotIn(excluded, CRM_COLUMNS)
 
     def test_new_row_defaults_status_and_leaves_follow_up_blank(self):
         lead = Lead(
@@ -166,9 +301,12 @@ class SheetLayoutTests(unittest.TestCase):
             app_store_url="https://apps.apple.com/us/app/quiet-focus/id1001",
             estimated_mrr="$15k/mo",
             score_normalized=100,
+            developer_name="Quiet Studio",
+            contact_name="Jane Doe",
             emails=[EmailFound("jane@quiet.example", "founder", "https://quiet.example", "")],
         )
         row = build_import_row(lead, list(CRM_COLUMNS), {"subject": "Hi", "body": "Hello"}, set())
+        self.assertEqual(row[CRM_COLUMNS.index("Contact")], "Jane Doe (Quiet Studio)")
         self.assertEqual(row[CRM_COLUMNS.index("Status")], "To Contact")
         self.assertEqual(row[CRM_COLUMNS.index("Follow-Up Date")], "")
         self.assertEqual(row[CRM_COLUMNS.index("Last Contacted")], "")
@@ -199,7 +337,7 @@ class SheetLayoutTests(unittest.TestCase):
             if not added:
                 continue
             span = added["rule"]["ranges"][0]
-            self.assertEqual((span["startColumnIndex"], span["endColumnIndex"]), (0, 18))
+            self.assertEqual((span["startColumnIndex"], span["endColumnIndex"]), (0, 13))
             self.assertEqual((span["startRowIndex"], span["endRowIndex"]), (1, 1000))
             formula = added["rule"]["booleanRule"]["condition"]["values"][0]["userEnteredValue"]
             formulas[formula] = added["rule"]["booleanRule"]["format"]
@@ -233,14 +371,14 @@ class SheetLayoutTests(unittest.TestCase):
         basic = next(item["setBasicFilter"] for item in requests if "setBasicFilter" in item)
         self.assertEqual(basic["filter"]["range"]["startRowIndex"], 0)
         self.assertEqual(basic["filter"]["range"]["endRowIndex"], 1000)
-        self.assertEqual(basic["filter"]["range"]["endColumnIndex"], 18)
+        self.assertEqual(basic["filter"]["range"]["endColumnIndex"], 13)
         widths = {
             item["updateDimensionProperties"]["range"]["startIndex"]: item["updateDimensionProperties"]["properties"]["pixelSize"]
             for item in requests
             if "updateDimensionProperties" in item
         }
         self.assertGreater(widths[CRM_COLUMNS.index("App Name")], widths[CRM_COLUMNS.index("Status")])
-        self.assertGreater(widths[CRM_COLUMNS.index("Notes")], widths[CRM_COLUMNS.index("Ratings")])
+        self.assertGreater(widths[CRM_COLUMNS.index("Contact")], widths[CRM_COLUMNS.index("Ratings")])
         self.assertGreater(widths[CRM_COLUMNS.index("App Store URL")], widths[CRM_COLUMNS.index("Lead Score")])
         self.assertGreater(widths[CRM_COLUMNS.index("Contact Email")], widths[CRM_COLUMNS.index("Estimated MRR")])
 

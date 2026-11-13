@@ -1,19 +1,26 @@
 import sys
+import threading
+import time
 import unittest
+from datetime import timedelta
 from pathlib import Path
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from modules.config import load_scoring, load_settings, load_templates, validate_targeting
+from modules.dates import utc_today
 from contextlib import nullcontext
 
 from modules.activity import Narrator
+from modules.agent_ui import AgentDashboard
 from modules.deduplication import DedupIndex
 from modules.demo import demo_enricher, demo_index, demo_itunes, demo_searcher, sample_items
 from modules.models import Lead
 from modules.pipeline import discover
 from modules.prompts import BACK, ScriptedPrompter
-from modules.scraper import ApifyClient, estimate_cost, keyword_plan, search_jobs
+from modules.category_feed import category_plan, chart_url, entry_ids, fetch_genre_apps, lookup_url
+from modules.scraper import ApifyClient, search_jobs
 from modules.scoring import classify_developer, hard_filter_reason
 from modules.wizard import _ask_country, run_wizard
 
@@ -49,12 +56,12 @@ class WizardTests(unittest.TestCase):
                 "ios",
                 "continue",
                 ["Health & Fitness"],
-                "water reminder",
                 10,
                 "6m",
                 "30d",
                 70,
                 20,
+                "any",
                 "start",
             ]
         )
@@ -76,20 +83,34 @@ class WizardTests(unittest.TestCase):
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
         self.assertEqual(prompter.prompts[0], "🎯 Which ICP are you targeting?")
         self.assertEqual(checked[0][0], "🎯 Which ICP are you targeting?")
-        self.assertIn(("Solo developer", "solo"), checked[0][1])
+        self.assertIn(("Solo developer (Recommended)", "solo"), checked[0][1])
         self.assertIn(("Agency", "agency"), checked[0][1])
-        self.assertIn(("Startups", "startup"), checked[0][1])
+        self.assertIn(("Startups (Recommended)", "startup"), checked[0][1])
         self.assertIn(("iOS / Apple App Store", "ios"), shown[0][1])
         update_choices = next(choices for message, choices in shown if message.startswith("🔄"))
         volume_choices = next(choices for message, choices in shown if message.startswith("🚀"))
-        self.assertIn(("Within 90 days (Recommended)", "90d"), update_choices)
+        self.assertIn(("Last 180 days (Recommended)", "180d"), update_choices)
         self.assertIn(("30 (Recommended)", 30), volume_choices)
+        rating_choices = next(choices for message, choices in shown if message.startswith("⭐"))
+        self.assertIn(("Under 250 ratings (Recommended)", 250), rating_choices)
+        mrr_choices = next(choices for message, choices in shown if message.startswith("💰"))
+        self.assertEqual(next(message for message, _choices in shown if message.startswith("💰")), "💰 Max MRR to include:")
+        self.assertIn(("No limit (Recommended)", "any"), mrr_choices)
+        self.assertIn(("Under $10k / mo", 10000), mrr_choices)
+        self.assertIn(("Under $25k / mo", 25000), mrr_choices)
+        self.assertIn(("Under $50k / mo", 50000), mrr_choices)
+        self.assertIn(("Under $100k / mo", 100000), mrr_choices)
         self.assertEqual(result["developer_type"], "startup")
         self.assertEqual(result["developer_types"], ["startup"])
         self.assertEqual(result["categories"], ["Health & Fitness"])
-        self.assertEqual(result["custom_keywords"], ["water reminder"])
+        self.assertEqual(result["custom_keywords"], [])
+        category_choices = next(choices for message, choices, _default in checked if message.startswith("📂"))
+        self.assertIn(("Health & Fitness (Recommended)", "Health & Fitness"), category_choices)
+        self.assertIn(("Productivity (Recommended)", "Productivity"), category_choices)
+        self.assertIn(("Photo & Video", "Photo & Video"), category_choices)
         self.assertEqual(result["max_ratings"], 10)
         self.assertEqual(result["target_prospects"], 20)
+        self.assertIsNone(result["max_mrr"])
         self.assertTrue(result["confirmed"])
 
     def test_old_audience_value_loads_as_an_icp(self):
@@ -99,6 +120,14 @@ class WizardTests(unittest.TestCase):
             {"developer_type": "scaleup", "max_ratings": "any", "categories": ["Productivity"]}
         )
         self.assertEqual(open_cap["max_ratings"], "any")
+        no_ceiling = validate_targeting(
+            {"developer_type": "solo", "categories": ["Productivity"], "max_mrr": "any"}
+        )
+        self.assertIsNone(no_ceiling["max_mrr"])
+        capped = validate_targeting(
+            {"developer_type": "solo", "categories": ["Productivity"], "max_mrr": 10000}
+        )
+        self.assertEqual(capped["max_mrr"], 10000)
 
     def test_saved_configuration_can_be_edited_without_repeating_every_question(self):
         saved = dict(self.base)
@@ -109,11 +138,19 @@ class WizardTests(unittest.TestCase):
         self.assertEqual(result["platforms"], "ios")
         self.assertEqual(result["min_score"], 50)
 
-    def test_country_prompt_marks_us_as_recommended(self):
+    def test_country_prompt_marks_global_english_markets_as_recommended(self):
         prompter = ScriptedPrompter(["us"])
         result = _ask_country(prompter, {"country": "us"})
-        self.assertIn("(Recommended: us)", prompter.prompts[0])
+        self.assertIn("Global / Top English Markets (US, UK, CA, AU) (Recommended)", prompter.prompts[0])
         self.assertEqual(result["country"], "us")
+        fresh = validate_targeting({})
+        self.assertEqual(fresh["country"], "global")
+        self.assertEqual(fresh["last_update"], "180d")
+        self.assertEqual(fresh["max_ratings"], 250)
+        self.assertEqual(fresh["developer_types"], ["solo", "startup"])
+        saved_solo = validate_targeting({"developer_type": "solo", "categories": ["Productivity"], "country": "us"})
+        self.assertEqual(saved_solo["developer_types"], ["solo"])
+        self.assertEqual(saved_solo["country"], "us")
 
     def test_several_icps_keep_a_matching_lead_and_drop_the_others(self):
         agency = Lead(
@@ -156,22 +193,22 @@ class WizardTests(unittest.TestCase):
 
 
 class PipelineTests(unittest.TestCase):
-    def test_keyword_plan_round_robins_categories(self):
+    def test_category_plan_uses_genres_and_ignores_keywords(self):
         settings = load_settings()
         targeting = validate_targeting(
             {
-                "categories": ["Productivity", "Health & Fitness"],
+                "categories": ["Productivity", "Health & Fitness", "Photo & Video"],
                 "custom_keywords": ["custom tracker"],
                 "platforms": "both",
             }
         )
-        planned = keyword_plan(targeting, settings)
-        self.assertEqual(planned[0], "focus timer")
-        self.assertEqual(planned[1], "habit tracker")
-        self.assertIn("custom tracker", planned)
+        planned = category_plan(targeting, settings)
+        self.assertEqual(planned, ["Productivity", "Health & Fitness", "Photo & Video"])
+        self.assertNotIn("custom tracker", planned)
+        self.assertNotIn("focus timer", planned)
         jobs = search_jobs(targeting, settings)
-        self.assertLessEqual(len(jobs), settings["apify"]["max_searches_per_run"])
-        self.assertGreater(estimate_cost(jobs, settings), 0)
+        self.assertTrue(all(platform == "ios" for platform, _category in jobs))
+        self.assertEqual([category for _platform, category in jobs], planned)
 
     def test_store_language_matches_each_actor(self):
         settings = load_settings()
@@ -270,13 +307,14 @@ class PipelineTests(unittest.TestCase):
             itunes_fetcher=demo_itunes,
             narrator=voice,
         )
-        self.assertEqual(calls, [("focus timer", 1), ("focus timer", 2)])
+        self.assertEqual(calls, [("Productivity", 1), ("Productivity", 2)])
         self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Quiet Focus"})
         self.assertTrue(any("expanding search for 1 more" in line for line in voice.lines))
         self.assertTrue(any("[1/1 qualified leads found]" in line for line in voice.lines))
-        mrr_at = next(index for index, line in enumerate(voice.lines) if "Fetching estimated MRR" in line)
         qualified_at = next(index for index, line in enumerate(voice.lines) if "Qualified Quiet Focus" in line)
-        self.assertLess(mrr_at, qualified_at)
+        mrr_at = next(index for index, line in enumerate(voice.lines) if "Checking MRR" in line)
+        self.assertLess(qualified_at, mrr_at)
+        self.assertEqual(discovery.qualified[0].estimated_mrr, "$15k/mo")
 
     def test_a_repeated_app_is_enriched_once(self):
         settings = load_settings()
@@ -372,7 +410,7 @@ class PipelineTests(unittest.TestCase):
             itunes_fetcher=demo_itunes,
             narrator=_Capture(),
         )
-        self.assertEqual(calls, [("focus timer", 1)])
+        self.assertEqual(calls, [("Productivity", 1)])
         self.assertEqual(len(crawled), 5)
         self.assertEqual(len(discovery.qualified), 5)
         self.assertEqual(discovery.target, 5)
@@ -389,6 +427,557 @@ class PipelineTests(unittest.TestCase):
         )
         self.assertEqual(accounted, stats["discovered"])
         self.assertFalse(stats["errors"])
+
+    def test_max_mrr_drops_known_high_apps_and_keeps_blanks(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=6, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "90d",
+                "min_score": 40,
+                "target_prospects": 2,
+                "max_mrr": 10000,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        apps = []
+        for offset in range(4):
+            item = dict(base)
+            app_id = 2001 + offset
+            item["trackId"] = app_id
+            item["trackName"] = f"Quiet Focus {offset}"
+            item["trackViewUrl"] = f"https://apps.apple.com/us/app/quiet-focus-{offset}/id{app_id}"
+            apps.append(item)
+        calls = []
+
+        def search(_platform, keyword, _country, page=1):
+            calls.append((keyword, page))
+            if page > 1:
+                return [], {"cached": False}
+            return list(apps), {"cached": False}
+
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=_Capture(),
+            demo=True,
+        )
+        self.assertEqual(calls, [("Productivity", 1)])
+        self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Quiet Focus 1", "Quiet Focus 3"})
+        self.assertTrue(all(lead.estimated_mrr == "" for lead in discovery.qualified))
+        self.assertTrue(all(lead.mrr_numeric is None for lead in discovery.qualified))
+        stats = discovery.stats
+        self.assertEqual(stats["discovered"], 4)
+        self.assertEqual(stats["qualified"], 2)
+        self.assertEqual(stats["filtered_out"], 2)
+        self.assertFalse(stats["errors"])
+
+    def test_blank_mrr_still_completes_scoring_and_the_sheet_phase(self):
+        from main import _review
+
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "any",
+                "min_score": 40,
+                "target_prospects": 1,
+                "country": "us",
+            }
+        )
+        quiet = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+
+        def search(_platform, _keyword, _country, page=1):
+            if page > 1:
+                return [], {"cached": False}
+            return [quiet], {"cached": False}
+
+        def getter(url, headers=None, timeout=None):
+            body = "<html><head><title>Quiet Focus 1001</title></head><body><dt>Revenue</dt><dd>-</dd></body></html>"
+            return SimpleNamespace(status_code=200, text=body, url=url)
+
+        board = AgentDashboard(1, enabled=False)
+        board.begin_clock()
+        board.focus(1, "Indexing existing CRM leads...")
+        board.complete(1, "Indexed 0 leads")
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=_Capture(),
+            demo=False,
+            dashboard=board,
+            mrr_getter=getter,
+        )
+        self.assertEqual(len(discovery.qualified), 1)
+        self.assertEqual(discovery.qualified[0].estimated_mrr, "")
+        self.assertIsNone(discovery.qualified[0].mrr_numeric)
+        self.assertEqual(board.phases[1]["state"], "complete")
+        self.assertEqual(board.phases[2]["state"], "complete")
+        self.assertEqual(board.phases[3]["state"], "complete")
+        self.assertEqual(board.phases[4]["state"], "complete")
+        self.assertEqual(board.phases[5]["state"], "pending")
+        templates = load_templates(settings)
+        code = _review(
+            discovery,
+            None,
+            templates,
+            settings,
+            ScriptedPrompter(["all", "import"]),
+            None,
+            None,
+            demo=True,
+            dashboard=board,
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(board.phases[5]["state"], "complete")
+
+    def test_next_search_starts_while_the_first_batch_is_still_enriching(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=2, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "any",
+                "min_score": 40,
+                "target_prospects": 2,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        apps = []
+        for offset, app_id in enumerate((2102, 2104)):
+            item = dict(base)
+            item["trackId"] = app_id
+            item["trackName"] = f"Quiet Focus {offset}"
+            item["trackViewUrl"] = f"https://apps.apple.com/us/app/quiet-focus-{offset}/id{app_id}"
+            apps.append(item)
+        calls = []
+        in_page2 = threading.Event()
+        release_page2 = threading.Event()
+        page2_done = threading.Event()
+        overlap = {"during_enrich": False}
+
+        def search(_platform, keyword, _country, page=1):
+            calls.append((keyword, page))
+            if page == 1:
+                return [apps[0]], {"cached": False}
+            in_page2.set()
+            release_page2.wait(3)
+            page2_done.set()
+            return [apps[1]], {"cached": False}
+
+        def enrich(lead):
+            if lead.app_store_id == "2102" and not overlap["during_enrich"]:
+                entered = in_page2.wait(2)
+                overlap["during_enrich"] = entered and not page2_done.is_set()
+                release_page2.set()
+            return demo_enricher(settings)(lead)
+
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=enrich,
+            itunes_fetcher=demo_itunes,
+            narrator=_Capture(),
+            demo=True,
+        )
+        self.assertEqual(calls, [("Productivity", 1), ("Productivity", 2)])
+        self.assertTrue(overlap["during_enrich"])
+        self.assertEqual(len(discovery.qualified), 2)
+        self.assertFalse(discovery.stats["errors"])
+
+    def test_analyst_fetches_mrr_while_the_scout_is_still_searching(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=4, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "any",
+                "min_score": 40,
+                "target_prospects": 2,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        apps = []
+        for offset, app_id in enumerate((2201, 2202)):
+            item = dict(base)
+            item["trackId"] = app_id
+            item["trackName"] = f"Quiet Focus {offset}"
+            item["trackViewUrl"] = f"https://apps.apple.com/us/app/quiet-focus-{offset}/id{app_id}"
+            apps.append(item)
+        calls = []
+        in_page2 = threading.Event()
+        release_page2 = threading.Event()
+        page2_done = threading.Event()
+        overlap = {"ok": False, "checked": False}
+
+        def search(_platform, keyword, _country, page=1):
+            calls.append((keyword, page))
+            if page == 1:
+                return [apps[0]], {"cached": False}
+            in_page2.set()
+            release_page2.wait(3)
+            page2_done.set()
+            return [apps[1]], {"cached": False}
+
+        def getter(url, headers=None, timeout=None):
+            if not overlap["checked"]:
+                entered = in_page2.wait(2)
+                overlap["ok"] = entered and not page2_done.is_set()
+                overlap["checked"] = True
+                release_page2.set()
+            body = "<html><head><title>Quiet Focus</title></head><body><dt>Revenue</dt><dd>-</dd></body></html>"
+            return SimpleNamespace(status_code=200, text=body, url=url)
+
+        voice = _Capture()
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=voice,
+            demo=False,
+            mrr_getter=getter,
+        )
+        self.assertEqual(calls, [("Productivity", 1), ("Productivity", 2)])
+        self.assertTrue(overlap["ok"])
+        self.assertEqual(len(discovery.qualified), 2)
+        self.assertTrue(all(lead.estimated_mrr == "" for lead in discovery.qualified))
+        self.assertTrue(
+            any("No public MRR listed — keeping lead" in line for line in voice.lines)
+        )
+        self.assertFalse(discovery.stats["errors"])
+
+    def test_rate_limited_mrr_keeps_the_lead_and_does_not_search_again(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=4, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "any",
+                "min_score": 40,
+                "target_prospects": 1,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        calls = []
+
+        def search(_platform, keyword, _country, page=1):
+            calls.append((keyword, page))
+            if page > 1:
+                return [dict(base, trackId=2999, trackName="Extra App")], {"cached": False}
+            return [base], {"cached": False}
+
+        def getter(url, headers=None, timeout=None):
+            return SimpleNamespace(status_code=429, text="Too Many Requests", url=url)
+
+        voice = _Capture()
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=voice,
+            demo=False,
+            mrr_getter=getter,
+        )
+        self.assertEqual(calls, [("Productivity", 1)])
+        self.assertEqual(len(discovery.qualified), 1)
+        self.assertEqual(discovery.qualified[0].estimated_mrr, "")
+        self.assertIsNone(discovery.qualified[0].mrr_numeric)
+        self.assertTrue(
+            any(line == "• Quiet Focus: No public MRR listed — keeping lead" for line in voice.lines)
+        )
+        self.assertFalse(discovery.stats["errors"])
+
+    def test_parallel_waves_finish_fast_and_stop_at_the_target(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "any",
+                "min_score": 40,
+                "target_prospects": 24,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        apps = []
+        for offset in range(24):
+            item = dict(base)
+            app_id = 3000 + offset
+            item["trackId"] = app_id
+            item["trackName"] = f"Quiet Focus {offset}"
+            item["trackViewUrl"] = f"https://apps.apple.com/us/app/quiet-focus-{offset}/id{app_id}"
+            apps.append(item)
+        state = {"current": 0, "max": 0}
+        lock = threading.Lock()
+        crawled = []
+
+        def search(_platform, _keyword, _country, page=1):
+            if page > 1:
+                return [], {"cached": False}
+            return list(apps), {"cached": False}
+
+        def enrich(lead):
+            with lock:
+                state["current"] += 1
+                state["max"] = max(state["max"], state["current"])
+                crawled.append(lead.app_store_id)
+            time.sleep(0.25)
+            with lock:
+                state["current"] -= 1
+            return demo_enricher(settings)(lead)
+
+        started = time.monotonic()
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=enrich,
+            itunes_fetcher=demo_itunes,
+            narrator=_Capture(),
+            demo=True,
+        )
+        elapsed = time.monotonic() - started
+        self.assertEqual(len(crawled), 24)
+        self.assertEqual(len(discovery.qualified), 24)
+        self.assertGreaterEqual(state["max"], 8)
+        self.assertLess(elapsed, 3.0)
+        self.assertFalse(discovery.stats["errors"])
+
+    def test_update_window_relaxation_recovers_stashed_leads(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 30,
+                "max_app_age": "any",
+                "last_update": "90d",
+                "min_score": 40,
+                "target_prospects": 2,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        fresh = dict(base)
+        fresh["trackId"] = 4102
+        fresh["trackName"] = "Fresh Focus"
+        fresh["currentVersionReleaseDate"] = (utc_today() - timedelta(days=10)).isoformat() + "T00:00:00Z"
+        fresh["trackViewUrl"] = "https://apps.apple.com/us/app/fresh-focus/id4102"
+        stale = dict(base)
+        stale["trackId"] = 4104
+        stale["trackName"] = "Stale Focus"
+        stale["currentVersionReleaseDate"] = (utc_today() - timedelta(days=120)).isoformat() + "T00:00:00Z"
+        stale["trackViewUrl"] = "https://apps.apple.com/us/app/stale-focus/id4104"
+        calls = []
+
+        def search(_platform, keyword, country, page=1):
+            calls.append((keyword, page, country))
+            if country == "us" and page == 1:
+                return [fresh, stale], {"cached": False}
+            return [], {"cached": False}
+
+        voice = _Capture()
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=voice,
+            demo=True,
+        )
+        self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Fresh Focus", "Stale Focus"})
+        self.assertTrue(any("Widening storefront & keyword net to hit 2/2 target..." in line for line in voice.lines))
+        self.assertTrue(all(country == "us" for _keyword, _page, country in calls))
+        self.assertFalse(discovery.stats["errors"])
+        stats = discovery.stats
+        accounted = (
+            stats["already_in_crm"]
+            + stats["filtered_out"]
+            + stats["missing_developer_site"]
+            + stats["missing_public_email"]
+            + stats["qualified"]
+        )
+        self.assertEqual(accounted, stats["discovered"])
+
+    def test_rating_ceiling_relaxes_to_one_and_a_half_times(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 30,
+                "max_app_age": "any",
+                "last_update": "any",
+                "min_score": 40,
+                "target_prospects": 1,
+                "country": "us",
+            }
+        )
+        base = next(item for _platform, _keyword, item in sample_items() if item["trackName"] == "Quiet Focus")
+        near = dict(base)
+        near["trackId"] = 4202
+        near["trackName"] = "Near Cap"
+        near["userRatingCount"] = 40
+        near["trackViewUrl"] = "https://apps.apple.com/us/app/near-cap/id4202"
+        far = dict(base)
+        far["trackId"] = 4204
+        far["trackName"] = "Far Cap"
+        far["userRatingCount"] = 80
+        far["trackViewUrl"] = "https://apps.apple.com/us/app/far-cap/id4204"
+
+        def search(_platform, _keyword, country, page=1):
+            if country == "us" and page == 1:
+                return [near, far], {"cached": False}
+            return [], {"cached": False}
+
+        voice = _Capture()
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=voice,
+            demo=True,
+        )
+        self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Near Cap"})
+        self.assertEqual(discovery.stats["rejections"]["ratings_above_cap"], 1)
+        self.assertTrue(any("Widening storefront & keyword net to hit 1/1 target..." in line for line in voice.lines))
+        self.assertFalse(discovery.stats["errors"])
+
+
+class CategoryFeedTests(unittest.TestCase):
+    def test_rss_ids_are_looked_up_without_a_keyword(self):
+        self.assertEqual(
+            chart_url("us", 6013, "topfreeapplications"),
+            "https://itunes.apple.com/us/rss/topfreeapplications/limit=200/genre=6013/json",
+        )
+        self.assertEqual(
+            chart_url("gb", 6007, "toppaidapplications"),
+            "https://itunes.apple.com/gb/rss/toppaidapplications/limit=200/genre=6007/json",
+        )
+        feed = {
+            "feed": {
+                "entry": [
+                    {"id": {"attributes": {"im:id": "1001"}}},
+                    {"id": {"label": "https://apps.apple.com/us/app/quiet-focus/id1002"}},
+                ]
+            }
+        }
+        self.assertEqual(entry_ids(feed), ["1001", "1002"])
+        calls = []
+
+        def getter(url: str) -> dict:
+            calls.append(url)
+            if "/rss/" in url:
+                self.assertNotIn("term=", url)
+                self.assertIn("genre=6013", url)
+                return feed
+            self.assertTrue(url.startswith("https://itunes.apple.com/lookup?id=1001,1002"))
+            self.assertIn("country=us", url)
+            return {
+                "results": [
+                    {
+                        "kind": "software",
+                        "trackId": 1001,
+                        "trackName": "Quiet Focus",
+                        "sellerUrl": "https://quiet.example",
+                        "supportUrl": "https://quiet.example/support",
+                        "trackViewUrl": "https://apps.apple.com/us/app/quiet-focus/id1001",
+                        "artistName": "Jane Doe",
+                        "userRatingCount": 8,
+                        "formattedPrice": "Free",
+                    },
+                    {"wrapperType": "artist", "artistId": 9},
+                ]
+            }
+
+        apps = fetch_genre_apps("Health & Fitness", "us", "topfreeapplications", getter)
+        self.assertEqual(len(apps), 1)
+        self.assertEqual(apps[0]["sellerUrl"], "https://quiet.example")
+        self.assertEqual(apps[0]["supportUrl"], "https://quiet.example/support")
+        self.assertIn("formattedPrice", apps[0])
+        self.assertTrue(lookup_url("us", ["1001"]).startswith("https://itunes.apple.com/lookup?id=1001"))
+        self.assertTrue(all("focus" not in url and "keyword" not in url for url in calls))
 
 
 class SaveCapTests(unittest.TestCase):
