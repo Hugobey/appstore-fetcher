@@ -13,7 +13,7 @@ from pathlib import Path
 import requests
 
 from modules.config import ROOT, project_path
-from modules.dates import iso_date
+from modules.dates import days_since, iso_date
 from modules.deduplication import canonical_url
 from modules.enrichment import apply_store_links
 from modules.errors import ApifyError
@@ -316,9 +316,19 @@ def _normalize_ios(item: dict, keyword: str) -> Lead | None:
         _first(item, "sellerUrl", "sellerWebsite", "developerWebsite"),
         _first(item, "supportUrl", "supportURL"),
     )
+    _note_version_velocity(lead, item)
     if not lead.app_name:
         return None
     return lead
+
+
+def _note_version_velocity(lead: Lead, item: dict) -> None:
+    """Current-version ratings stand in for a 30-day series only when that version is new."""
+    lead.current_version_release_date = lead.last_update
+    version_days = days_since(lead.last_update)
+    current_count = _int(_first(item, "userRatingCountForCurrentVersion"))
+    if current_count is not None and version_days is not None and version_days <= 30:
+        lead.recent_ratings_30d = current_count
 
 
 def _normalize_android(item: dict, keyword: str) -> Lead | None:
@@ -389,6 +399,13 @@ def apply_itunes_record(lead: Lead, record: dict) -> None:
         lead.release_date = iso_date(record.get("releaseDate"))
     if not lead.last_update:
         lead.last_update = iso_date(record.get("currentVersionReleaseDate"))
+    if not lead.current_version_release_date:
+        lead.current_version_release_date = lead.last_update
+    if lead.recent_ratings_30d is None:
+        version_days = days_since(lead.current_version_release_date)
+        current_count = _int(record.get("userRatingCountForCurrentVersion"))
+        if current_count is not None and version_days is not None and version_days <= 30:
+            lead.recent_ratings_30d = current_count
     if lead.price is None:
         lead.price = _number(record.get("price"))
     if not lead.category:

@@ -21,3 +21,11 @@ class ApifyError(ProspectingError):
 
 class EnrichmentError(ProspectingError):
     """A developer site could not be read."""
+
+
+class LicenseError(ProspectingError):
+    """A license key was rejected, copied to another machine, or out of quota."""
+
+    def __init__(self, message: str, status: int | None = None):
+        super().__init__(message)
+        self.status = status

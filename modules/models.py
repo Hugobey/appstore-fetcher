@@ -50,6 +50,11 @@ class Lead:
     score_missing: list[str] = field(default_factory=list)
     estimated_mrr: str = ""
     mrr_numeric: int | None = None
+    # Revenue enrichment only. Website crawl status stays on enrichment_status.
+    mrr_status: str = "pending"
+    current_version_release_date: str | None = None
+    recent_ratings_30d: int | None = None
+    buy_signal: str = ""
     source: dict = field(default_factory=dict)
 
     def dedup_id(self) -> str:

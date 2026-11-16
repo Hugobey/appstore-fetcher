@@ -1,0 +1,1504 @@
+{
+  "run_id": "20261113T171927Z",
+  "leads": [
+    {
+      "platform": "ios",
+      "app_store_id": "6803276000",
+      "app_name": "Claude Duet by Anthropic",
+      "developer_name": "Anthropic PBC",
+      "app_store_url": "https://apps.apple.com/us/app/id6803276000",
+      "developer_website": "https://claude.ai",
+      "support_url": "",
+      "description": "Claude Duet is available through a waitlist. Before you download, check that you've received our email saying your account has access. If you haven't, join the waitlist at claude.com/product/claude-duet.\n\nWAKE UP KNOWING WHAT NEEDS YOUR ATTENTION\nEach morning, Claude Duet looks across your email and calendar and brings you the few things that need a decision or a reply. It provides context on each one, so you have what you need to decide right there. Where it can, it has a draft ready for you to review. Through the day, it checks your connected accounts every few hours and flags what's gone quiet, like a client email you haven't answered in a few days.\n\nHAND IT OFF\nAsk in a chat or add a task. Claude Duet gets going, sends you updates as it works, and tells you when it needs your review.\n\nGET THINGS MADE FROM A SINGLE MESSAGE\nDescribe what you need in one message. It comes back as work you can check, like a brief, research, or a draft.\n\nYOU HAVE THE FINAL SAY\nClaude Duet waits for your okay before it sends, posts, pays, or deletes anything. It works with the apps you've connected to Claude, and you can disconnect any of them at any time.\n\nORGANIZE BY CHANNEL\nKeep each part of your work in its own channel, like one for finance and one for hiring. Claude Duet can read across all of them, so it keeps the whole picture.\n\nTHE CLAUDE YOU KNOW\nClaude Duet runs on your Claude account, with your memory, skills, and connected apps like Gmail and Google Calendar there from the first message.\n\nIT KEEPS WORKING\nClaude Duet works in the background even after you close the app. It will let you know when it's done or needs your approval.\n\nTALK IT THROUGH\nWhen you'd rather talk than type, hold to talk or have a spoken conversation.\n\nWHAT TO EXPECT\nWe built Claude Duet for work, so it's weaker at personal errands. It can make mistakes, including about what's urgent. Emails and web pages written by other people can contain hidden instructions meant to mislead it. Claude Duet is built to resist these, but review what it shows you before you approve. Because it checks every few hours, something urgent can arrive between checks. Learn more at support.claude.com/en/articles/17631495.\n\nHOW TO GET ACCESS\nJoin the waitlist at claude.com/product/claude-duet. We'll be adding people gradually, and we'll email you when your account has access. Please note, signing into the app doesn't add you to the waitlist.",
+      "category": "Productivity",
+      "release_date": "2026-10-26",
+      "last_update": "2026-11-12",
+      "rating_count": 129,
+      "review_count": null,
+      "average_rating": 4.36434,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a person. 129 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@anthropic.com",
+          "email_type": "support",
+          "source_url": "https://claude.ai/contact",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Anthropic PBC",
+      "contact_page_url": "https://claude.ai/contact",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Productivity",
+      "filter_reason": "",
+      "score_normalized": 95,
+      "score_points": 95,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/49/19/d8/4919d827-9ee4-624c-c5ef-a5d6fbe8787b/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [
+          "Infrequent/Mild Profanity or Crude Humor",
+          "Infrequent/Mild Medical/Treatment Information",
+          "Unrestricted Web Access",
+          "Infrequent/Mild Alcohol, Tobacco, or Drug Use or References",
+          "Infrequent/Mild Mature/Suggestive Themes",
+          "Infrequent/Mild Sexual Content and Nudity"
+        ],
+        "kind": "software",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/49/19/d8/4919d827-9ee4-624c-c5ef-a5d6fbe8787b/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/49/19/d8/4919d827-9ee4-624c-c5ef-a5d6fbe8787b/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "artistViewUrl": "https://apps.apple.com/us/developer/anthropic-pbc/id1719695350?uo=4",
+        "averageUserRatingForCurrentVersion": 4.36434,
+        "sellerUrl": "https://claude.ai",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "323757056",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 129,
+        "trackContentRating": "17+",
+        "releaseNotes": "Squashed some bugs and made Claude Duet better.",
+        "artistId": 1719695350,
+        "artistName": "Anthropic PBC",
+        "genres": [
+          "Productivity",
+          "Business"
+        ],
+        "price": 0.0,
+        "bundleId": "com.anthropic.aibo",
+        "primaryGenreName": "Productivity",
+        "primaryGenreId": 6007,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "trackName": "Claude Duet by Anthropic",
+        "trackId": 6803276000,
+        "genreIds": [
+          "6007",
+          "6000"
+        ],
+        "releaseDate": "2026-10-26T07:00:00Z",
+        "currentVersionReleaseDate": "2026-11-12T19:03:30Z",
+        "sellerName": "Anthropic PBC",
+        "version": "1.261111.19",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Claude Duet is available through a waitlist. Before you download, check that you've received our email saying your account has access. If you haven't, join the waitlist at claude.com/product/claude-duet.\n\nWAKE UP KNOWING WHAT NEEDS YOUR ATTENTION\nEach morning, Claude Duet looks across your email and calendar and brings you the few things that need a decision or a reply. It provides context on each one, so you have what you need to decide right there. Where it can, it has a draft ready for you to review. Through the day, it checks your connected accounts every few hours and flags what's gone quiet, like a client email you haven't answered in a few days.\n\nHAND IT OFF\nAsk in a chat or add a task. Claude Duet gets going, sends you updates as it works, and tells you when it needs your review.\n\nGET THINGS MADE FROM A SINGLE MESSAGE\nDescribe what you need in one message. It comes back as work you can check, like a brief, research, or a draft.\n\nYOU HAVE THE FINAL SAY\nClaude Duet waits for your okay before it sends, posts, pays, or deletes anything. It works with the apps you've connected to Claude, and you can disconnect any of them at any time.\n\nORGANIZE BY CHANNEL\nKeep each part of your work in its own channel, like one for finance and one for hiring. Claude Duet can read across all of them, so it keeps the whole picture.\n\nTHE CLAUDE YOU KNOW\nClaude Duet runs on your Claude account, with your memory, skills, and connected apps like Gmail and Google Calendar there from the first message.\n\nIT KEEPS WORKING\nClaude Duet works in the background even after you close the app. It will let you know when it's done or needs your approval.\n\nTALK IT THROUGH\nWhen you'd rather talk than type, hold to talk or have a spoken conversation.\n\nWHAT TO EXPECT\nWe built Claude Duet for work, so it's weaker at personal errands. It can make mistakes, including about what's urgent. Emails and web pages written by other people can contain hidden instructions meant to mislead it. Claude Duet is built to resist these, but review what it shows you before you approve. Because it checks every few hours, something urgent can arrive between checks. Learn more at support.claude.com/en/articles/17631495.\n\nHOW TO GET ACCESS\nJoin the waitlist at claude.com/product/claude-duet. We'll be adding people gradually, and we'll email you when your account has access. Please note, signing into the app doesn't add you to the waitlist.",
+        "averageUserRating": 4.36434,
+        "contentAdvisoryRating": "17+",
+        "trackCensoredName": "Claude Duet by Anthropic",
+        "trackViewUrl": "https://apps.apple.com/us/app/claude-duet-by-anthropic/id6803276000?uo=4",
+        "minimumOsVersion": "26.0",
+        "userRatingCount": 129
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6746718084",
+      "app_name": "Text Translate Chat Translator",
+      "developer_name": "Mazahr Kaleem",
+      "app_store_url": "https://apps.apple.com/us/app/id6746718084",
+      "developer_website": "https://mahawirnaeima.com",
+      "support_url": "",
+      "description": "Discover the power of seamless communication with our language Translator or Translator app! Designed to break language barriers, the Text Translate Chat Translator is your go-to solution for effortless translation. Speak and instantly translate your words into multiple languages like translate Spanish to English, translate English to Spanish.\n\n137 Language Coverage\nEnglish\nFrench\nHindi\nSpanish\nPortuguese\nRussian\nGerman\nKorean\nJapanese\nArabic\nThai\nTurkey\nBengali\nUrdu\nFarsi\nVietnamese\nBurmese\n\nText Translate Chat Translator Key Features:\n\nVoice Translator:\nSpeak naturally in your language and the voice translator does the work of translating your words into another language. With real-time voice translator users can speak to translate a sentence into different languages and also can share it with others.\n\nText Translator:\nText Translate Chat Translator effortlessly translate written text between a wide variety of languages. Whether you\u2019re reading a document or typing a message, text translator app ensures accurate text translations and gives you the clarity you need in seconds.\n\nDictionary:\nExpand your vocabulary and understanding with the built-in dictionary for synonyms, and example sentences to deepen your knowledge of any language. Whether for study, work, or casual learning.\n\nPhrases:\nAccess quickly uses preloaded phrases such as travel, dining, emergency situations, and business interactions. This feature is designed to equip you with the most relevant expressions, saving you time and effort when navigating new environments.\n\nTranslate Language Conversation:\nAll Translate: Chat Translator supports automatic detection and translation for two-way communication, allowing you and your conversation partner to speak naturally in your own languages while understanding each other effortlessly.\n\nHistory of Language Translator:\nNever lose a translation again! Language Translator keeps a comprehensive record of all your past language translations, allowing you to revisit, review, or reuse them whenever needed.\n\nUse Cases of All Translate: Chat Translator:\nFor Travelers: Navigate foreign countries confidently with voice translation, travel-related phrases, and offline features.\nFor Students: Enhance language learning with the dictionary and history tools to build vocabulary and review progress.\nFor Professionals: Break down barriers in global business communications with accurate and fast translations.\n\nWhy Choose All Translate: Chat Translator?\nOur Translator app is built to deliver speed and accuracy. Whether you're exploring the globe, learning a new language, or engaging in international business, this app empowers you to connect and communicate like never before.\n\n\nhttps://sites.google.com/view/gamingworldltd/home\nhttps://sites.google.com/view/mazhar-kaleem-terms-of-use/home",
+      "category": "Productivity",
+      "release_date": "2025-06-12",
+      "last_update": "2026-08-11",
+      "rating_count": 47,
+      "review_count": null,
+      "average_rating": 4.04255,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 47 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "info@mahawirnaeima.com",
+          "email_type": "general",
+          "source_url": "https://mahawirnaeima.com",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "Mazahr Kaleem",
+      "contact_page_url": "https://mahawirnaeima.com",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Productivity",
+      "filter_reason": "",
+      "score_normalized": 65,
+      "score_points": 65,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 20,
+          "detail": "Updated within 180 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0c/07/f7/0c07f703-2e41-c996-c034-a4f99bfae3df/AppIcon-0-0-1x_U007epad-0-1-0-85-220.jpeg/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [],
+        "kind": "software",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0c/07/f7/0c07f703-2e41-c996-c034-a4f99bfae3df/AppIcon-0-0-1x_U007epad-0-1-0-85-220.jpeg/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0c/07/f7/0c07f703-2e41-c996-c034-a4f99bfae3df/AppIcon-0-0-1x_U007epad-0-1-0-85-220.jpeg/100x100bb.jpg",
+        "artistViewUrl": "https://apps.apple.com/us/developer/mazahr-kaleem/id1489826395?uo=4",
+        "averageUserRatingForCurrentVersion": 4.04255,
+        "sellerUrl": "https://mahawirnaeima.com",
+        "languageCodesISO2A": [
+          "AR",
+          "EN",
+          "FR",
+          "DE",
+          "HI",
+          "ID",
+          "IT",
+          "JA",
+          "KO",
+          "PL",
+          "PT",
+          "RU",
+          "ZH",
+          "ES",
+          "SV",
+          "TH",
+          "TR",
+          "UK"
+        ],
+        "fileSizeBytes": "49623040",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 47,
+        "trackContentRating": "4+",
+        "releaseNotes": "Add more daily uses Phrases\nImprove voice translation\nBugs Fixed",
+        "artistId": 1489826395,
+        "artistName": "Mazahr Kaleem",
+        "genres": [
+          "Productivity",
+          "Utilities"
+        ],
+        "price": 0.0,
+        "bundleId": "com.translate.languagetranslator.dictionary.all.translation.phrases",
+        "primaryGenreName": "Productivity",
+        "primaryGenreId": 6007,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "trackName": "Text Translate Chat Translator",
+        "trackId": 6746718084,
+        "genreIds": [
+          "6007",
+          "6002"
+        ],
+        "releaseDate": "2025-06-12T07:00:00Z",
+        "currentVersionReleaseDate": "2026-08-11T21:00:33Z",
+        "sellerName": "SOFTAXES TECHNOLOGY ( PRIVATE ) LIMITED",
+        "version": "1.6",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Discover the power of seamless communication with our language Translator or Translator app! Designed to break language barriers, the Text Translate Chat Translator is your go-to solution for effortless translation. Speak and instantly translate your words into multiple languages like translate Spanish to English, translate English to Spanish.\n\n137 Language Coverage\nEnglish\nFrench\nHindi\nSpanish\nPortuguese\nRussian\nGerman\nKorean\nJapanese\nArabic\nThai\nTurkey\nBengali\nUrdu\nFarsi\nVietnamese\nBurmese\n\nText Translate Chat Translator Key Features:\n\nVoice Translator:\nSpeak naturally in your language and the voice translator does the work of translating your words into another language. With real-time voice translator users can speak to translate a sentence into different languages and also can share it with others.\n\nText Translator:\nText Translate Chat Translator effortlessly translate written text between a wide variety of languages. Whether you\u2019re reading a document or typing a message, text translator app ensures accurate text translations and gives you the clarity you need in seconds.\n\nDictionary:\nExpand your vocabulary and understanding with the built-in dictionary for synonyms, and example sentences to deepen your knowledge of any language. Whether for study, work, or casual learning.\n\nPhrases:\nAccess quickly uses preloaded phrases such as travel, dining, emergency situations, and business interactions. This feature is designed to equip you with the most relevant expressions, saving you time and effort when navigating new environments.\n\nTranslate Language Conversation:\nAll Translate: Chat Translator supports automatic detection and translation for two-way communication, allowing you and your conversation partner to speak naturally in your own languages while understanding each other effortlessly.\n\nHistory of Language Translator:\nNever lose a translation again! Language Translator keeps a comprehensive record of all your past language translations, allowing you to revisit, review, or reuse them whenever needed.\n\nUse Cases of All Translate: Chat Translator:\nFor Travelers: Navigate foreign countries confidently with voice translation, travel-related phrases, and offline features.\nFor Students: Enhance language learning with the dictionary and history tools to build vocabulary and review progress.\nFor Professionals: Break down barriers in global business communications with accurate and fast translations.\n\nWhy Choose All Translate: Chat Translator?\nOur Translator app is built to deliver speed and accuracy. Whether you're exploring the globe, learning a new language, or engaging in international business, this app empowers you to connect and communicate like never before.\n\n\nhttps://sites.google.com/view/gamingworldltd/home\nhttps://sites.google.com/view/mazhar-kaleem-terms-of-use/home",
+        "averageUserRating": 4.04255,
+        "contentAdvisoryRating": "4+",
+        "trackCensoredName": "Text Translate Chat Translator",
+        "trackViewUrl": "https://apps.apple.com/us/app/text-translate-chat-translator/id6746718084?uo=4",
+        "minimumOsVersion": "18.2",
+        "userRatingCount": 47
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6795087671",
+      "app_name": "Cash Advance - Speedy Cash",
+      "developer_name": "BESSERA d.o.o.",
+      "app_store_url": "https://apps.apple.com/us/app/id6795087671",
+      "developer_website": "https://besseradoo.com",
+      "support_url": "",
+      "description": "Cash Advance - Speedy Cash \u2014 your reliable helper when life throws unexpected financial challenges your way.\nWhen sudden expenses arise, there\u2019s no need to blame yourself for poor planning or lack of financial knowledge. Sometimes you just need a quick and convenient solution for a temporary shortfall. That\u2019s exactly what Cash Advance - Speedy Cash delivers.\nWhether it\u2019s an urgent car repair, a major home emergency, medical bills, or any other unforeseen situation, our app steps in immediately. No more stressful searches for cash or long waits. Submit your application any time \u2014 day or night, even on weekends and holidays \u2014 and receive the funds almost instantly. Fast, simple, and stress-free.\nHere for Whatever Life Brings\nOur users turn to Cash Advance - Speedy Cash both for sudden financial emergencies and for planned larger purchases. The most frequent reasons include:\n\u2022  Covering everyday bills when payday is still a few days away\n\u2022  Making a big purchase without completely emptying family savings\n\u2022  Avoiding lengthy bank approval processes\n\u2022  Not wanting to ask friends or relatives for money\nThese situations can happen to anyone. Cash Advance - Speedy Cash offers a convenient, modern solution that saves your time and nerves.\nSimple and Fully Transparent\nWe believe borrowing should be clear and understandable for everyone. That\u2019s why Cash Advance - Speedy Cash was built with maximum simplicity in mind. No confusing financial terms, no hidden fees, and no complicated calculations.\nAll the important information is displayed clearly and upfront. You see the exact terms and make an informed decision.\nImportant Information\nSubmitting an application does not obligate you to accept the loan. You review the personalized offer first and only proceed if the conditions suit you. Before any agreement, you will clearly see:\n\u2022  Repayment term: from 65 days to 24 months\n\u2022  Interest rate: from 5.99% to 35.99% (individual rate based on your profile)\n\u2022  APR: the full cost of the loan shown transparently\nYou are always in control \u2014 take the offer or decline it without any consequences.\nRepresentative Example\nImagine your laptop, which you need for work, suddenly fails. You don\u2019t have the $850 to replace it right away, so you apply for a loan with a 6-month repayment period.\nCash Advance - Speedy Cash offers you the funds instantly at a 14% interest rate. Your monthly payment will be $152.80. The total amount to repay will be $916.80, which includes the $850 borrowed plus $66.80 in interest.\nThis way, you can easily plan your budget and avoid unpleasant surprises.\nGetting Started Is Extremely Easy\nThe application process takes just a few minutes:\n\u2022  Fill out a short and simple form\n\u2022  No income verification paperwork required\n\u2022  Everything is done online \u2014 no need to visit any office\n\u2022  Fast decision and instant funding when approved\nYour personal and financial data is protected with advanced encryption technology. Cash Advance - Speedy Cash provides a safe, discreet, and reliable way to solve your financial needs.",
+      "category": "Lifestyle",
+      "release_date": "2026-10-18",
+      "last_update": "2026-10-19",
+      "rating_count": 44,
+      "review_count": null,
+      "average_rating": 3.97727,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "unknown",
+      "icp_reason": "Not enough evidence to choose an ICP.",
+      "emails": [
+        {
+          "address": "contact@besseradoo.com",
+          "email_type": "general",
+          "source_url": "https://besseradoo.com",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "BESSERA d.o.o.",
+      "contact_page_url": "https://besseradoo.com",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Lifestyle",
+      "filter_reason": "",
+      "score_normalized": 88,
+      "score_points": 70,
+      "score_known_max": 80,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "unknown",
+          "points": 0,
+          "max_points": 20,
+          "detail": "ICP could not be classified."
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [
+        "ICP"
+      ],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/72/52/06/72520631-04ad-1177-3e1b-e3bb116d55dd/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/512x512bb.jpg",
+        "kind": "software",
+        "features": [],
+        "artistViewUrl": "https://apps.apple.com/us/developer/bessera-d-o-o/id6795087673?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/72/52/06/72520631-04ad-1177-3e1b-e3bb116d55dd/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/72/52/06/72520631-04ad-1177-3e1b-e3bb116d55dd/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/100x100bb.jpg",
+        "advisories": [],
+        "isGameCenterEnabled": false,
+        "fileSizeBytes": "52378624",
+        "formattedPrice": "Free",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "sellerUrl": "https://besseradoo.com",
+        "userRatingCountForCurrentVersion": 44,
+        "trackContentRating": "17+",
+        "averageUserRatingForCurrentVersion": 3.97727,
+        "price": 0.0,
+        "genres": [
+          "Lifestyle",
+          "Business"
+        ],
+        "artistId": 6795087673,
+        "artistName": "BESSERA d.o.o.",
+        "primaryGenreName": "Lifestyle",
+        "primaryGenreId": 6012,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "trackName": "Cash Advance - Speedy Cash",
+        "trackId": 6795087671,
+        "sellerName": "BESSERA d.o.o.",
+        "minimumOsVersion": "15.6",
+        "currentVersionReleaseDate": "2026-10-19T06:30:47Z",
+        "version": "1.0",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Cash Advance - Speedy Cash \u2014 your reliable helper when life throws unexpected financial challenges your way.\nWhen sudden expenses arise, there\u2019s no need to blame yourself for poor planning or lack of financial knowledge. Sometimes you just need a quick and convenient solution for a temporary shortfall. That\u2019s exactly what Cash Advance - Speedy Cash delivers.\nWhether it\u2019s an urgent car repair, a major home emergency, medical bills, or any other unforeseen situation, our app steps in immediately. No more stressful searches for cash or long waits. Submit your application any time \u2014 day or night, even on weekends and holidays \u2014 and receive the funds almost instantly. Fast, simple, and stress-free.\nHere for Whatever Life Brings\nOur users turn to Cash Advance - Speedy Cash both for sudden financial emergencies and for planned larger purchases. The most frequent reasons include:\n\u2022  Covering everyday bills when payday is still a few days away\n\u2022  Making a big purchase without completely emptying family savings\n\u2022  Avoiding lengthy bank approval processes\n\u2022  Not wanting to ask friends or relatives for money\nThese situations can happen to anyone. Cash Advance - Speedy Cash offers a convenient, modern solution that saves your time and nerves.\nSimple and Fully Transparent\nWe believe borrowing should be clear and understandable for everyone. That\u2019s why Cash Advance - Speedy Cash was built with maximum simplicity in mind. No confusing financial terms, no hidden fees, and no complicated calculations.\nAll the important information is displayed clearly and upfront. You see the exact terms and make an informed decision.\nImportant Information\nSubmitting an application does not obligate you to accept the loan. You review the personalized offer first and only proceed if the conditions suit you. Before any agreement, you will clearly see:\n\u2022  Repayment term: from 65 days to 24 months\n\u2022  Interest rate: from 5.99% to 35.99% (individual rate based on your profile)\n\u2022  APR: the full cost of the loan shown transparently\nYou are always in control \u2014 take the offer or decline it without any consequences.\nRepresentative Example\nImagine your laptop, which you need for work, suddenly fails. You don\u2019t have the $850 to replace it right away, so you apply for a loan with a 6-month repayment period.\nCash Advance - Speedy Cash offers you the funds instantly at a 14% interest rate. Your monthly payment will be $152.80. The total amount to repay will be $916.80, which includes the $850 borrowed plus $66.80 in interest.\nThis way, you can easily plan your budget and avoid unpleasant surprises.\nGetting Started Is Extremely Easy\nThe application process takes just a few minutes:\n\u2022  Fill out a short and simple form\n\u2022  No income verification paperwork required\n\u2022  Everything is done online \u2014 no need to visit any office\n\u2022  Fast decision and instant funding when approved\nYour personal and financial data is protected with advanced encryption technology. Cash Advance - Speedy Cash provides a safe, discreet, and reliable way to solve your financial needs.",
+        "bundleId": "com.cash.advance.speedy.cash",
+        "averageUserRating": 3.97727,
+        "contentAdvisoryRating": "17+",
+        "trackCensoredName": "Cash Advance - Speedy Cash",
+        "trackViewUrl": "https://apps.apple.com/us/app/cash-advance-speedy-cash/id6795087671?uo=4",
+        "releaseDate": "2026-10-18T07:00:00Z",
+        "genreIds": [
+          "6012",
+          "6000"
+        ],
+        "userRatingCount": 44
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6764116699",
+      "app_name": "The Floor HQ",
+      "developer_name": "The Floor HQ LLC",
+      "app_store_url": "https://apps.apple.com/us/app/id6764116699",
+      "developer_website": "https://thefloorhq.com",
+      "support_url": "",
+      "description": "The Floor is a nonpartisan civic engagement app for following real U.S. House and Senate legislation.\nBrowse tracked bills, read plain-language summaries, cast your own Yes or No vote, and compare your position with the broader Floor community. After onboarding, The Floor matches you to your congressional district and senators so you can see how your delegation votes on the bills you care about.\nThe Floor helps you:\nBrowse active House and Senate bills\nVote Yes or No before Congress does\nSee community vote splits and discussion\nCompare your record with your representative, senators, parties, and other users\nPlay Daily Floor, a quick civic quiz built around real votes\nFollow leaderboard rankings by constituent and national alignment\nManage floor alerts, vote updates, Daily Floor reminders, and weekly digests\nThe Floor is not affiliated with Congress, the U.S. government, or any government agency. Legislative information is sourced from official and public government records, including Congress.gov, and is presented for civic education, voting comparison, and discussion.",
+      "category": "Education",
+      "release_date": "2026-10-26",
+      "last_update": "2026-11-12",
+      "rating_count": 4,
+      "review_count": null,
+      "average_rating": 5.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Legal suffix on a person's name. 4 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "desk@thefloorhq.com",
+          "email_type": "general",
+          "source_url": "https://thefloorhq.com",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "The Floor HQ LLC",
+      "contact_page_url": "https://thefloorhq.com",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 95,
+      "score_points": 95,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "isGameCenterEnabled": false,
+        "features": [],
+        "advisories": [
+          "Infrequent/Mild Alcohol, Tobacco, or Drug Use or References"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/de/c9/b6/dec9b689-d1fb-f9c2-6feb-bf4d645b232c/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/512x512bb.jpg",
+        "artistViewUrl": "https://apps.apple.com/us/developer/the-floor-hq-llc/id1895647670?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/de/c9/b6/dec9b689-d1fb-f9c2-6feb-bf4d645b232c/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/de/c9/b6/dec9b689-d1fb-f9c2-6feb-bf4d645b232c/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/100x100bb.jpg",
+        "currentVersionReleaseDate": "2026-11-12T16:59:46Z",
+        "artistId": 1895647670,
+        "artistName": "The Floor HQ LLC",
+        "genreIds": [
+          "6017",
+          "6009"
+        ],
+        "releaseDate": "2026-10-26T07:00:00Z",
+        "trackId": 6764116699,
+        "trackName": "The Floor HQ",
+        "minimumOsVersion": "17.0",
+        "bundleId": "com.thefloorhq.mobile",
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "The Floor HQ LLC",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.0.5",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "The Floor is a nonpartisan civic engagement app for following real U.S. House and Senate legislation.\nBrowse tracked bills, read plain-language summaries, cast your own Yes or No vote, and compare your position with the broader Floor community. After onboarding, The Floor matches you to your congressional district and senators so you can see how your delegation votes on the bills you care about.\nThe Floor helps you:\nBrowse active House and Senate bills\nVote Yes or No before Congress does\nSee community vote splits and discussion\nCompare your record with your representative, senators, parties, and other users\nPlay Daily Floor, a quick civic quiz built around real votes\nFollow leaderboard rankings by constituent and national alignment\nManage floor alerts, vote updates, Daily Floor reminders, and weekly digests\nThe Floor is not affiliated with Congress, the U.S. government, or any government agency. Legislative information is sourced from official and public government records, including Congress.gov, and is presented for civic education, voting comparison, and discussion.",
+        "userRatingCountForCurrentVersion": 4,
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "40187904",
+        "formattedPrice": "Free",
+        "trackContentRating": "12+",
+        "sellerUrl": "https://thefloorhq.com",
+        "averageUserRatingForCurrentVersion": 5,
+        "trackCensoredName": "The Floor HQ",
+        "trackViewUrl": "https://apps.apple.com/us/app/the-floor-hq/id6764116699?uo=4",
+        "contentAdvisoryRating": "12+",
+        "averageUserRating": 5,
+        "price": 0.0,
+        "genres": [
+          "Education",
+          "News"
+        ],
+        "releaseNotes": "Push notifications are here. Get alerts for upcoming floor votes, updates when your representatives vote, and Daily Floor reminders. Choose which alerts you receive in Settings.\nWe also fixed an issue where saved notification preferences appeared turned off.",
+        "userRatingCount": 4
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6782837151",
+      "app_name": "Seekee: Ai Search & Ai Tools",
+      "developer_name": "Seekee Verge Co., Ltd",
+      "app_store_url": "https://apps.apple.com/us/app/id6782837151",
+      "developer_website": "https://www.seekeeverge.com",
+      "support_url": "",
+      "description": "Seekee is an all-in-one productivity tool integrating secure cloud storage, versatile AI assistant and aggregated global search, covering all your demands for file backup, intelligent consultation and resource lookup for work, study and daily use.\nSecure Cloud Storage\nGet ample cloud space to upload & back up photos, documents, videos, archives and all file formats. Create categorized folders for batch uploads, downloads and file sharing. Auto-sync your local phone gallery with end-to-end encrypted storage, access files seamlessly across iPhone and iPad.\nPowerful AI Toolkit\nAggregated Global Smart Search\nMulti-source integrated search engine for documents, images, videos and articles. Filter results by keywords, save favorite links and browse web pages inside the app, making information retrieval far more efficient.\nExtra Practical Features\n* File management: rename, move, batch sort and offline cache\n* Search history, favorite collections and one-click link copy\n* Full privacy control: clear local cache, encrypted private files, no unnecessary private data collection\nSubscription Information\nCompliance Statement\nThis app only provides cloud storage, AI tools and web search functions. Users take full responsibility for all uploaded and searched content. Illegal, infringing or harmful materials are strictly prohibited and will be handled per relevant regulations.\n\nhttps://www.seekeeverge.com\nhttps://www.seekeeverge.com/privacy\nhttps://www.seekeeverge.com/terms",
+      "category": "Utilities",
+      "release_date": "2026-06-25",
+      "last_update": "2026-09-18",
+      "rating_count": 77,
+      "review_count": null,
+      "average_rating": 3.33766,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Legal suffix on a person's name. 77 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "contact@seekeeverge.com",
+          "email_type": "general",
+          "source_url": "https://www.seekeeverge.com",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "Seekee Verge Co., Ltd",
+      "contact_page_url": "https://www.seekeeverge.com",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 82,
+      "score_points": 82,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/3f/ae/a8/3faea849-708b-f161-99b0-b1bba8297e6f/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "artistViewUrl": "https://apps.apple.com/us/developer/seekee-verge-co-ltd/id6782837153?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/3f/ae/a8/3faea849-708b-f161-99b0-b1bba8297e6f/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/3f/ae/a8/3faea849-708b-f161-99b0-b1bba8297e6f/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/100x100bb.jpg",
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [
+          "Unrestricted Web Access"
+        ],
+        "kind": "software",
+        "releaseNotes": "Fix some issues",
+        "averageUserRating": 3.33766,
+        "averageUserRatingForCurrentVersion": 3.33766,
+        "sellerUrl": "https://www.seekeeverge.com",
+        "languageCodesISO2A": [
+          "EN",
+          "PT",
+          "ES",
+          "TR"
+        ],
+        "fileSizeBytes": "28729344",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 77,
+        "trackContentRating": "17+",
+        "trackCensoredName": "Seekee: Ai Search & Ai Tools",
+        "trackViewUrl": "https://apps.apple.com/us/app/seekee-ai-search-ai-tools/id6782837151?uo=4",
+        "contentAdvisoryRating": "17+",
+        "artistId": 6782837153,
+        "artistName": "Seekee Verge Co., Ltd",
+        "genres": [
+          "Utilities"
+        ],
+        "price": 0.0,
+        "bundleId": "com.variant.verge",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "minimumOsVersion": "16.0",
+        "releaseDate": "2026-06-25T07:00:00Z",
+        "sellerName": "Seekee Verge Co., Ltd",
+        "genreIds": [
+          "6002"
+        ],
+        "trackId": 6782837151,
+        "trackName": "Seekee: Ai Search & Ai Tools",
+        "currentVersionReleaseDate": "2026-09-18T02:02:13Z",
+        "version": "1.0.4",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Seekee is an all-in-one productivity tool integrating secure cloud storage, versatile AI assistant and aggregated global search, covering all your demands for file backup, intelligent consultation and resource lookup for work, study and daily use.\nSecure Cloud Storage\nGet ample cloud space to upload & back up photos, documents, videos, archives and all file formats. Create categorized folders for batch uploads, downloads and file sharing. Auto-sync your local phone gallery with end-to-end encrypted storage, access files seamlessly across iPhone and iPad.\nPowerful AI Toolkit\nAggregated Global Smart Search\nMulti-source integrated search engine for documents, images, videos and articles. Filter results by keywords, save favorite links and browse web pages inside the app, making information retrieval far more efficient.\nExtra Practical Features\n* File management: rename, move, batch sort and offline cache\n* Search history, favorite collections and one-click link copy\n* Full privacy control: clear local cache, encrypted private files, no unnecessary private data collection\nSubscription Information\nCompliance Statement\nThis app only provides cloud storage, AI tools and web search functions. Users take full responsibility for all uploaded and searched content. Illegal, infringing or harmful materials are strictly prohibited and will be handled per relevant regulations.\n\nhttps://www.seekeeverge.com\nhttps://www.seekeeverge.com/privacy\nhttps://www.seekeeverge.com/terms",
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "userRatingCount": 77
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6767523015",
+      "app_name": "Holy Bible Faith:Verse&Audio",
+      "developer_name": "Lichu Studio",
+      "app_store_url": "https://apps.apple.com/us/app/id6767523015",
+      "developer_website": "https://www.lichunetwork.com",
+      "support_url": "",
+      "description": "Let God's Word Walk With You\u2014Anytime, Anywhere\n\nA perfect blend of audio, devotionals, and in-depth study\u2014creating a personalized spiritual sanctuary for every believer!\n\nWhether you wish to begin your morning with the tranquility of a scripture passage, find strength through prayer amidst a busy day, or delve deeply into the profound truths of God's Word, this KJV Bible app serves as your most faithful spiritual companion. We have seamlessly integrated professional audio narration, daily devotionals, and practical study tools to bring these ancient scriptures to life in the modern world, accompanying you every step of your faith journey.\n\nThree Core Highlights Designed Just for You:\nDaily Verses & Devotional Guidance\nEvery morning, we carefully select KJV verses and short devotionals tailored to your daily mood, helping you stay rooted in God's Word\u2014from your morning prayers to your daily reading routine. Whether you seek comfort, wisdom, or strength, you will find the specific spiritual nourishment you need right here, allowing your faith to become an integral part of your everyday life.\n\nListen to the HD Audio Bible Anytime, Anywhere\nOn your commute, during a workout, or while doing chores... listen to the KJV Bible clearly narrated by professional voice artists without needing to hold your device. Let God's Word follow you like a shadow, filling every spare moment of your day.\n\nIn-Depth Study Tools to Foster Growth\nEncounter a verse that touches your soul? Highlight it with a single tap, add your own personal notes, and transform simple reading into profound reflection\u2014allowing your faith to grow ever stronger through contemplation.\n\nExisting subscribers keep access to previously subscribed features.\n\nPrivacy Policy: https://www.lichunetwork.com/privacy.html\nTerms of use: https://www.lichunetwork.com/terms.html\n\nDownload now and begin your journey of conversation with God!",
+      "category": "Utilities",
+      "release_date": "2026-05-21",
+      "last_update": "2026-11-11",
+      "rating_count": 190,
+      "review_count": null,
+      "average_rating": 4.08947,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a product studio. 190 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@lichunetwork.com",
+          "email_type": "support",
+          "source_url": "https://www.lichunetwork.com",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Lichu Studio",
+      "contact_page_url": "https://www.lichunetwork.com",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 95,
+      "score_points": 95,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/7d/64/a4/7d64a4ec-588a-8814-87b4-fd351f12b5b0/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "artistViewUrl": "https://apps.apple.com/us/developer/lichu-studio/id1896483449?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/7d/64/a4/7d64a4ec-588a-8814-87b4-fd351f12b5b0/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/7d/64/a4/7d64a4ec-588a-8814-87b4-fd351f12b5b0/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/100x100bb.jpg",
+        "features": [],
+        "advisories": [],
+        "kind": "software",
+        "releaseNotes": "Bug fixes.",
+        "averageUserRating": 4.08947,
+        "averageUserRatingForCurrentVersion": 4.08947,
+        "sellerUrl": "https://www.lichunetwork.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "217116672",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 190,
+        "trackContentRating": "4+",
+        "trackCensoredName": "Holy Bible Faith:Verse&Audio",
+        "trackViewUrl": "https://apps.apple.com/us/app/holy-bible-faith-verse-audio/id6767523015?uo=4",
+        "contentAdvisoryRating": "4+",
+        "artistId": 1896483449,
+        "artistName": "Lichu Studio",
+        "genres": [
+          "Utilities"
+        ],
+        "price": 0.0,
+        "bundleId": "com.biblefaith.audiobible.verseprayer",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "minimumOsVersion": "17.0",
+        "releaseDate": "2026-05-21T07:00:00Z",
+        "sellerName": "Guangzhou Lichu Network Technology Co., Ltd",
+        "genreIds": [
+          "6002"
+        ],
+        "trackId": 6767523015,
+        "trackName": "Holy Bible Faith:Verse&Audio",
+        "currentVersionReleaseDate": "2026-11-11T00:55:40Z",
+        "version": "1.13.0",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Let God's Word Walk With You\u2014Anytime, Anywhere\n\nA perfect blend of audio, devotionals, and in-depth study\u2014creating a personalized spiritual sanctuary for every believer!\n\nWhether you wish to begin your morning with the tranquility of a scripture passage, find strength through prayer amidst a busy day, or delve deeply into the profound truths of God's Word, this KJV Bible app serves as your most faithful spiritual companion. We have seamlessly integrated professional audio narration, daily devotionals, and practical study tools to bring these ancient scriptures to life in the modern world, accompanying you every step of your faith journey.\n\nThree Core Highlights Designed Just for You:\nDaily Verses & Devotional Guidance\nEvery morning, we carefully select KJV verses and short devotionals tailored to your daily mood, helping you stay rooted in God's Word\u2014from your morning prayers to your daily reading routine. Whether you seek comfort, wisdom, or strength, you will find the specific spiritual nourishment you need right here, allowing your faith to become an integral part of your everyday life.\n\nListen to the HD Audio Bible Anytime, Anywhere\nOn your commute, during a workout, or while doing chores... listen to the KJV Bible clearly narrated by professional voice artists without needing to hold your device. Let God's Word follow you like a shadow, filling every spare moment of your day.\n\nIn-Depth Study Tools to Foster Growth\nEncounter a verse that touches your soul? Highlight it with a single tap, add your own personal notes, and transform simple reading into profound reflection\u2014allowing your faith to grow ever stronger through contemplation.\n\nExisting subscribers keep access to previously subscribed features.\n\nPrivacy Policy: https://www.lichunetwork.com/privacy.html\nTerms of use: https://www.lichunetwork.com/terms.html\n\nDownload now and begin your journey of conversation with God!",
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "userRatingCount": 190
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6782164452",
+      "app_name": "Zyra VPN",
+      "developer_name": "MUZA TECHNOLOGIES s.r.o.",
+      "app_store_url": "https://apps.apple.com/us/app/id6782164452",
+      "developer_website": "https://zyra-vpn.com/",
+      "support_url": "",
+      "description": "Privacy isn't a feature. It's a standard.\nZyra VPN is a premium VPN experience built for people who expect more from their digital life. Fast connections, powerful protection, and a refined user experience come together in a product designed to make online privacy feel effortless.\nCreated with a strong focus on performance and simplicity, Zyra VPN helps you stay connected with confidence whether you're working, traveling, streaming, or browsing throughout the day.\n\nThe Zyra Philosophy\nThe internet should feel open, secure, and private.\nZyra VPN was created around a simple idea: digital protection should be elegant, accessible, and powerful. Instead of overwhelming users with technical details, we focus on delivering a seamless experience that simply works.\nWhether you're at home, on the move, or connected to public Wi-Fi, Zyra VPN helps you browse with confidence and enjoy a more private online experience.\n\nWhy Users Choose Zyra VPN\n\u2022 Modern premium design\n\u2022 Fast and reliable VPN connections\n\u2022 Advanced connection security\n\u2022 Private browsing experience\n\u2022 Global VPN network\n\u2022 Wi-Fi protection on the go\n\u2022 User-friendly interface\n\u2022 Lightweight and optimized performance\n\nLegal\nBy using Zyra VPN, you agree to our Terms of Use, Privacy Policy, and End User License Agreement (EULA).\nTerms of Use: https://zyra-vpn.com/terms\nPrivacy Policy: https://zyra-vpn.com/privacy\nEULA: https://zyra-vpn.com/eula",
+      "category": "Utilities",
+      "release_date": "2026-07-08",
+      "last_update": "2026-10-28",
+      "rating_count": 28,
+      "review_count": null,
+      "average_rating": 3.57143,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "unknown",
+      "icp_reason": "Not enough evidence to choose an ICP.",
+      "emails": [
+        {
+          "address": "support@muza-technologies.com",
+          "email_type": "support",
+          "source_url": "https://zyra-vpn.com/contact",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "MUZA TECHNOLOGIES s.r.o.",
+      "contact_page_url": "https://zyra-vpn.com/contact",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 88,
+      "score_points": 70,
+      "score_known_max": 80,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "unknown",
+          "points": 0,
+          "max_points": 20,
+          "detail": "ICP could not be classified."
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [
+        "ICP"
+      ],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/62/5b/62/625b623f-11b8-7972-022e-6929eef6ef0c/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "artistViewUrl": "https://apps.apple.com/us/developer/muza-technologies-s-r-o/id6782164454?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/62/5b/62/625b623f-11b8-7972-022e-6929eef6ef0c/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/62/5b/62/625b623f-11b8-7972-022e-6929eef6ef0c/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [],
+        "kind": "software",
+        "releaseNotes": "Minor Bugs fix",
+        "averageUserRating": 3.57143,
+        "averageUserRatingForCurrentVersion": 3.57143,
+        "sellerUrl": "https://zyra-vpn.com/",
+        "languageCodesISO2A": [
+          "EN",
+          "FR",
+          "JA",
+          "PT",
+          "ES"
+        ],
+        "fileSizeBytes": "27907072",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 28,
+        "trackContentRating": "4+",
+        "trackCensoredName": "Zyra VPN",
+        "trackViewUrl": "https://apps.apple.com/us/app/zyra-vpn/id6782164452?uo=4",
+        "contentAdvisoryRating": "4+",
+        "artistId": 6782164454,
+        "artistName": "MUZA TECHNOLOGIES s.r.o.",
+        "genres": [
+          "Utilities",
+          "Productivity"
+        ],
+        "price": 0.0,
+        "bundleId": "com.zyravpn.app",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "minimumOsVersion": "16.0",
+        "releaseDate": "2026-07-08T07:00:00Z",
+        "sellerName": "MUZA TECHNOLOGIES s.r.o.",
+        "genreIds": [
+          "6002",
+          "6007"
+        ],
+        "trackId": 6782164452,
+        "trackName": "Zyra VPN",
+        "currentVersionReleaseDate": "2026-10-28T08:58:39Z",
+        "version": "1.0.7",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Privacy isn't a feature. It's a standard.\nZyra VPN is a premium VPN experience built for people who expect more from their digital life. Fast connections, powerful protection, and a refined user experience come together in a product designed to make online privacy feel effortless.\nCreated with a strong focus on performance and simplicity, Zyra VPN helps you stay connected with confidence whether you're working, traveling, streaming, or browsing throughout the day.\n\nThe Zyra Philosophy\nThe internet should feel open, secure, and private.\nZyra VPN was created around a simple idea: digital protection should be elegant, accessible, and powerful. Instead of overwhelming users with technical details, we focus on delivering a seamless experience that simply works.\nWhether you're at home, on the move, or connected to public Wi-Fi, Zyra VPN helps you browse with confidence and enjoy a more private online experience.\n\nWhy Users Choose Zyra VPN\n\u2022 Modern premium design\n\u2022 Fast and reliable VPN connections\n\u2022 Advanced connection security\n\u2022 Private browsing experience\n\u2022 Global VPN network\n\u2022 Wi-Fi protection on the go\n\u2022 User-friendly interface\n\u2022 Lightweight and optimized performance\n\nLegal\nBy using Zyra VPN, you agree to our Terms of Use, Privacy Policy, and End User License Agreement (EULA).\nTerms of Use: https://zyra-vpn.com/terms\nPrivacy Policy: https://zyra-vpn.com/privacy\nEULA: https://zyra-vpn.com/eula",
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "userRatingCount": 28
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6743524521",
+      "app_name": "1Zone",
+      "developer_name": "EVENTISTA LIMITED COMPANY",
+      "app_store_url": "https://apps.apple.com/us/app/id6743524521",
+      "developer_website": "https://eventistax.com/",
+      "support_url": "",
+      "description": "Eventista is a fan engagement platform for entertainment with a diverse ecosystem: Online Voting Platform, Ticket Distribution Platform and eCommerce for Merchandise.",
+      "category": "Entertainment",
+      "release_date": "2025-05-06",
+      "last_update": "2026-11-11",
+      "rating_count": 63,
+      "review_count": null,
+      "average_rating": 3.50794,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Legal suffix on a brand name. 63 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@eventista.vn",
+          "email_type": "support",
+          "source_url": "https://eventistax.com/",
+          "evidence": "The address uses a support mailbox name."
+        },
+        {
+          "address": "partnership@eventista.vn",
+          "email_type": "general",
+          "source_url": "https://eventistax.com/",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "EVENTISTA LIMITED COMPANY",
+      "contact_page_url": "https://eventistax.com/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 2 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Entertainment",
+      "filter_reason": "",
+      "score_normalized": 70,
+      "score_points": 70,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 30,
+          "detail": "Under 100 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "isGameCenterEnabled": false,
+        "artistViewUrl": "https://apps.apple.com/us/developer/eventista-limited-company/id1824423154?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/47/b1/02/47b102ac-bf1b-5231-5c80-14beb94a5dd2/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/47/b1/02/47b102ac-bf1b-5231-5c80-14beb94a5dd2/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/100x100bb.jpg",
+        "features": [],
+        "advisories": [
+          "Frequent/Intense Contests"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/47/b1/02/47b102ac-bf1b-5231-5c80-14beb94a5dd2/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/512x512bb.jpg",
+        "trackCensoredName": "1Zone",
+        "trackViewUrl": "https://apps.apple.com/us/app/1zone/id6743524521?uo=4",
+        "contentAdvisoryRating": "12+",
+        "averageUserRating": 3.50794,
+        "artistId": 1824423154,
+        "artistName": "EVENTISTA LIMITED COMPANY",
+        "genres": [
+          "Entertainment",
+          "Lifestyle"
+        ],
+        "price": 0.0,
+        "bundleId": "com.eventista.1zone",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Entertainment",
+        "primaryGenreId": 6016,
+        "sellerName": "EVENTISTA LIMITED COMPANY",
+        "releaseDate": "2025-05-06T07:00:00Z",
+        "trackId": 6743524521,
+        "trackName": "1Zone",
+        "genreIds": [
+          "6016",
+          "6012"
+        ],
+        "minimumOsVersion": "16.4",
+        "currentVersionReleaseDate": "2026-11-11T03:23:14Z",
+        "releaseNotes": "Welcome to the latest update!\n\n\u2022 Improved app performance\n\u2022 Enhanced user interface and user experience\n\nThank you for being part of 1Zone!",
+        "version": "2.7.7",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Eventista is a fan engagement platform for entertainment with a diverse ecosystem: Online Voting Platform, Ticket Distribution Platform and eCommerce for Merchandise.",
+        "sellerUrl": "https://eventistax.com/",
+        "languageCodesISO2A": [
+          "EN",
+          "VI"
+        ],
+        "fileSizeBytes": "156379136",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 63,
+        "trackContentRating": "12+",
+        "averageUserRatingForCurrentVersion": 3.50794,
+        "userRatingCount": 63
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6817187484",
+      "app_name": "Untraced: Find the Suspect",
+      "developer_name": "XUAN TUNG NGO",
+      "app_store_url": "https://apps.apple.com/us/app/id6817187484",
+      "developer_website": "https://findthesuspect.web.app",
+      "support_url": "",
+      "description": "Read the clues. Draw the suspect. Solve the case.\n\nFind the Suspect is a drawing game and a detective story. Play 20 free drawing games, or open Inner Circle and search a dead singer's phone for the truth.\n\nINNER CIRCLE\nHattie Vale drowned in a friend's pool. The police say she was high and fell. Her sister Helen does not believe it, and she has Hattie's phone. Helen asks you one question at a time. Look through chats, photos, notes, voicemails, recordings, bank records, mail and more, then type your answer. Helen replies to every guess. Answer all 19 questions, then name the killer.\n\nThe phone and its apps are made up for the game. They never read your own messages, photos, contacts or files. The whole case is on your device and plays offline.\n\nDRAW THE SUSPECT\nRead three witness statements. Combine the clues and draw the suspect in your own style. Send your sketch to the AI judge for a verdict and a match score. A network connection and your permission are required before a sketch is sent.\n\n- One long fictional case with 19 questions and an ending\n- A made-up phone with 22 apps to search\n- Type your answers in your own words\n- 20 free drawing games with an AI judge\n- Saved progress, no account, no ads\n\nPREMIUM\nStuck? Premium gives you hints in the case: a hint, a deeper hint, then the answer, each with a link to the app that holds the clue. You can finish the case without hints. Inner Circle and all 20 drawing games are free.\n\nChoose a weekly or yearly auto-renewable subscription. The app shows the local store price and billing period before purchase. Payment is charged to your App Store account. Subscriptions renew automatically unless cancelled. Manage or cancel your subscription in your App Store account settings. Restore purchases in Settings.\n\nAll characters and events are invented.\n\nPrivacy Policy: https://findthesuspect.web.app/privacy\nTerms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+      "category": "Entertainment",
+      "release_date": "2026-10-22",
+      "last_update": "2026-11-11",
+      "rating_count": 5,
+      "review_count": null,
+      "average_rating": 4.59999,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 5 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "thanhtoong97@icloud.com",
+          "email_type": "general",
+          "source_url": "https://findthesuspect.web.app/support",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "XUAN TUNG NGO",
+      "contact_page_url": "https://findthesuspect.web.app/support",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Entertainment",
+      "filter_reason": "",
+      "score_normalized": 95,
+      "score_points": 95,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "isGameCenterEnabled": false,
+        "artistViewUrl": "https://apps.apple.com/us/developer/xuan-tung-ngo/id6817187486?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/fc/f6/4b/fcf64bf3-7e42-a627-1473-e8b75fd64183/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/fc/f6/4b/fcf64bf3-7e42-a627-1473-e8b75fd64183/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/100x100bb.jpg",
+        "features": [],
+        "advisories": [
+          "Infrequent/Mild Profanity or Crude Humor",
+          "Infrequent/Mild Alcohol, Tobacco, or Drug Use or References",
+          "Infrequent/Mild Horror/Fear Themes",
+          "Infrequent/Mild Mature/Suggestive Themes"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/fc/f6/4b/fcf64bf3-7e42-a627-1473-e8b75fd64183/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/512x512bb.jpg",
+        "trackCensoredName": "Untraced: Find the Suspect",
+        "trackViewUrl": "https://apps.apple.com/us/app/untraced-find-the-suspect/id6817187484?uo=4",
+        "contentAdvisoryRating": "12+",
+        "averageUserRating": 4.59999,
+        "artistId": 6817187486,
+        "artistName": "XUAN TUNG NGO",
+        "genres": [
+          "Entertainment"
+        ],
+        "price": 0.0,
+        "bundleId": "com.winterbloom.detective",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Entertainment",
+        "primaryGenreId": 6016,
+        "sellerName": "XUAN TUNG NGO",
+        "releaseDate": "2026-10-22T07:00:00Z",
+        "trackId": 6817187484,
+        "trackName": "Untraced: Find the Suspect",
+        "genreIds": [
+          "6016"
+        ],
+        "minimumOsVersion": "16.4",
+        "currentVersionReleaseDate": "2026-11-11T02:12:23Z",
+        "releaseNotes": "Out of hints? Buy a pack of 5 hints, or watch a short video for a free hint.\nNew players now get 4 free questions before the paywall.",
+        "version": "1.6",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Read the clues. Draw the suspect. Solve the case.\n\nFind the Suspect is a drawing game and a detective story. Play 20 free drawing games, or open Inner Circle and search a dead singer's phone for the truth.\n\nINNER CIRCLE\nHattie Vale drowned in a friend's pool. The police say she was high and fell. Her sister Helen does not believe it, and she has Hattie's phone. Helen asks you one question at a time. Look through chats, photos, notes, voicemails, recordings, bank records, mail and more, then type your answer. Helen replies to every guess. Answer all 19 questions, then name the killer.\n\nThe phone and its apps are made up for the game. They never read your own messages, photos, contacts or files. The whole case is on your device and plays offline.\n\nDRAW THE SUSPECT\nRead three witness statements. Combine the clues and draw the suspect in your own style. Send your sketch to the AI judge for a verdict and a match score. A network connection and your permission are required before a sketch is sent.\n\n- One long fictional case with 19 questions and an ending\n- A made-up phone with 22 apps to search\n- Type your answers in your own words\n- 20 free drawing games with an AI judge\n- Saved progress, no account, no ads\n\nPREMIUM\nStuck? Premium gives you hints in the case: a hint, a deeper hint, then the answer, each with a link to the app that holds the clue. You can finish the case without hints. Inner Circle and all 20 drawing games are free.\n\nChoose a weekly or yearly auto-renewable subscription. The app shows the local store price and billing period before purchase. Payment is charged to your App Store account. Subscriptions renew automatically unless cancelled. Manage or cancel your subscription in your App Store account settings. Restore purchases in Settings.\n\nAll characters and events are invented.\n\nPrivacy Policy: https://findthesuspect.web.app/privacy\nTerms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+        "sellerUrl": "https://findthesuspect.web.app",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "161321984",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 5,
+        "trackContentRating": "12+",
+        "averageUserRatingForCurrentVersion": 4.59999,
+        "userRatingCount": 5
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6781596977",
+      "app_name": "zeha: AI Roleplay Chat",
+      "developer_name": "Oya Technology HK Ltd",
+      "app_store_url": "https://apps.apple.com/us/app/id6781596977",
+      "developer_website": "http://www.zeha-ai.io/",
+      "support_url": "",
+      "description": "zeha is an AI roleplay chat app built around characters and interactive stories \u2014 for people who want more than a simple AI chatbot. Talk with memorable AI characters, build relationships that last, and step into stories that remember what happened before.\n\nChoose a character, start a conversation, and let the scene evolve. Your AI companion, friend, girlfriend, boyfriend, rival, crush, mentor, or fantasy hero keeps a stable personality, stays in character, and continues the same world over time. If the story takes a wrong turn, edit the dialogue, adjust the plot, and guide the next chapter your way.\n\nEXPLORE RICH AI CHARACTERS\n- AI girlfriend and AI boyfriend arcs \u2014 gentle, dramatic, or slow-burn romance\n- Anime-inspired friends, rivals, and waifu characters\n- Fantasy heroes, villains, mages, vampires, and supernatural beings\n- Mystery partners for suspense, secrets, and clue-driven scenes\n- School life, slice-of-life, comedy, and everyday chat roles\n- Sci-fi pilots, androids, space travelers, and future worlds\n- Historical figures, legends, and mythic companions\n- Cozy friends for daily check-ins and casual talk\n- Adventure characters for quests, battles, and roleplay game worlds\n- Custom personas for private RP, writing practice, and creative play\n\nCHAT WITH MEMORY AND PERSONALITY\nzeha is designed for deeper AI character chat. Characters remember important details, keep their own tone, and respond as part of an ongoing relationship. Build a long-term AI friend, a romantic AI girlfriend or AI boyfriend story, a fictional companion, or a cast that grows with your choices.\n\nCONTROL THE STORY DIRECTION\nInteractive fiction should not trap you in one path. In zeha, you can change a reply, rewrite your own message, and steer the plot whenever the story needs a better twist. Turn a casual talk into a romance, a fantasy quest, a mystery case, a reunion, or a quiet scene between friends.\n\nGENERATE IMAGES FROM YOUR CHAT\nBring key moments to life with images that fit the character and scene. Capture a confession, a fantasy setting, a dramatic reveal, an anime-style portrait, or a visual memory from your story.\n\nCREATE YOUR OWN AI CHARACTERS AND PLOTS\nDo not just browse characters. Build your own. Create a unique AI persona, define their personality, write a backstory, set relationship dynamics, and shape the plot you want to explore. Keep the character private or share the world with friends.\n\nMADE FOR MANY CREATIVE MOODS\nUse zeha when you want to:\n- Talk with an AI friend who remembers your shared history\n- Explore an AI girlfriend or AI boyfriend story at your own pace\n- Roleplay with anime, fantasy, or original characters\n- Create plot ideas for interactive fiction and chat stories\n- Generate scene images from important story moments\n- Build a private character world and share it with friends\n- Practice dialogue, character writing, and creative storytelling\n\nFAQ\n\nCan I create my own AI character?\nYes. Design an original character, define their personality, choose the relationship, and build a custom plot around them.\n\nCan I change the story after a chat starts?\nYes. Edit the dialogue and guide the story direction \u2014 fix a scene, try another path, or turn the plot toward a new idea.\n\nCan zeha generate images?\nYes. Create images based on your AI character, conversation, and scene, and make your story world easier to imagine and share.\n\nIs zeha only for romance?\nNo. An AI girlfriend or AI boyfriend story is one direction, but zeha also supports friendship, fantasy, mystery, comedy, adventure, anime roleplay, RP with original characters, character creation, and creative writing.\n\nStart your zeha story today. Talk with AI characters, roleplay your favorite worlds, create your own persona, build interactive fiction, generate scene images, and shape a story that keeps growing with every message.\n\nPrivacy Policy: http://www.zeha-ai.io/privacy.html\nTerms of Use: http://www.zeha-ai.io/terms.html",
+      "category": "Entertainment",
+      "release_date": "2026-08-24",
+      "last_update": "2026-08-24",
+      "rating_count": 23,
+      "review_count": null,
+      "average_rating": 3.17391,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.0,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Legal suffix on a person's name. 23 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@acegate.io",
+          "email_type": "support",
+          "source_url": "http://www.zeha-ai.io/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Oya Technology HK Ltd",
+      "contact_page_url": "http://www.zeha-ai.io/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Entertainment",
+      "filter_reason": "",
+      "score_normalized": 82,
+      "score_points": 82,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 10,
+          "max_points": 10,
+          "detail": "No visible monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "$480k/mo",
+      "mrr_numeric": 480000,
+      "mrr_status": "enriched",
+      "source": {
+        "isGameCenterEnabled": false,
+        "artistViewUrl": "https://apps.apple.com/us/developer/oya-technology-hk-ltd/id1717026741?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/26/9c/8a/269c8a67-b66d-5e5d-bbd5-21a44aa69af5/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/26/9c/8a/269c8a67-b66d-5e5d-bbd5-21a44aa69af5/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/100x100bb.jpg",
+        "features": [],
+        "advisories": [
+          "Infrequent/Mild Contests",
+          "Infrequent/Mild Horror/Fear Themes",
+          "Infrequent/Mild Mature/Suggestive Themes",
+          "Infrequent/Mild Alcohol, Tobacco, or Drug Use or References",
+          "Infrequent/Mild Sexual Content and Nudity",
+          "Infrequent/Mild Cartoon or Fantasy Violence"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/26/9c/8a/269c8a67-b66d-5e5d-bbd5-21a44aa69af5/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/512x512bb.jpg",
+        "trackCensoredName": "zeha: AI Roleplay Chat",
+        "trackViewUrl": "https://apps.apple.com/us/app/zeha-ai-roleplay-chat/id6781596977?uo=4",
+        "contentAdvisoryRating": "12+",
+        "averageUserRating": 3.17391,
+        "artistId": 1717026741,
+        "artistName": "Oya Technology HK Ltd",
+        "genres": [
+          "Entertainment"
+        ],
+        "price": 0.0,
+        "bundleId": "com.zeha.app",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Entertainment",
+        "primaryGenreId": 6016,
+        "sellerName": "Oya Technology HK Limited",
+        "releaseDate": "2026-08-24T07:00:00Z",
+        "trackId": 6781596977,
+        "trackName": "zeha: AI Roleplay Chat",
+        "genreIds": [
+          "6016"
+        ],
+        "minimumOsVersion": "16.4",
+        "currentVersionReleaseDate": "2026-08-24T10:18:14Z",
+        "version": "1.0.0",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "zeha is an AI roleplay chat app built around characters and interactive stories \u2014 for people who want more than a simple AI chatbot. Talk with memorable AI characters, build relationships that last, and step into stories that remember what happened before.\n\nChoose a character, start a conversation, and let the scene evolve. Your AI companion, friend, girlfriend, boyfriend, rival, crush, mentor, or fantasy hero keeps a stable personality, stays in character, and continues the same world over time. If the story takes a wrong turn, edit the dialogue, adjust the plot, and guide the next chapter your way.\n\nEXPLORE RICH AI CHARACTERS\n- AI girlfriend and AI boyfriend arcs \u2014 gentle, dramatic, or slow-burn romance\n- Anime-inspired friends, rivals, and waifu characters\n- Fantasy heroes, villains, mages, vampires, and supernatural beings\n- Mystery partners for suspense, secrets, and clue-driven scenes\n- School life, slice-of-life, comedy, and everyday chat roles\n- Sci-fi pilots, androids, space travelers, and future worlds\n- Historical figures, legends, and mythic companions\n- Cozy friends for daily check-ins and casual talk\n- Adventure characters for quests, battles, and roleplay game worlds\n- Custom personas for private RP, writing practice, and creative play\n\nCHAT WITH MEMORY AND PERSONALITY\nzeha is designed for deeper AI character chat. Characters remember important details, keep their own tone, and respond as part of an ongoing relationship. Build a long-term AI friend, a romantic AI girlfriend or AI boyfriend story, a fictional companion, or a cast that grows with your choices.\n\nCONTROL THE STORY DIRECTION\nInteractive fiction should not trap you in one path. In zeha, you can change a reply, rewrite your own message, and steer the plot whenever the story needs a better twist. Turn a casual talk into a romance, a fantasy quest, a mystery case, a reunion, or a quiet scene between friends.\n\nGENERATE IMAGES FROM YOUR CHAT\nBring key moments to life with images that fit the character and scene. Capture a confession, a fantasy setting, a dramatic reveal, an anime-style portrait, or a visual memory from your story.\n\nCREATE YOUR OWN AI CHARACTERS AND PLOTS\nDo not just browse characters. Build your own. Create a unique AI persona, define their personality, write a backstory, set relationship dynamics, and shape the plot you want to explore. Keep the character private or share the world with friends.\n\nMADE FOR MANY CREATIVE MOODS\nUse zeha when you want to:\n- Talk with an AI friend who remembers your shared history\n- Explore an AI girlfriend or AI boyfriend story at your own pace\n- Roleplay with anime, fantasy, or original characters\n- Create plot ideas for interactive fiction and chat stories\n- Generate scene images from important story moments\n- Build a private character world and share it with friends\n- Practice dialogue, character writing, and creative storytelling\n\nFAQ\n\nCan I create my own AI character?\nYes. Design an original character, define their personality, choose the relationship, and build a custom plot around them.\n\nCan I change the story after a chat starts?\nYes. Edit the dialogue and guide the story direction \u2014 fix a scene, try another path, or turn the plot toward a new idea.\n\nCan zeha generate images?\nYes. Create images based on your AI character, conversation, and scene, and make your story world easier to imagine and share.\n\nIs zeha only for romance?\nNo. An AI girlfriend or AI boyfriend story is one direction, but zeha also supports friendship, fantasy, mystery, comedy, adventure, anime roleplay, RP with original characters, character creation, and creative writing.\n\nStart your zeha story today. Talk with AI characters, roleplay your favorite worlds, create your own persona, build interactive fiction, generate scene images, and shape a story that keeps growing with every message.\n\nPrivacy Policy: http://www.zeha-ai.io/privacy.html\nTerms of Use: http://www.zeha-ai.io/terms.html",
+        "sellerUrl": "http://www.zeha-ai.io/",
+        "languageCodesISO2A": [
+          "EN",
+          "ZH"
+        ],
+        "fileSizeBytes": "40424448",
+        "formattedPrice": "Free",
+        "userRatingCountForCurrentVersion": 23,
+        "trackContentRating": "12+",
+        "averageUserRatingForCurrentVersion": 3.17391,
+        "userRatingCount": 23
+      }
+    }
+  ]
+}

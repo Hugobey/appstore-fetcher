@@ -7,7 +7,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from modules.errors import ConfigError
-from modules.labels import AGE_DAYS, CATEGORIES, DEVELOPER_TYPES, LEGACY_DEVELOPER_TYPES, PLATFORMS, UPDATE_DAYS
+from modules.labels import (
+    AGE_DAYS,
+    CATEGORIES,
+    DEVELOPER_TYPES,
+    LEGACY_DEVELOPER_TYPES,
+    PLATFORMS,
+    UPDATE_DAYS,
+    PRICING_MODELS,
+    USER_PROFILES,
+)
+
+REVENUE_MODES = {"tracker", "gross_sales", "no_iap", "skip"}
+PRICING_IDS = {key for key, _label in PRICING_MODELS}
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -159,6 +171,58 @@ def load_templates(settings: dict | None = None) -> list[dict]:
     return cleaned
 
 
+def _as_bool(value, default: bool = True) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return bool(value)
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "y", "on"}:
+        return True
+    if text in {"0", "false", "no", "n", "off"}:
+        return False
+    raise ConfigError("Estimated MRR choice must be yes or no.")
+
+
+def wants_mrr(targeting: dict | None) -> bool:
+    """False skips App Store Tracker. Missing means the legacy enrich-by-default path."""
+    if not targeting or "consider_mrr" not in targeting:
+        return True
+    return _as_bool(targeting.get("consider_mrr"), default=True)
+
+
+def revenue_mode_of(targeting: dict | None) -> str:
+    """How this run should fill Estimated MRR. A saved mode wins over the legacy toggle."""
+    mode = str((targeting or {}).get("revenue_mode") or "").strip()
+    if mode in REVENUE_MODES:
+        return mode
+    if not wants_mrr(targeting):
+        return "skip"
+    return "tracker"
+
+
+def _optional_count(value, label: str) -> int | None:
+    """None means the filter is off. Zero and 'any' are the same as unset."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in {"", "any", "none", "no"}:
+            return None
+        value = text
+    try:
+        number = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ConfigError(f"{label} must be a whole number or 'any'.") from exc
+    if number < 0:
+        raise ConfigError(f"{label} cannot be negative.")
+    if number == 0:
+        return None
+    return number
+
+
 def _max_mrr(value) -> int | None:
     """None means no ceiling. 'any' and blank are the wizard's no-limit choice."""
     if value is None:
@@ -219,6 +283,14 @@ def validate_targeting(data: dict) -> dict:
             raise ConfigError("Maximum ratings must be a whole number or 'any'.") from exc
         if merged["max_ratings"] < 0:
             raise ConfigError("Maximum ratings cannot be negative.")
+    if "min_ratings" in incoming:
+        floor = _optional_count(incoming.get("min_ratings"), "Minimum ratings")
+        if floor is None:
+            merged.pop("min_ratings", None)
+        else:
+            merged["min_ratings"] = floor
+    else:
+        merged.pop("min_ratings", None)
     try:
         merged["min_score"] = int(merged["min_score"])
         merged["target_prospects"] = int(merged["target_prospects"])
@@ -248,6 +320,48 @@ def validate_targeting(data: dict) -> dict:
     merged["country"] = country
     merged["confirmed"] = bool(merged.get("confirmed"))
     merged["template_id"] = str(merged.get("template_id") or "intro")
+    # Absent keys mean the wizard still has to ask. Do not invent a profile.
+    if "user_profile" in incoming and str(incoming.get("user_profile") or "").strip():
+        profile_ids = {key for key, _label in USER_PROFILES}
+        label_to_profile = {label.lower(): key for key, label in USER_PROFILES}
+        raw_profile = str(incoming.get("user_profile")).strip()
+        profile = label_to_profile.get(raw_profile.lower(), raw_profile)
+        if profile not in profile_ids:
+            raise ConfigError(f"Unknown user profile: {raw_profile}")
+        merged["user_profile"] = profile
+    else:
+        merged.pop("user_profile", None)
+    if "consider_mrr" in incoming:
+        merged["consider_mrr"] = _as_bool(incoming.get("consider_mrr"), default=True)
+    else:
+        merged.pop("consider_mrr", None)
+    pricing = str(incoming.get("pricing_model") or "").strip() if "pricing_model" in incoming else ""
+    if pricing:
+        if pricing not in PRICING_IDS:
+            raise ConfigError(f"Unknown app pricing model: {pricing}")
+        merged["pricing_model"] = pricing
+        if pricing == "upfront":
+            merged["consider_mrr"] = False
+            merged["max_mrr"] = None
+            merged["revenue_mode"] = "gross_sales"
+        elif pricing == "ad_supported":
+            merged["consider_mrr"] = False
+            merged["max_mrr"] = None
+            merged["revenue_mode"] = "no_iap"
+        elif merged.get("consider_mrr") is False:
+            merged["revenue_mode"] = "skip"
+            merged["max_mrr"] = None
+        elif merged.get("consider_mrr") is True:
+            merged["revenue_mode"] = "tracker"
+        else:
+            merged.pop("revenue_mode", None)
+    else:
+        merged.pop("pricing_model", None)
+        mode = str(incoming.get("revenue_mode") or "").strip() if "revenue_mode" in incoming else ""
+        if mode in REVENUE_MODES:
+            merged["revenue_mode"] = mode
+        else:
+            merged.pop("revenue_mode", None)
     return merged
 
 

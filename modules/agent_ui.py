@@ -6,6 +6,7 @@ active phase, a rotating aside, an elapsed clock, and a rolling ETA.
 
 from __future__ import annotations
 
+import re
 import sys
 import threading
 import time
@@ -14,7 +15,7 @@ PHASES = (
     (1, "Phase 1 — CRM Memory Sync"),
     (2, "Phase 2 — Category Discovery"),
     (3, "Phase 3 — Contact & Email Extraction"),
-    (4, "Phase 4 — Streaming MRR & Scoring"),
+    (4, "Phase 4 — Revenue Analysis"),
     (5, "Phase 5 — CRM Sync & Formatting"),
 )
 # First paint, before any lead has locked in. 5 leads → 00:00:35, 15 → 00:01:45.
@@ -40,7 +41,12 @@ def clock(seconds: float) -> str:
 
 def is_high_mrr(value: str | None) -> bool:
     text = (value or "").strip()
-    return bool(text) and text.upper() != "N/A"
+    if not text or text.upper() == "N/A" or text.upper().startswith("N/A"):
+        return False
+    # `<$5K` is the public under-floor bucket, not a $10k+ estimate.
+    if re.match(r"^<\s*\$\s*5\s*k", text, re.IGNORECASE):
+        return False
+    return True
 
 
 _BOTTLENECKS = {
@@ -110,8 +116,10 @@ class AgentDashboard:
         self._finished = False
         self._ui_lock = threading.Lock()
         self.scout_text = "Scanning category feeds"
-        self.analyst_text = "Waiting for a qualified lead"
+        self.analyst_text = "Waiting until scouting finishes"
         self.feed: list[str] = []
+        self.analyzed = 0
+        self.analysis_total = 0
 
     def begin_clock(self) -> None:
         """Start the elapsed clock once. Wizard time stays outside this origin."""
@@ -222,6 +230,12 @@ class AgentDashboard:
 
     def set_analyst(self, text: str) -> None:
         self.analyst_text = text
+        self.refresh()
+
+    def set_analysis(self, done: int, total: int) -> None:
+        """Record analysis progress without changing the scouting counter."""
+        self.analyzed = max(0, int(done))
+        self.analysis_total = max(0, int(total))
         self.refresh()
 
     def push_feed(self, message: str) -> None:
@@ -358,6 +372,11 @@ class AgentDashboard:
             if self.target:
                 block.append(
                     f"\n    [{self.funnel['qualified_count']}/{self.target} qualified]",
+                    style="bold white",
+                )
+            if number == 4 and self.analysis_total:
+                block.append(
+                    f"\n    [{self.analyzed}/{self.analysis_total} analyzed]",
                     style="bold white",
                 )
             return block

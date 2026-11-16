@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 
 from modules.config import (
@@ -14,12 +15,12 @@ from modules.config import (
     load_templates,
     project_path,
     save_targeting,
+    revenue_mode_of,
 )
 from modules.crm import GoogleSheetCRM, build_import_row
-from modules.sheets_crm import apply_crm_layout
-from modules.demo import demo_enricher, demo_index, demo_itunes, demo_searcher
+from modules.sheets_crm import SHEETS_IMPORT_TIP, apply_crm_layout, deals_export_path, write_export_csv
 from modules.enrichment import enrich_lead
-from modules.errors import ApifyError, ConfigError, ProspectingError
+from modules.errors import ApifyError, LicenseError, ProspectingError
 from modules.outreach import (
     add_suppression,
     gmail_service,
@@ -30,7 +31,9 @@ from modules.outreach import (
     sendable_rows,
     suppressed_addresses,
 )
-from modules.pipeline import discover
+from modules.pipeline import analyze_saved, discover
+from modules.run_log import RunLog
+from modules.run_store import RunStore
 from modules.preview import review_prospects
 from modules.prompts import QuestionaryPrompter
 from modules.activity import Narrator
@@ -48,15 +51,40 @@ from modules.session import (
     store_discovery,
 )
 from modules.wizard import run_wizard
+from modules.auth import assert_same_machine, credentials_path, load_credentials
+from modules.enricher import (
+    ScoutClient,
+    activate_license,
+    apply_mrr_rows,
+    checkout_url,
+    leads_from_payload,
+)
+from modules.static_demo import choose_demo_categories, load_demo_catalog, load_demo_leads, run_static_demo, seed_demo_cache
+from modules.telemetry import emit_event
 
 LOGGER = logging.getLogger("prospecting")
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, prompter=None) -> int:
     args = _parser().parse_args(argv)
+    prompter = prompter or QuestionaryPrompter()
     try:
+        if args.buy:
+            return _open_checkout()
+        if args.seed_demo:
+            if not args.internal:
+                print("Seeding the demo cache is not available in this command.")
+                return 1
+            return seed_demo_cache()
+        if args.demo:
+            return play_static_demo(prompter)
+        if not args.internal and _sheet_command(args):
+            print("Google Sheet CRM sync is not available in this command.")
+            return 1
         settings = load_settings()
         _setup_logging(project_path(settings.get("log_file", "logs/prospecting.log")))
+        if args.activate:
+            return _activate(args.activate)
         if args.command == "check" or (args.format_sheet and args.command is None):
             return check_crm(settings)
         if args.command == "suppress":
@@ -68,14 +96,31 @@ def main(argv: list[str] | None = None) -> int:
             print("Removed." if removed else "That address was not on the suppression list.")
             return 0
         if args.command == "send":
-            return send_outreach(settings, QuestionaryPrompter())
-        return scrape(settings, QuestionaryPrompter(), demo=args.demo)
+            return send_outreach(settings, prompter)
+        if args.internal:
+            access = "local"
+        else:
+            access = _ensure_access(prompter)
+        if access == "cancel":
+            print("Cancelled.")
+            return 130
+        if access == "demo":
+            return play_static_demo(prompter)
+        return scrape(
+            settings,
+            prompter,
+            licensed=(access == "licensed"),
+            no_telemetry=bool(args.no_telemetry),
+            internal=bool(args.internal),
+        )
     except KeyboardInterrupt:
         print("\nInterrupted. Completed search results are kept in data/session.json when a run had started.")
         return 130
     except ProspectingError as exc:
         LOGGER.error("%s", exc)
         print(f"\n{exc}")
+        if isinstance(exc, LicenseError) and exc.status in {401, 402}:
+            print(f"Upgrade: {checkout_url()}")
         return 1
     except Exception:
         LOGGER.exception("Unexpected error")
@@ -83,57 +128,146 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
 
-def scrape(settings: dict, prompter, demo: bool = False) -> int:
+def scrape(
+    settings: dict,
+    prompter,
+    demo: bool = False,
+    licensed: bool = False,
+    no_telemetry: bool = False,
+    internal: bool = False,
+) -> int:
+    if demo:
+        return play_static_demo(prompter)
     scoring = load_scoring(settings)
     templates = load_templates(settings)
     targeting, warning = load_targeting()
     if warning:
         print(warning)
-    board = _new_dashboard(settings, targeting, demo=demo)
+    board = _new_dashboard(settings, targeting, demo=False)
+    if not internal:
+        board = AgentDashboard(int((targeting or {}).get("target_prospects") or 0), sheet="", demo=False)
     try:
-        if demo:
-            return _scrape_demo(settings, prompter, scoring, templates, targeting, board)
-        return _scrape_live(settings, prompter, scoring, templates, targeting, board)
+        return _scrape_live(
+            settings,
+            prompter,
+            scoring,
+            templates,
+            targeting,
+            board,
+            licensed=licensed,
+            no_telemetry=no_telemetry,
+            internal=internal,
+        )
     finally:
         board.stop(summary=False)
 
 
-def _scrape_demo(settings, prompter, scoring, templates, targeting, board: AgentDashboard) -> int:
-    print("Demo mode. Apify and Google Sheets are not called, and nothing is written to the CRM.")
-    count = 1
-    crm_summary = {"status": "Demo mode", "existing_leads": count}
-    confirmed = run_wizard(prompter, targeting, settings, templates, crm_summary)
-    if confirmed is None:
-        print("Cancelled.")
-        return 130
-    save_targeting(confirmed)
-    board.target = int(confirmed["target_prospects"])
-    panel = board if board.enabled else None
-    if panel is not None:
-        panel.start()
-        panel.set_scout("Scanning category feeds")
-        panel.set_analyst("Waiting for a qualified lead")
-        panel.focus(1, "Indexing existing CRM leads...")
-        demo_index()
-        board.complete(1, f"Indexed {count} lead")
-    discovery = discover(
-        confirmed,
-        settings,
-        scoring,
-        demo_index(),
-        searcher=demo_searcher(),
-        enricher=demo_enricher(settings),
-        itunes_fetcher=demo_itunes,
-        prompter=prompter,
-        demo=True,
-        dashboard=panel,
+def play_static_demo(prompter=None) -> int:
+    """Replay category-matched bundled leads. No Apify, Sheets, RSS, license, or telemetry calls."""
+    raw = os.environ.get("PROSPECTING_DEMO_SECONDS", "").strip()
+    duration = 4.0
+    if raw:
+        try:
+            duration = float(raw)
+        except ValueError:
+            duration = 4.0
+    catalog = load_demo_catalog()
+    categories = choose_demo_categories(prompter, catalog)
+    leads = load_demo_leads(categories=categories)
+    if not leads:
+        print(f"No demo leads are cached for {', '.join(categories)}.")
+        return 1
+    print(f"Demo category: {', '.join(categories)}")
+    print(
+        f"Demo mode. Playing {len(leads)} pre-scraped leads from data/demo_leads.json. "
+        "No network calls."
     )
-    if panel is not None:
-        panel.pause()
-    return _review(discovery, None, templates, settings, prompter, None, None, demo=True, dashboard=panel)
+    path = run_static_demo(leads=leads, duration=duration)
+    print(f"Exported {path}")
+    print(SHEETS_IMPORT_TIP)
+    return 0
 
 
-def _scrape_live(settings, prompter, scoring, templates, targeting, board: AgentDashboard) -> int:
+def _open_checkout() -> int:
+    """Open the public checkout page. This does not scrape or touch Google Sheets."""
+    import webbrowser
+
+    url = checkout_url()
+    print(url)
+    try:
+        webbrowser.open(url)
+    except Exception:
+        pass
+    return 0
+
+
+def _activate(license_key: str) -> int:
+    saved = activate_license(license_key)
+    print(f"License activated for this machine. Instance {saved['instance_id']}.")
+    print(f"Saved {credentials_path()}")
+    return 0
+
+
+def _sheet_command(args) -> bool:
+    if args.command in {"check", "send"}:
+        return True
+    return bool(args.format_sheet and args.command is None)
+
+
+def _ensure_access(prompter) -> str:
+    """Return licensed, demo, or cancel.
+
+    Public runs never open the Google Sheet and never use a local Apify token.
+    A copied credentials file fails here, before a scan starts.
+    """
+    credentials = load_credentials()
+    if credentials:
+        assert_same_machine(credentials)
+    if credentials and credentials.get("license_key") and credentials.get("instance_id"):
+        return "licensed"
+    print(f"Upgrade: {checkout_url()}")
+    choice = prompter.select(
+        "No license key on this machine.",
+        [
+            ("Run the instant demo", "demo"),
+            ("Activate a license key", "activate"),
+            ("Cancel", "cancel"),
+        ],
+        default="demo",
+    )
+    if choice in {None, "cancel"}:
+        return "cancel"
+    if choice == "demo":
+        return "demo"
+    key = prompter.text("License key", default="")
+    if key is None or not str(key).strip():
+        return "cancel"
+    activate_license(str(key).strip())
+    print(f"License activated for this machine. Saved {credentials_path()}")
+    return "licensed"
+
+
+def _scrape_live(
+    settings,
+    prompter,
+    scoring,
+    templates,
+    targeting,
+    board: AgentDashboard,
+    *,
+    licensed: bool = False,
+    no_telemetry: bool = False,
+    internal: bool = False,
+) -> int:
+    if not internal:
+        return _scrape_public(
+            settings,
+            prompter,
+            templates,
+            targeting,
+            board,
+            no_telemetry=no_telemetry,
+        )
     voice = Narrator()
     panel = board if board.enabled else None
     crm = GoogleSheetCRM.connect(settings)
@@ -177,16 +311,17 @@ def _scrape_live(settings, prompter, scoring, templates, targeting, board: Agent
         else:
             prior = load_raw(session_path, session)
 
-    confirmed = run_wizard(prompter, targeting, settings, templates, crm_summary)
+    confirmed = run_wizard(prompter, targeting, settings, templates, crm_summary, internal=True)
     if confirmed is None:
         print("Cancelled. Nothing was scraped.")
         return 130
     save_targeting(confirmed)
+    _emit_scan(confirmed, licensed=licensed, no_telemetry=no_telemetry)
     board.target = int(confirmed["target_prospects"])
-    if confirmed.get("platforms") == "android":
+    if not licensed and confirmed.get("platforms") == "android":
         print("Discovery uses App Store categories. Google Play has no genre RSS in this run, so nothing was scraped.")
         return 0
-    if confirmed.get("platforms") == "both":
+    if not licensed and confirmed.get("platforms") == "both":
         print("Discovery uses App Store categories. Google Play is skipped for this run.")
     if session is None or session.get("stage") != "running":
         session = new_session(session_path, confirmed)
@@ -200,27 +335,177 @@ def _scrape_live(settings, prompter, scoring, templates, targeting, board: Agent
     if panel is not None:
         panel.start()
         panel.set_scout("Scanning category feeds")
-        panel.set_analyst("Waiting for a qualified lead")
+        panel.set_analyst("Waiting until scouting finishes")
         panel.focus(1, "Indexing existing CRM leads...")
         noun = "lead" if count == 1 else "leads"
         panel.complete(1, f"Indexed {count} {noun}")
-    discovery = discover(
-        confirmed,
-        settings,
-        scoring,
-        index,
-        searcher=category_searcher(settings),
-        enricher=lambda lead: enrich_lead(lead, settings),
-        prior=prior,
-        on_raw=on_raw,
-        prompter=prompter,
-        narrator=voice,
-        dashboard=panel,
-    )
+    run_id = str(session.get("id") or "run")
+    if licensed:
+        try:
+            discovery = _run_licensed(confirmed, panel, run_id)
+        except LicenseError as exc:
+            if panel is not None:
+                panel.stop(summary=False)
+            print(f"\n{exc}")
+            return 1
+    else:
+        discovery = _scout_then_analyze(
+            confirmed,
+            settings,
+            scoring,
+            templates,
+            index,
+            searcher=category_searcher(settings),
+            enricher=lambda lead: enrich_lead(lead, settings),
+            prior=prior,
+            on_raw=on_raw,
+            prompter=prompter,
+            narrator=voice,
+            demo=False,
+            dashboard=panel,
+            crm=crm,
+            run_id=run_id,
+        )
     store_discovery(session_path, session, discovery)
     if panel is not None:
         panel.pause()
-    return _review(discovery, crm, templates, settings, prompter, session, session_path, dashboard=panel)
+    return _review(
+        discovery,
+        crm,
+        templates,
+        settings,
+        prompter,
+        session,
+        session_path,
+        dashboard=panel,
+        saved_during_scout=int(discovery.stats.get("saved_during_scout") or 0),
+    )
+
+
+def _emit_scan(confirmed: dict, *, licensed: bool, no_telemetry: bool) -> None:
+    try:
+        emit_event(
+            "scan_started",
+            user_profile=str(confirmed.get("user_profile") or ""),
+            consider_mrr=bool(confirmed.get("consider_mrr")),
+            categories=list(confirmed.get("categories") or []),
+            is_licensed=licensed,
+            no_telemetry=no_telemetry,
+        )
+    except Exception:
+        return
+
+
+def _run_licensed(confirmed: dict, dashboard: AgentDashboard | None, run_id: str):
+    """One licensed scan. Apple RSS, iTunes Lookup, and Apify are not called."""
+    from modules.pipeline import Discovery, empty_stats
+
+    del run_id
+    credentials = load_credentials()
+    assert_same_machine(credentials)
+    client = ScoutClient(credentials)
+    if dashboard is not None:
+        dashboard.focus(2, "Requesting licensed discovery...")
+        dashboard.set_scout("Requesting licensed discovery")
+    payload = client.scan(confirmed)
+    leads = leads_from_payload(payload)
+    target = int(confirmed.get("target_prospects") or len(leads) or 0)
+    if dashboard is not None:
+        dashboard.add_funnel(raw_scanned=len(leads), candidates=len(leads), emails_found=len(leads))
+        dashboard.set_qualified(len(leads))
+        dashboard.complete(2, f"Scanned {len(leads)} apps → {len(leads)} candidates")
+        dashboard.complete(3, f"Extracting contacts [{len(leads)}/{target} qualified]")
+        dashboard.set_scout("Scouting complete")
+    mode = revenue_mode_of(confirmed)
+    if mode == "tracker":
+        if dashboard is not None:
+            dashboard.focus(4, "Requesting Estimated MRR...")
+            dashboard.set_analyst("Requesting Estimated MRR")
+        apps = [
+            {
+                "app_store_id": lead.app_store_id,
+                "app_name": lead.app_name,
+                "app_store_url": lead.app_store_url,
+            }
+            for lead in leads
+        ]
+        try:
+            apply_mrr_rows(leads, client.fetch_mrr(apps))
+        except LicenseError as exc:
+            if exc.status != 402:
+                raise
+            print(f"\n{exc}")
+            print(f"Upgrade: {checkout_url()}")
+            if dashboard is not None:
+                dashboard.complete(4, "Monthly MRR quota reached")
+        else:
+            if dashboard is not None:
+                dashboard.set_analysis(len(leads), len(leads))
+                dashboard.complete(4, f"Analyzed {len(leads)} leads")
+                dashboard.set_analyst(f"Analysis complete [{len(leads)}/{len(leads)}]")
+    elif mode in {"gross_sales", "no_iap"}:
+        from modules.mrr_enricher import _assign_local
+
+        for lead in leads:
+            _assign_local(lead, mode, "")
+        if dashboard is not None:
+            dashboard.set_analysis(len(leads), len(leads))
+            dashboard.complete(4, f"Analyzed {len(leads)} leads")
+            dashboard.set_analyst(f"Analysis complete [{len(leads)}/{len(leads)}]")
+    else:
+        for lead in leads:
+            if lead.mrr_status == "pending":
+                lead.mrr_status = "skipped"
+        if dashboard is not None:
+            dashboard.set_analyst("Revenue analysis skipped")
+            dashboard.complete(4, "Skipped revenue analysis")
+    stats = empty_stats()
+    stats["discovered"] = len(leads)
+    stats["qualified"] = len(leads)
+    return Discovery(
+        qualified=leads,
+        stats=stats,
+        template_id=str(confirmed.get("template_id") or "intro"),
+        target=target,
+    )
+
+
+def _scrape_public(settings, prompter, templates, targeting, board: AgentDashboard, *, no_telemetry: bool) -> int:
+    """Licensed discovery written to a timestamped CSV. The Google Sheet is not opened."""
+    crm_summary = {"status": "CSV export", "existing_leads": 0}
+    confirmed = run_wizard(prompter, targeting, settings, templates, crm_summary, internal=False)
+    if confirmed is None:
+        print("Cancelled. Nothing was scraped.")
+        return 130
+    _emit_scan(confirmed, licensed=True, no_telemetry=no_telemetry)
+    board.target = int(confirmed["target_prospects"])
+    panel = board if board.enabled else None
+    if panel is not None:
+        panel.start()
+        panel.focus(1, "Preparing a local CSV export...")
+        panel.complete(1, "CSV export. No Google Sheet")
+    try:
+        discovery = _run_licensed(confirmed, panel, "licensed")
+    except LicenseError as exc:
+        if panel is not None:
+            panel.stop(summary=False)
+        print(f"\n{exc}")
+        if exc.status in {401, 402}:
+            print(f"Upgrade: {checkout_url()}")
+        return 1
+    path = deals_export_path()
+    write_export_csv(discovery.qualified, path)
+    if panel is not None:
+        panel.focus(5, "Writing the CSV...")
+        panel.remember_save(discovery.qualified)
+        panel.saved = len(discovery.qualified)
+        panel.high_mrr = sum(1 for lead in discovery.qualified if is_high_mrr(getattr(lead, "estimated_mrr", "")))
+        noun = "lead" if len(discovery.qualified) == 1 else "leads"
+        panel.complete(5, f"Wrote {len(discovery.qualified)} {noun} to {path.name}")
+        panel.stop(summary=True)
+    print(f"Exported {path}")
+    print(SHEETS_IMPORT_TIP)
+    return 0
 
 
 def _apply_saved_layout(crm) -> None:
@@ -240,12 +525,119 @@ def _new_dashboard(settings: dict, targeting: dict, *, demo: bool) -> AgentDashb
     return AgentDashboard(target, sheet=sheet_url(str(settings.get("spreadsheet_id") or "")), demo=demo)
 
 
-def _review(discovery, crm, templates, settings, prompter, session, session_path, demo: bool = False, dashboard: AgentDashboard | None = None) -> int:
+def _selected_template(templates: list[dict], targeting: dict) -> dict | None:
+    wanted = str((targeting or {}).get("template_id") or "intro")
+    for item in templates or []:
+        if item.get("id") == wanted:
+            return item
+    return templates[0] if templates else None
+
+
+def _copy_mrr(originals: list, analyzed: list) -> None:
+    by_id = {lead.dedup_id(): lead for lead in analyzed}
+    for lead in originals:
+        fresh = by_id.get(lead.dedup_id())
+        if fresh is None:
+            continue
+        lead.estimated_mrr = fresh.estimated_mrr
+        lead.mrr_numeric = fresh.mrr_numeric
+        lead.mrr_status = fresh.mrr_status
+
+
+def _scout_then_analyze(
+    targeting,
+    settings,
+    scoring,
+    templates,
+    crm_index,
+    *,
+    searcher,
+    enricher,
+    demo: bool = False,
+    dashboard,
+    crm,
+    prompter=None,
+    narrator=None,
+    prior=None,
+    on_raw=None,
+    itunes_fetcher=None,
+    run_id: str = "demo",
+):
+    """Save qualified leads first. Revenue enrichment starts only after that list is persisted."""
+    voice = narrator or Narrator()
+    log_path = project_path("logs") / "runs" / f"{run_id}.log"
+    # File only. A stderr handler paints over the Rich loading panel.
+    run_log = RunLog(run_id, path=None if demo else log_path, console=False)
+    store = RunStore(run_id, directory=None if demo else project_path("data/runs"))
+    saved_rows: dict[str, int] = {}
+    template = _selected_template(templates, targeting)
+    suppressed = suppressed_addresses(settings)
+
+    def on_saved(lead) -> None:
+        store.save(lead)
+        if crm is None:
+            return
+        row_number = crm.append_one(lead, template, suppressed)
+        if row_number:
+            saved_rows[lead.dedup_id()] = row_number
+
+    def on_enriched(lead) -> None:
+        if crm is None or lead.mrr_status != "enriched" or not (lead.estimated_mrr or "").strip():
+            return
+        row_number = saved_rows.get(lead.dedup_id())
+        if not row_number:
+            run_log.event(
+                "ANALYZING",
+                "crm_update_failed",
+                level="ERROR",
+                lead_id=lead.dedup_id(),
+                app_id=lead.app_store_id,
+                error="no sheet row was recorded for this lead",
+            )
+            return
+        crm.update_estimated_mrr(row_number, lead.app_store_url, lead.estimated_mrr)
+
+    discovery = discover(
+        targeting,
+        settings,
+        scoring,
+        crm_index,
+        searcher=searcher,
+        enricher=enricher,
+        prior=prior,
+        on_raw=on_raw,
+        prompter=prompter,
+        itunes_fetcher=itunes_fetcher,
+        narrator=voice,
+        demo=demo,
+        dashboard=dashboard,
+        on_saved=on_saved,
+        run_log=run_log,
+    )
+    analyzed = analyze_saved(
+        store,
+        demo=demo,
+        dashboard=dashboard,
+        narrator=voice,
+        run_log=run_log,
+        on_enriched=on_enriched if crm is not None else None,
+        enabled=revenue_mode_of(targeting) != "skip",
+        revenue_mode=revenue_mode_of(targeting),
+    )
+    _copy_mrr(discovery.qualified, analyzed)
+    discovery.stats["saved_during_scout"] = len(saved_rows)
+    return discovery
+
+
+def _review(discovery, crm, templates, settings, prompter, session, session_path, demo: bool = False, dashboard: AgentDashboard | None = None, saved_during_scout: int = 0) -> int:
     if dashboard is not None:
         dashboard.pause()
     decision = review_prospects(prompter, discovery, templates)
     if not decision:
-        print("Nothing was imported.")
+        if saved_during_scout and not demo and crm is not None:
+            print(f"{saved_during_scout} lead(s) saved during scouting remain in the CRM.")
+        else:
+            print("Nothing was imported.")
         if session_path is not None:
             print(f"Results remain in {session_path}. Run the tool again and choose Resume.")
         if dashboard is not None:
@@ -382,7 +774,10 @@ def check_crm(settings: dict) -> int:
     print(f"Connected to {crm.spreadsheet.title!r} / {crm.worksheet.title!r}.")
     print(f"Existing leads: {count}.")
     print(f"Columns: {', '.join(crm.headers)}")
-    print("CRM layout applied. Existing lead rows were not changed.")
+    if getattr(crm, "migrated", False):
+        print("CRM layout applied. Existing rows were mapped into the 13-column schema.")
+    else:
+        print("CRM layout applied. Existing lead rows were not changed.")
     return 0
 
 
@@ -448,17 +843,34 @@ def _setup_logging(path) -> None:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Discover mobile apps for an ICP and append them to the Google Sheets CRM."
+        description="Discover mobile apps for an ICP and export them."
     )
+    parser.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--seed-demo", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument(
         "--demo",
         action="store_true",
-        help="Run the wizard and scoring on built-in sample apps. Does not call Apify or Google Sheets.",
+        help="Play cached leads for one category and write a 13-column CSV. No network calls.",
+    )
+    parser.add_argument(
+        "--buy",
+        action="store_true",
+        help="Open the checkout page.",
+    )
+    parser.add_argument(
+        "--activate",
+        metavar="LICENSE_KEY",
+        help="Bind a license key to this machine. The server activation limit is 1.",
+    )
+    parser.add_argument(
+        "--no-telemetry",
+        action="store_true",
+        help="Do not send anonymous usage events. DO_NOT_TRACK=1 does the same.",
     )
     parser.add_argument(
         "--format-sheet",
         action="store_true",
-        help="Apply the CRM header, status dropdown, and row colors. Does not change lead rows.",
+        help="Apply the 13-column CRM schema, status dropdown, and row colors.",
     )
     commands = parser.add_subparsers(dest="command")
     commands.add_parser("check", help="Connect to the CRM and print the lead count.")

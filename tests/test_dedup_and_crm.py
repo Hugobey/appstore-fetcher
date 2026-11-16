@@ -77,7 +77,9 @@ class DedupTests(unittest.TestCase):
         self.assertIn("Contact Email", headers)
         self.assertEqual(len(headers), 13)
         self.assertIn("Estimated MRR", headers)
-        self.assertIn("Follow-Up Date", headers)
+        self.assertIn("Buy Signal", headers)
+        self.assertIn("Last contacted", headers)
+        self.assertNotIn("Follow-Up Date", headers)
         self.assertEqual(sheet.updated, BLANK_HEADERS)
         self.assertEqual(sheet.frozen, 1)
         self.assertIn("bold", sheet.formatted[1]["textFormat"])
@@ -102,14 +104,68 @@ class DedupTests(unittest.TestCase):
 
 
 class CrmShapeTests(unittest.TestCase):
-    def test_header_detection_and_extension_do_not_reorder(self):
-        values = [["Notes"], ["App Name", "Developer", "App Store URL"]]
+    def test_header_detection_and_migration_keep_contacts(self):
+        from modules.sheets_crm import CRM_COLUMNS, migrate_row, migrate_sheet_values, schema_is_current
+
+        values = [["Notes"], ["Appname", "Appstore URL"]]
         self.assertEqual(find_header_row(values), 1)
-        existing = BASE_HEADERS[:4]
-        added = headers_to_add(existing)
-        self.assertNotIn("App Name", added)
-        self.assertIn("Lead Score", added)
-        self.assertIn("Review Count", added)
+        legacy = [
+            "App Name",
+            "App Store URL",
+            "Contact",
+            "Contact Email",
+            "Status",
+            "Follow-Up Date",
+            "Last Contacted",
+            "Lead Score",
+            "Estimated MRR",
+            "Ratings",
+            "Category",
+            "Platform",
+            "Developer Website",
+        ]
+        row = [
+            "Tideform",
+            "https://apps.apple.com/id1",
+            "Maya",
+            "maya@tideform.app",
+            "Follow-Up 1",
+            "",
+            "2026-01-02",
+            "74",
+            "<$5K",
+            "186",
+            "Health & Fitness",
+            "iOS",
+            "https://tideform.app",
+        ]
+        migrated = migrate_row(legacy, row)
+        self.assertEqual(migrated[CRM_COLUMNS.index("Appname")], "Tideform")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Buy Signal")], "")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Appstore URL")], "https://apps.apple.com/id1")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Contact")], "Maya")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Contact Email")], "maya@tideform.app")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Rating count")], "186")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Review count")], "")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Status")], "Follow-Up")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Platform")], "iOS")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Website")], "https://tideform.app")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Estimated MRR")], "<$5K")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Category")], "Health & Fitness")
+        self.assertEqual(migrated[CRM_COLUMNS.index("Last contacted")], "2026-01-02")
+        booked = list(row)
+        booked[4] = "Call Booked"
+        self.assertEqual(migrate_row(legacy, booked)[CRM_COLUMNS.index("Status")], "Booked")
+        kept = list(row)
+        kept[4] = "Closed / Won"
+        self.assertEqual(migrate_row(legacy, kept)[CRM_COLUMNS.index("Status")], "Closed / Won")
+        grid = migrate_sheet_values([legacy, row, ["", ""]], 0)
+        self.assertEqual(grid[0], list(CRM_COLUMNS))
+        self.assertEqual(len(grid), 3)
+        self.assertEqual(grid[1][0], "Tideform")
+        self.assertTrue(schema_is_current(grid[0]))
+        again = migrate_row(grid[0], grid[1])
+        self.assertEqual(again, grid[1])
 
     def test_formula_injection_is_neutralized(self):
         self.assertTrue(safe_cell("=HYPERLINK(\"x\")").startswith("'"))

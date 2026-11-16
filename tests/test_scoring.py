@@ -120,6 +120,21 @@ class ScoringTests(unittest.TestCase):
         self.assertEqual(unknown.developer_type, "unknown")
         self.assertIsNone(hard_filter_reason(unknown, targeting, self.today))
 
+    def test_minimum_ratings_exclude_only_known_counts_below_the_floor(self):
+        targeting = {
+            "max_ratings": "any",
+            "max_app_age": "any",
+            "last_update": "any",
+            "developer_type": "solo",
+            "min_ratings": 50,
+        }
+        low = self._lead(rating_count=12)
+        self.assertIn("below the minimum", hard_filter_reason(low, targeting, self.today))
+        missing = self._lead(rating_count=None)
+        self.assertIsNone(hard_filter_reason(missing, targeting, self.today))
+        enough = self._lead(rating_count=50)
+        self.assertIsNone(hard_filter_reason(enough, targeting, self.today))
+
     def test_traction_assigns_the_four_icps(self):
         agency = Lead(
             platform="android",

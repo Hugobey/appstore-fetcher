@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import queue
-import threading
+import contextvars
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import date
@@ -14,10 +13,11 @@ from modules.activity import Narrator
 from modules.agent_ui import AgentDashboard, is_high_mrr
 from modules.dates import utc_today
 from modules.deduplication import DedupIndex, index_url, name_key
+from modules.discovery import buy_signal
 from modules.enrichment import classify_email, crawl_leads
 from modules.errors import ApifyError
 from modules.models import Lead
-from modules.mrr_enricher import dollars_from_display, enrich_one_mrr
+from modules.mrr_enricher import MrrOutcome, apply_mrr_outcome, tracker_url_for_lead
 from modules.scraper import (
     ENGLISH_STOREFRONTS,
     ApifyInterrupted,
@@ -69,6 +69,23 @@ _UPDATE_LADDER = ("30d", "60d", "90d", "180d", "365d", "any")
 CRAWL_WAVE = 18
 RELAX_PASS_BUDGET = 4
 RELAX_SEARCH_BUDGET = 8
+_RUN_LOG: contextvars.ContextVar = contextvars.ContextVar("prospecting_run_log", default=None)
+_MRR_STATUSES = ("pending", "enriched", "unavailable", "rate_limited", "timeout", "error")
+_KEEP_LEAD = {
+    "unavailable": "No public MRR listed — keeping lead",
+    "rate_limited": "Revenue lookup was rate limited — keeping lead",
+    "timeout": "Revenue lookup timed out — keeping lead",
+    "error": "Revenue lookup failed — keeping lead",
+}
+
+
+def _emit(event: str, *, level: str = "INFO", lead: Lead | None = None, **fields) -> None:
+    log = _RUN_LOG.get()
+    if log is None:
+        return
+    lead_id = lead.dedup_id() if lead is not None else fields.pop("lead_id", None)
+    app_id = str(lead.app_store_id) if lead is not None and lead.app_store_id else fields.pop("app_id", None)
+    log.event("SCOUTING", event, level=level, lead_id=lead_id, app_id=app_id, **fields)
 
 
 def _wider_update(current: str) -> str | None:
@@ -162,93 +179,6 @@ def reclassify_store_emails(lead: Lead) -> None:
         email.evidence = prefix + detail
 
 
-class _StreamingAnalyst:
-    """Background consumer. One tracker lookup at a time, while the scout keeps going."""
-
-    def __init__(self, *, demo: bool, getter, dashboard: AgentDashboard | None, voice: Narrator, stats: dict):
-        self.demo = demo
-        self.getter = getter
-        self.dashboard = dashboard
-        self.voice = voice
-        self.stats = stats
-        self.queue: queue.Queue = queue.Queue()
-        self._pending = 0
-        self._lock = threading.Lock()
-        self._idle = threading.Event()
-        self._idle.set()
-        self._index = 0
-        self._started = False
-        self._closed = False
-        self._thread = threading.Thread(target=self._run, name="analyst-mrr", daemon=True)
-
-    def start(self) -> None:
-        if self._started:
-            return
-        self._started = True
-        self._thread.start()
-
-    def submit(self, lead: Lead) -> None:
-        self.start()
-        with self._lock:
-            self._pending += 1
-            self._idle.clear()
-        self.queue.put(lead)
-
-    def wait_idle(self) -> None:
-        self._idle.wait()
-
-    def close(self) -> None:
-        if not self._started or self._closed:
-            return
-        self._closed = True
-        self.queue.put(None)
-        self._thread.join()
-
-    def _run(self) -> None:
-        while True:
-            lead = self.queue.get()
-            try:
-                if lead is None:
-                    return
-                try:
-                    self._fetch(lead)
-                except Exception as exc:
-                    self.stats["errors"].append(f"MRR lookup failed: {exc}")
-                    lead.estimated_mrr = lead.estimated_mrr or ""
-                    lead.mrr_numeric = None
-            finally:
-                if lead is not None:
-                    with self._lock:
-                        self._pending -= 1
-                        if self._pending <= 0:
-                            self._pending = 0
-                            self._idle.set()
-
-    def _fetch(self, lead: Lead) -> None:
-        index = self._index
-        self._index += 1
-        name = lead.app_name or "App"
-        if self.dashboard is not None:
-            self.dashboard.set_analyst(f"Fetching MRR for {name}...")
-        else:
-            self.voice.line(f"Checking MRR for {name}...")
-        display = enrich_one_mrr(
-            lead,
-            demo=self.demo,
-            getter=self.getter,
-            index=index,
-        )
-        if self.dashboard is not None and is_high_mrr(display):
-            self.dashboard.add_funnel(mrr_hits=1)
-        if (display or "").strip():
-            return
-        message = f"• {name}: No public MRR listed — keeping lead"
-        if self.dashboard is not None:
-            self.dashboard.push_feed(message)
-        else:
-            self.voice.line(message)
-
-
 def discover(
     targeting: dict,
     settings: dict,
@@ -266,6 +196,8 @@ def discover(
     demo: bool = False,
     dashboard: AgentDashboard | None = None,
     mrr_getter=None,
+    on_saved=None,
+    run_log=None,
 ) -> Discovery:
     current = today or utc_today()
     stats = empty_stats()
@@ -290,7 +222,6 @@ def discover(
     # Category RSS is free, so the Apify search cap does not stop the chart list.
     # `cap` still marks when the run has moved past the first planned wave.
     limit = len(jobs)
-    mrr_checked: set[int] = set()
     deferred_update: list[Lead] = []
     deferred_ratings: list[Lead] = []
     searched_fronts: set[str] = set()
@@ -299,13 +230,7 @@ def discover(
     network_ok = True
     relax_budget = {"used": 0, "announced": False}
     voice = narrator or Narrator()
-    analyst = _StreamingAnalyst(
-        demo=demo,
-        getter=mrr_getter,
-        dashboard=dashboard,
-        voice=voice,
-        stats=stats,
-    )
+    stop_reason = "sources_exhausted"
     attempts = 0
     announced = False
     index = 0
@@ -314,47 +239,24 @@ def discover(
     prefetch_index = None
     pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="apify-prefetch")
 
-    def _drop_over_ceiling() -> None:
-        """Remove leads whose verified MRR is above the wizard ceiling.
-
-        Blank, missing, and rate-limited MRR stay. This does not start a search.
-        """
-        ceiling = targeting.get("max_mrr")
-        if ceiling is None:
-            return
-        kept: list[Lead] = []
-        for lead in qualified:
-            if id(lead) in mrr_checked:
-                kept.append(lead)
-                continue
-            known = lead.mrr_numeric if lead.mrr_numeric is not None else dollars_from_display(lead.estimated_mrr)
-            if known is not None and int(known) > int(ceiling):
-                mrr_checked.add(id(lead))
-                lead.filter_reason = f"Estimated MRR is above the ${int(ceiling):,} ceiling"
-                stats["qualified"] = max(0, int(stats["qualified"]) - 1)
-                stats["filtered_out"] += 1
-                stats["filtered_hard"] += 1
-                _count_rejection(stats, lead.filter_reason)
-                if dashboard is None:
-                    voice.line(f"  {lead.app_name}: {lead.filter_reason}")
-                continue
-            kept.append(lead)
-        qualified[:] = kept
-        if dashboard is not None:
-            dashboard.set_qualified(len(qualified))
-
-    def _confirm_full() -> None:
-        """When a ceiling is set, let in-flight MRR finish before the scout stops.
-
-        Missing MRR does not drop the lead and does not open another chart.
-        """
-        if targeting.get("max_mrr") is None:
-            return
-        analyst.wait_idle()
-        _drop_over_ceiling()
-
     def _on_qualified(lead: Lead) -> None:
-        analyst.submit(lead)
+        """A verified email is a saved lead. Revenue is not consulted here."""
+        lead.mrr_status = "pending"
+        email = lead.primary_email.address if lead.primary_email else ""
+        _emit("lead_accepted", lead=lead, email=email)
+        if on_saved is None:
+            _emit("lead_saved", lead=lead, persisted=False)
+            return
+        try:
+            on_saved(lead)
+        except Exception as exc:
+            message = f"CRM save failed for {lead.app_name}: {exc}"
+            stats["errors"].append(message)
+            _emit("lead_save_failed", lead=lead, level="ERROR", error=str(exc))
+            if dashboard is None:
+                voice.line(message)
+            return
+        _emit("lead_saved", lead=lead, persisted=True)
 
     def _announce_expansion() -> None:
         nonlocal announced
@@ -420,6 +322,7 @@ def discover(
             stats["filtered_out"] += 1
             stats["filtered_hard"] += 1
             _count_rejection(stats, reason)
+            _emit("lead_rejected", lead=lead, reason=reason)
 
     def _flush_deferred() -> None:
         leftover = list(deferred_update) + list(deferred_ratings)
@@ -433,7 +336,7 @@ def discover(
         _crawl_and_score(
             leads, active, settings, scoring, stats, qualified, missing_email, missing_site,
             enricher, current, minimum_known, itunes_fetcher, voice, target, demo, dashboard,
-            None, mrr_getter, _confirm_full, _on_qualified,
+            None, mrr_getter, None, _on_qualified,
         )
 
     def _replay(bucket: list[Lead], active: dict) -> list[Lead]:
@@ -506,11 +409,12 @@ def discover(
                             known_ids, known_urls, known_names,
                             stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
                             itunes_fetcher, voice, target, demo, dashboard, None, mrr_getter,
-                            deferred_update, deferred_ratings, _confirm_full, _on_qualified,
+                            deferred_update, deferred_ratings, None, _on_qualified,
                         )
                         return
                     except ApifyError as exc:
                         stats["errors"].append(str(exc))
+                        _emit("discovery_error", level="ERROR", error=str(exc), category=keyword)
                         continue
                     if on_raw and items:
                         on_raw(platform, keyword, items, page)
@@ -519,7 +423,7 @@ def discover(
                         known_ids, known_urls, known_names,
                         stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
                         itunes_fetcher, voice, target, demo, dashboard, None, mrr_getter,
-                        deferred_update, deferred_ratings, _confirm_full, _on_qualified,
+                        deferred_update, deferred_ratings, None, _on_qualified,
                     )
 
     def _relax() -> None:
@@ -554,20 +458,40 @@ def discover(
             candidates = dashboard.funnel["candidates"]
             dashboard.complete(2, f"Scanned {scanned} apps → {candidates} candidates")
             dashboard.complete(3, f"Extracting contacts [{len(qualified)}/{target} qualified]")
-            dashboard.complete(4, f"Ranked {len(qualified)} qualified leads")
             dashboard.set_qualified(len(qualified))
+            dashboard.set_scout("Scouting complete")
+            dashboard.set_analyst("Waiting to analyze revenue")
+        _emit(
+            "scouting_completed",
+            target=target,
+            qualified=len(qualified),
+            discovered=stats["discovered"],
+            already_in_crm=stats["already_in_crm"],
+            filtered_out=stats["filtered_out"],
+            missing_public_email=stats["missing_public_email"],
+            missing_developer_site=stats["missing_developer_site"],
+            stop_reason=stop_reason,
+        )
         _check_partition(stats)
 
+    log_token = _RUN_LOG.set(run_log)
     try:
-        analyst.start()
+        _emit("scouting_started", target=target, country=country)
+        if mrr_getter is not None:
+            _emit("revenue_provider_skipped", error="scouting does not call the revenue provider")
+        if targeting.get("max_mrr") is not None:
+            _emit(
+                "mrr_ceiling_ignored",
+                max_mrr=targeting.get("max_mrr"),
+                error="max_mrr is stored and is not a qualification filter",
+            )
         if dashboard is not None:
             dashboard.begin_clock()
             dashboard.set_scout("Scanning category feeds")
-            dashboard.set_analyst("Waiting for a qualified lead")
+            dashboard.set_analyst("Waiting until scouting finishes")
         while index < len(jobs):
             if len(qualified) >= target:
-                _confirm_full()
-            if len(qualified) >= target:
+                stop_reason = "target_reached"
                 _say(voice, dashboard, f"Reached the target of {target} qualified prospects. No further searches will start.")
                 break
             if index not in started and attempts >= limit:
@@ -615,6 +539,8 @@ def discover(
                 else:
                     dashboard.note(2, str(exc))
                 stats["errors"].append(str(exc))
+                stop_reason = "interrupted"
+                _emit("discovery_error", level="ERROR", error=str(exc))
                 items = exc.items
                 if on_raw and items:
                     on_raw(platform, keyword, items, page)
@@ -623,7 +549,7 @@ def discover(
                     known_ids, known_urls, known_names,
                     stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
                     itunes_fetcher, voice, target, demo, dashboard, launch_prefetch, mrr_getter,
-                    deferred_update, deferred_ratings, _confirm_full, _on_qualified,
+                    deferred_update, deferred_ratings, None, _on_qualified,
                 )
                 break
             except ApifyError as exc:
@@ -635,6 +561,7 @@ def discover(
                     dashboard.note(2, str(exc))
                     dashboard.pause()
                 stats["errors"].append(str(exc))
+                _emit("discovery_error", level="ERROR", error=str(exc))
                 if prompter is None:
                     index += 1
                     continue
@@ -646,6 +573,7 @@ def discover(
                 if dashboard is not None and choice == "continue":
                     dashboard.resume()
                 if choice != "continue":
+                    stop_reason = "stopped"
                     break
                 index += 1
                 continue
@@ -654,7 +582,7 @@ def discover(
                 known_ids, known_urls, known_names,
                 stats, qualified, missing_email, missing_site, enricher, current, minimum_known,
                 itunes_fetcher, voice, target, demo, dashboard, launch_prefetch, mrr_getter,
-                deferred_update, deferred_ratings, _confirm_full, _on_qualified,
+                deferred_update, deferred_ratings, None, _on_qualified,
             )
             index += 1
         else:
@@ -666,9 +594,20 @@ def discover(
                 prefetch_future = None
                 prefetch_index = None
             _relax()
+        if len(qualified) >= target:
+            stop_reason = "target_reached"
+        elif not network_ok:
+            stop_reason = "interrupted"
+        elif stop_reason != "stopped":
+            if attempts >= limit and len(qualified) < target:
+                stop_reason = "search_limit"
+            else:
+                stop_reason = "sources_exhausted"
     except Exception as exc:
+        stop_reason = "discovery_error"
         message = f"Discovery stopped early: {exc}"
         stats["errors"].append(message)
+        _emit("discovery_error", level="ERROR", error=str(exc))
         print(message)
     finally:
         pending_prefetch = prefetch_future
@@ -677,9 +616,10 @@ def discover(
         if pending_prefetch is not None:
             pending_prefetch.cancel()
         pool.shutdown(wait=True, cancel_futures=True)
-        analyst.close()
-        _drop_over_ceiling()
-        _finish()
+        try:
+            _finish()
+        finally:
+            _RUN_LOG.reset(log_token)
     return Discovery(
         qualified=qualified,
         missing_email=missing_email,
@@ -769,7 +709,9 @@ def _consume(
         key = lead.dedup_id()
         if key in seen or crm_index.contains_lead(lead):
             duplicates += 1
-            if _from_crm(lead, known_ids, known_urls, known_names) and key not in counted_crm:
+            in_crm = _from_crm(lead, known_ids, known_urls, known_names)
+            _emit("duplicate_skipped", lead=lead, reason="already_in_crm" if in_crm else "already_in_run")
+            if in_crm and key not in counted_crm:
                 counted_crm.add(key)
                 seen.add(key)
                 stats["discovered"] += 1
@@ -779,6 +721,7 @@ def _consume(
         crm_index.add_lead(lead)
         stats["discovered"] += 1
         fresh.append(lead)
+        _emit("app_discovered", lead=lead, app_name=lead.app_name, category=keyword)
     candidates: list[Lead] = []
     filtered = 0
     for lead in fresh:
@@ -797,6 +740,7 @@ def _consume(
             stats["filtered_out"] += 1
             stats["filtered_hard"] += 1
             _count_rejection(stats, reason)
+            _emit("lead_rejected", lead=lead, reason=reason)
             filtered += 1
             continue
         candidates.append(lead)
@@ -837,7 +781,7 @@ def _crawl_and_score(
     enricher, today, minimum_known, itunes_fetcher, narrator, target, demo, dashboard,
     on_shortfall, mrr_getter, on_full=None, on_qualified=None,
 ) -> None:
-    """Crawl a wave at a time. Each qualified contact is handed to the analyst immediately."""
+    """Crawl a wave at a time and save each qualified contact. Revenue waits until scouting finishes."""
 
     def _locked() -> bool:
         if len(qualified) < target:
@@ -876,6 +820,7 @@ def _crawl_and_score(
                 crawl_leads(batch, _guard, workers=12)
         for offset, lead in enumerate(batch, start=1):
             if lead.primary_email and lead.enrichment_status not in {"blocked", "error"}:
+                _emit("email_found", lead=lead, email=lead.primary_email.address)
                 if dashboard is not None:
                     dashboard.add_funnel(emails_found=1)
                 window.append(lead)
@@ -923,7 +868,7 @@ def _score_window(
     enricher, today, minimum_known, narrator, target, demo, dashboard, mrr_getter=None,
     on_qualified=None,
 ) -> None:
-    """Score email-ready leads and enqueue each one for background MRR."""
+    """Score email-ready leads. Revenue enrichment is a later phase."""
     del enricher, settings, demo, mrr_getter
     if not window:
         return
@@ -955,6 +900,7 @@ def _score_prepared_lead(
         stats["filtered_out"] += 1
         stats["enrichment_errors"] += 1
         stats["errors"].append(f"{lead.app_name}: {lead.enrichment_note}")
+        _emit("lead_rejected", lead=lead, level="ERROR", reason=lead.enrichment_note or "enrichment error")
         if dashboard is None:
             narrator.line(f"{lead.app_name}: {lead.enrichment_note}")
         return
@@ -963,16 +909,19 @@ def _score_prepared_lead(
         lead.filter_reason = failure
         stats["filtered_out"] += 1
         stats["filtered_score"] += 1
+        _emit("lead_rejected", lead=lead, reason=failure)
         return
     if lead.primary_email is None and not lead.developer_website and not lead.support_url:
         stats["missing_developer_site"] += 1
         missing_site.append(lead)
         _count_contact_gap(stats, lead)
+        _emit("lead_rejected", lead=lead, reason="no developer website")
         return
     if lead.primary_email is None:
         stats["missing_public_email"] += 1
         missing_email.append(lead)
         _count_contact_gap(stats, lead)
+        _emit("lead_rejected", lead=lead, reason="no public email")
         return
     if not (lead.contact_name or "").strip():
         developer = (lead.developer_name or "").strip()
@@ -981,11 +930,13 @@ def _score_prepared_lead(
         else:
             lead.filter_reason = "no public contact name"
             stats["filtered_out"] += 1
+            _emit("lead_rejected", lead=lead, reason="no public contact name")
             return
     if len(qualified) >= target:
         _release_uncapped([lead], stats)
         return
     stats["qualified"] += 1
+    lead.buy_signal = buy_signal(lead, today)
     qualified.append(lead)
     if dashboard is not None:
         dashboard.set_qualified(len(qualified))
@@ -1002,6 +953,7 @@ def _release_uncapped(leads: list[Lead], stats: dict) -> None:
     for lead in leads:
         lead.filter_reason = "target reached"
         stats["filtered_out"] += 1
+        _emit("lead_rejected", lead=lead, reason="target reached")
 
 
 def _trim_qualified(qualified: list[Lead], stats: dict, target: int) -> None:
@@ -1034,3 +986,183 @@ def _check_partition(stats: dict) -> None:
         )
         stats["errors"].append(message)
         print(message)
+
+
+def analyze_saved(
+    store,
+    *,
+    demo: bool = False,
+    getter=None,
+    dashboard: AgentDashboard | None = None,
+    narrator: Narrator | None = None,
+    run_log=None,
+    on_enriched=None,
+    pause=None,
+    enabled: bool = True,
+    revenue_mode: str | None = None,
+) -> list[Lead]:
+    """Enrich revenue for leads this run already saved.
+
+    This never calls a searcher and never changes how many leads scouting saved.
+    One request per lead. A failure is logged and the next lead still runs.
+    `enabled=False` skips App Store Tracker and keeps the saved leads.
+    """
+    voice = narrator or Narrator()
+    leads = list(store.load())
+    mode = revenue_mode or ("tracker" if enabled else "skip")
+    if not enabled or mode == "skip":
+        return _skip_revenue_analysis(store, leads, dashboard=dashboard, run_log=run_log)
+    total = len(leads)
+    counts = {status: 0 for status in _MRR_STATUSES}
+    if run_log is not None:
+        run_log.event("ANALYZING", "analysis_started", total=total)
+    if dashboard is not None:
+        dashboard.set_scout("Scouting complete")
+        dashboard.set_analysis(0, total)
+        dashboard.focus(4, f"Analyzing revenue [0/{total}]")
+        dashboard.set_analyst(f"Analyzing revenue [0/{total}]")
+    for index, lead in enumerate(leads):
+        name = lead.app_name or "App"
+        if run_log is not None:
+            run_log.event(
+                "ANALYZING",
+                "enrichment_attempt",
+                lead_id=lead.dedup_id(),
+                app_id=lead.app_store_id,
+                app_name=name,
+            )
+        if dashboard is not None:
+            dashboard.set_analyst(f"Fetching MRR for {name}...")
+        previous = lead.estimated_mrr or ""
+        try:
+            outcome = apply_mrr_outcome(
+                lead,
+                demo=demo,
+                getter=getter,
+                pause=pause,
+                index=index,
+                revenue_mode=mode,
+            )
+        except Exception as exc:
+            outcome = MrrOutcome(
+                status="error",
+                error=f"{type(exc).__name__}: {exc}",
+                endpoint=tracker_url_for_lead(lead),
+            )
+            lead.mrr_status = "error"
+        _log_mrr_outcome(run_log, lead, outcome)
+        status_name = lead.mrr_status if lead.mrr_status in counts else "error"
+        counts[status_name] += 1
+        changed = (lead.estimated_mrr or "") != previous
+        if changed and lead.mrr_status == "enriched" and (lead.estimated_mrr or "").strip():
+            if dashboard is not None and is_high_mrr(lead.estimated_mrr):
+                dashboard.add_funnel(mrr_hits=1)
+            if on_enriched is not None:
+                try:
+                    on_enriched(lead)
+                except Exception as exc:
+                    message = f"CRM MRR update failed for {name}: {exc}"
+                    if run_log is not None:
+                        run_log.event(
+                            "ANALYZING",
+                            "crm_update_failed",
+                            level="ERROR",
+                            lead_id=lead.dedup_id(),
+                            app_id=lead.app_store_id,
+                            error=str(exc),
+                        )
+                    if dashboard is None:
+                        voice.line(message)
+        elif not previous.strip() or changed:
+            message = f"• {name}: {_KEEP_LEAD.get(lead.mrr_status, _KEEP_LEAD['error'])}"
+            if dashboard is not None:
+                dashboard.push_feed(message)
+            else:
+                voice.line(message)
+        try:
+            store.save(lead)
+        except Exception as exc:
+            if run_log is not None:
+                run_log.event(
+                    "ANALYZING",
+                    "lead_save_failed",
+                    level="ERROR",
+                    lead_id=lead.dedup_id(),
+                    app_id=lead.app_store_id,
+                    error=str(exc),
+                )
+            if dashboard is None:
+                voice.line(f"Could not persist enrichment for {name}: {exc}")
+        if dashboard is not None:
+            done = index + 1
+            dashboard.set_analysis(done, total)
+            dashboard.note(4, f"Analyzing revenue [{done}/{total}]")
+            dashboard.set_analyst(f"Analyzing revenue [{done}/{total}]")
+    if dashboard is not None:
+        dashboard.complete(4, f"Analyzed {total} leads")
+        dashboard.set_analyst(f"Analysis complete [{total}/{total}]")
+    if run_log is not None:
+        run_log.event("ANALYZING", "analysis_completed", total=total, **counts)
+    return leads
+
+
+def _skip_revenue_analysis(store, leads: list[Lead], *, dashboard, run_log) -> list[Lead]:
+    """Contact-only runs never call App Store Tracker."""
+    for lead in leads:
+        if lead.mrr_status == "pending":
+            lead.mrr_status = "skipped"
+        try:
+            store.save(lead)
+        except Exception as exc:
+            if run_log is not None:
+                run_log.event(
+                    "ANALYZING",
+                    "lead_save_failed",
+                    level="ERROR",
+                    lead_id=lead.dedup_id(),
+                    app_id=lead.app_store_id,
+                    error=str(exc),
+                )
+    if run_log is not None:
+        run_log.event("ANALYZING", "analysis_skipped", total=len(leads), reason="consider_mrr")
+    if dashboard is not None:
+        total = len(leads)
+        dashboard.set_scout("Scouting complete")
+        dashboard.set_analysis(total, total)
+        dashboard.set_analyst("Revenue analysis skipped")
+        dashboard.focus(4, "Skipping App Store Tracker")
+        dashboard.complete(4, "Skipped revenue analysis")
+    return leads
+
+
+def _log_mrr_outcome(run_log, lead: Lead, outcome: MrrOutcome) -> None:
+    if run_log is None:
+        return
+    status_name = outcome.status or lead.mrr_status or "error"
+    event_name = {
+        "enriched": "enrichment_succeeded",
+        "unavailable": "enrichment_unavailable",
+        "rate_limited": "enrichment_rate_limited",
+        "timeout": "enrichment_timeout",
+        "error": "enrichment_error",
+    }.get(status_name, "enrichment_error")
+    if status_name == "enriched":
+        level = "INFO"
+    elif status_name == "error":
+        level = "ERROR"
+    else:
+        level = "WARNING"
+    run_log.event(
+        "ANALYZING",
+        event_name,
+        level=level,
+        lead_id=lead.dedup_id(),
+        app_id=lead.app_store_id,
+        http_status=outcome.http_status,
+        duration=outcome.duration_s,
+        error=outcome.error,
+        endpoint=outcome.endpoint,
+        body=outcome.body,
+        mrr_status=status_name,
+        estimated_mrr=lead.estimated_mrr or "",
+    )

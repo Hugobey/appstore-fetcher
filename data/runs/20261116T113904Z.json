@@ -1,0 +1,3049 @@
+{
+  "run_id": "20261116T113904Z",
+  "leads": [
+    {
+      "platform": "ios",
+      "app_store_id": "6755652476",
+      "app_name": "SEE Finance 3 Mobile",
+      "developer_name": "Scimonoce Software LLC",
+      "app_store_url": "https://apps.apple.com/us/app/id6755652476",
+      "developer_website": "https://scimonocesoftware.com/products/see-finance/",
+      "support_url": "",
+      "description": "Manage all of your financial accounts in a single place and gain control over your finances. Track all of the financial accounts you might have including banking, credit cards, investments and others.\n\nPacked full of options to allow you to take total control of your finances.  There are many options available to you to personalize the app just for you.\n\nStore your file(s) on iCloud Drive and access them from your Mac, iPhone and iPad. iCloud Drive lets you access your files from multiple devices, keeps them secure, and under your control.\n\nFeatures:\n- Quick Transaction Entry\n- Split Transactions\n- Transaction Attachments\n- Multiple Currency Support\n- Create Multiple Files\n- Customizable Preferences\n- Companion macOS Version",
+      "category": "Finance",
+      "release_date": "2025-12-12",
+      "last_update": "2026-09-18",
+      "rating_count": 10,
+      "review_count": null,
+      "average_rating": 4.4,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 9.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Legal suffix on a brand name. 10 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "seefinancesupport@scimonocesoftware.com",
+          "email_type": "general",
+          "source_url": "https://scimonocesoftware.com/support/",
+          "evidence": "Public business address with no founder evidence."
+        },
+        {
+          "address": "seefinancefeaturerequest@scimonocesoftware.com",
+          "email_type": "general",
+          "source_url": "https://scimonocesoftware.com/support/",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Scimonoce Software LLC",
+      "contact_page_url": "https://scimonocesoftware.com/support/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 2 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Finance",
+      "filter_reason": "",
+      "score_normalized": 57,
+      "score_points": 57,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 30,
+          "detail": "Under 100 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/fd/0c/54/fd0c5477-7e18-2eae-0075-97e961b94d32/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg",
+        "advisories": [],
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/scimonoce-software-llc/id1017159111?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/fd/0c/54/fd0c5477-7e18-2eae-0075-97e961b94d32/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/fd/0c/54/fd0c5477-7e18-2eae-0075-97e961b94d32/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/100x100bb.jpg",
+        "sellerUrl": "https://scimonocesoftware.com/products/see-finance/",
+        "currentVersionReleaseDate": "2026-09-18T19:50:50Z",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "26786816",
+        "formattedPrice": "$9.99",
+        "userRatingCountForCurrentVersion": 10,
+        "trackContentRating": "4+",
+        "artistId": 1017159111,
+        "artistName": "Scimonoce Software LLC",
+        "genres": [
+          "Finance",
+          "Productivity"
+        ],
+        "averageUserRatingForCurrentVersion": 4.4,
+        "minimumOsVersion": "18.6",
+        "bundleId": "com.scimonocesoftware.SEE-Finance-3-iOS",
+        "releaseNotes": "Compatibility adjustments for iOS 27.",
+        "genreIds": [
+          "6015",
+          "6007"
+        ],
+        "releaseDate": "2025-12-12T08:00:00Z",
+        "primaryGenreName": "Finance",
+        "primaryGenreId": 6015,
+        "sellerName": "Scimonoce Software LLC",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "3.1.1",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Manage all of your financial accounts in a single place and gain control over your finances. Track all of the financial accounts you might have including banking, credit cards, investments and others.\n\nPacked full of options to allow you to take total control of your finances.  There are many options available to you to personalize the app just for you.\n\nStore your file(s) on iCloud Drive and access them from your Mac, iPhone and iPad. iCloud Drive lets you access your files from multiple devices, keeps them secure, and under your control.\n\nFeatures:\n- Quick Transaction Entry\n- Split Transactions\n- Transaction Attachments\n- Multiple Currency Support\n- Create Multiple Files\n- Customizable Preferences\n- Companion macOS Version",
+        "trackCensoredName": "SEE Finance 3 Mobile",
+        "trackViewUrl": "https://apps.apple.com/us/app/see-finance-3-mobile/id6755652476?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.4,
+        "trackId": 6755652476,
+        "trackName": "SEE Finance 3 Mobile",
+        "price": 9.99,
+        "userRatingCount": 10
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6747404614",
+      "app_name": "Buffett Indicator",
+      "developer_name": "LuLu-Ventures-LLC",
+      "app_store_url": "https://apps.apple.com/us/app/id6747404614",
+      "developer_website": "https://deepvalues.ai",
+      "support_url": "",
+      "description": "How expensive is the US stock market today? Buffett Indicator tracks the two valuation measures long-term investors watch most and shows where today's reading sits against decades of market history.\n\nKEY FEATURES\n\u2022 Buffett Indicator: the total value of the US stock market (Wilshire 5000) relative to US GDP, updated every day\n\u2022 Shiller PE (CAPE): the cyclically adjusted price-to-earnings ratio of the S&P 500, backed by 140+ years of history\n\u2022 Historical comparison: see how today's valuation stacks up against past decades\n\u2022 Valuation gauges: Color bands show at a glance how stretched the market is\n\u2022 Home Screen widget: today's readings without opening the app\n\u2022 Daily alert: a notification when the numbers update\n\nBuilt for long-term investors and macro watchers who want data, not headlines.\n\nData comes from public sources: the Wilshire 5000, US GDP and S&P 500 earnings. For information and education only; not investment advice. Not affiliated with Warren Buffett or Berkshire Hathaway.",
+      "category": "Finance",
+      "release_date": "2025-08-01",
+      "last_update": "2026-11-12",
+      "rating_count": 11,
+      "review_count": null,
+      "average_rating": 4.90909,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Legal suffix on a brand name. 11 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "team@deepvalues.ai",
+          "email_type": "general",
+          "source_url": "https://deepvalues.ai",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "LuLu-Ventures-LLC",
+      "contact_page_url": "https://deepvalues.ai",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Finance",
+      "filter_reason": "",
+      "score_normalized": 65,
+      "score_points": 65,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 30,
+          "detail": "Under 100 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ef/86/38/ef863833-eff6-be8e-aae0-a5702df48cfa/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/512x512bb.jpg",
+        "advisories": [],
+        "isGameCenterEnabled": false,
+        "features": [],
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/lulu-ventures-llc/id1821269389?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ef/86/38/ef863833-eff6-be8e-aae0-a5702df48cfa/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ef/86/38/ef863833-eff6-be8e-aae0-a5702df48cfa/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/100x100bb.jpg",
+        "sellerUrl": "https://deepvalues.ai",
+        "currentVersionReleaseDate": "2026-11-12T14:48:42Z",
+        "languageCodesISO2A": [
+          "EN",
+          "FR",
+          "DE",
+          "HI",
+          "ID",
+          "IT",
+          "JA",
+          "KO",
+          "PT",
+          "ZH",
+          "ES",
+          "ZH"
+        ],
+        "fileSizeBytes": "25266176",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 11,
+        "trackContentRating": "4+",
+        "artistId": 1821269389,
+        "artistName": "LuLu-Ventures-LLC",
+        "genres": [
+          "Finance",
+          "Business"
+        ],
+        "averageUserRatingForCurrentVersion": 4.90909,
+        "minimumOsVersion": "17",
+        "bundleId": "LuLu-Ventures-LLC.ios-buffett-ui",
+        "releaseNotes": "\u2022 Fixed: on some new installs the chart drew a straight line from August 2025 to today. The app now fills in any missing days on its next update, so the full history shows.",
+        "genreIds": [
+          "6015",
+          "6000"
+        ],
+        "releaseDate": "2025-08-01T07:00:00Z",
+        "primaryGenreName": "Finance",
+        "primaryGenreId": 6015,
+        "sellerName": "LULU VENTURES LLC",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "6.7",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "How expensive is the US stock market today? Buffett Indicator tracks the two valuation measures long-term investors watch most and shows where today's reading sits against decades of market history.\n\nKEY FEATURES\n\u2022 Buffett Indicator: the total value of the US stock market (Wilshire 5000) relative to US GDP, updated every day\n\u2022 Shiller PE (CAPE): the cyclically adjusted price-to-earnings ratio of the S&P 500, backed by 140+ years of history\n\u2022 Historical comparison: see how today's valuation stacks up against past decades\n\u2022 Valuation gauges: Color bands show at a glance how stretched the market is\n\u2022 Home Screen widget: today's readings without opening the app\n\u2022 Daily alert: a notification when the numbers update\n\nBuilt for long-term investors and macro watchers who want data, not headlines.\n\nData comes from public sources: the Wilshire 5000, US GDP and S&P 500 earnings. For information and education only; not investment advice. Not affiliated with Warren Buffett or Berkshire Hathaway.",
+        "trackCensoredName": "Buffett Indicator",
+        "trackViewUrl": "https://apps.apple.com/us/app/buffett-indicator/id6747404614?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.90909,
+        "trackId": 6747404614,
+        "trackName": "Buffett Indicator",
+        "price": 4.99,
+        "userRatingCount": 11
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "525997288",
+      "app_name": "CalcTape Paper Tape Calculator",
+      "developer_name": "schoettler Software GmbH",
+      "app_store_url": "https://apps.apple.com/us/app/id525997288",
+      "developer_website": "https://www.calctape.com/en/calctape-ios",
+      "support_url": "",
+      "description": "Every calculation. In context.\n\nCalcTape combines a calculator, an editable calculation tape and space for notes. Plan a trip, check shopping costs, or track expenses while keeping your numbers and notes together.\n\nKEEP EVERY STEP IN VIEW\nEnter several items, create subtotals and add comments beside the numbers. Use arithmetic, percentages, powers and other functions while keeping longer calculations easy to follow.\n\nCHANGE A FIGURE, UPDATE THE RESULTS\nEdit a number or an operator, insert a line or remove an item. CalcTape recalculates the results below automatically. Undo and Redo let you reverse and restore changes.\n\nSAVE YOUR WORK\nKeep calculations as documents, reopen them later and reuse them as templates. The document list shows the storage location, date and line count. Choose whether a document opens at the beginning, at the last position or at the end.\n\nMAKE IT YOUR OWN\nCustomize keyboard layouts and create user keys for frequently used functions or text. Choose from five themes, including Dark Night with a dark calculation tape, keyboard and dialogs.\n\nSHARE AND CONTINUE\nShare calculations as text, HTML or CalcTape files through the iOS share sheet, or print them. Use iCloud Drive to access your documents on other devices.\n\nFOR IPHONE AND IPAD\nThe calculation tape and keyboard adapt to the app window. On iPad, work alongside another app.\n\nCalcTape is now also available in Ukrainian and Malay.\n\nManual: https://help.calctape.com/ios\nSupport: support@calctape.com",
+      "category": "Finance",
+      "release_date": "2012-05-16",
+      "last_update": "2026-10-23",
+      "rating_count": 127,
+      "review_count": null,
+      "average_rating": 4.2126,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Legal suffix on a brand name. 127 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@calctape.com",
+          "email_type": "support",
+          "source_url": "https://www.calctape.com/en/calctape-ios",
+          "evidence": "The address uses a support mailbox name."
+        },
+        {
+          "address": "info@schoettler.com",
+          "email_type": "general",
+          "source_url": "https://www.calctape.com/en/calctape-ios",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "schoettler Software GmbH",
+      "contact_page_url": "https://www.calctape.com/en/calctape-ios",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 2 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Finance",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 5297 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/7f/e4/e8/7fe4e8d5-487a-670e-e2c0-ff5a681d3642/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "advisories": [],
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/schoettler-software-gmbh/id299986561?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/7f/e4/e8/7fe4e8d5-487a-670e-e2c0-ff5a681d3642/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/7f/e4/e8/7fe4e8d5-487a-670e-e2c0-ff5a681d3642/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "sellerUrl": "https://www.calctape.com/en/calctape-ios",
+        "currentVersionReleaseDate": "2026-10-23T12:07:00Z",
+        "languageCodesISO2A": [
+          "NL",
+          "EN",
+          "FR",
+          "DE",
+          "IT",
+          "JA",
+          "MS",
+          "PT",
+          "RU",
+          "ES",
+          "TR",
+          "UK"
+        ],
+        "fileSizeBytes": "2810880",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 127,
+        "trackContentRating": "4+",
+        "artistId": 299986561,
+        "artistName": "schoettler Software GmbH",
+        "genres": [
+          "Finance",
+          "Productivity"
+        ],
+        "averageUserRatingForCurrentVersion": 4.2126,
+        "minimumOsVersion": "15.0",
+        "bundleId": "de.sfr.ipad.calctape",
+        "releaseNotes": "New in CalcTape 6.2:\n\n\u2022 Optional ruled lines make calculations easier to read. Enable them in Settings independently of the Item Counter.\n\u2022 Long calculations and large document lists respond faster.\n\u2022 Improved iCloud reliability and new status indicators for your documents.\n\u2022 More reliable startup, plus improvements to date displays and keyboard layouts.\n\u2022 Now also available in Ukrainian and Malay.\n\u2022 The app icon supports dark and tinted Home Screens on iOS 18 and later.",
+        "genreIds": [
+          "6015",
+          "6007"
+        ],
+        "releaseDate": "2012-05-16T22:33:04Z",
+        "primaryGenreName": "Finance",
+        "primaryGenreId": 6015,
+        "sellerName": "schoettler Software GmbH",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "6.2",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Every calculation. In context.\n\nCalcTape combines a calculator, an editable calculation tape and space for notes. Plan a trip, check shopping costs, or track expenses while keeping your numbers and notes together.\n\nKEEP EVERY STEP IN VIEW\nEnter several items, create subtotals and add comments beside the numbers. Use arithmetic, percentages, powers and other functions while keeping longer calculations easy to follow.\n\nCHANGE A FIGURE, UPDATE THE RESULTS\nEdit a number or an operator, insert a line or remove an item. CalcTape recalculates the results below automatically. Undo and Redo let you reverse and restore changes.\n\nSAVE YOUR WORK\nKeep calculations as documents, reopen them later and reuse them as templates. The document list shows the storage location, date and line count. Choose whether a document opens at the beginning, at the last position or at the end.\n\nMAKE IT YOUR OWN\nCustomize keyboard layouts and create user keys for frequently used functions or text. Choose from five themes, including Dark Night with a dark calculation tape, keyboard and dialogs.\n\nSHARE AND CONTINUE\nShare calculations as text, HTML or CalcTape files through the iOS share sheet, or print them. Use iCloud Drive to access your documents on other devices.\n\nFOR IPHONE AND IPAD\nThe calculation tape and keyboard adapt to the app window. On iPad, work alongside another app.\n\nCalcTape is now also available in Ukrainian and Malay.\n\nManual: https://help.calctape.com/ios\nSupport: support@calctape.com",
+        "trackCensoredName": "CalcTape Paper Tape Calculator",
+        "trackViewUrl": "https://apps.apple.com/us/app/calctape-paper-tape-calculator/id525997288?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.2126,
+        "trackId": 525997288,
+        "trackName": "CalcTape Paper Tape Calculator",
+        "price": 4.99,
+        "userRatingCount": 127
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6469945468",
+      "app_name": "CheckCraft",
+      "developer_name": "Loshadki, LLC",
+      "app_store_url": "https://apps.apple.com/us/app/id6469945468",
+      "developer_website": "https://loshadki.app/checkcraft/",
+      "support_url": "",
+      "description": "Available on macOS, iOS, iPadOS, and visionOS\n\nCheckCraft lets you easily print personal checks from your Mac, iPhone, iPad, or Vision Pro, with all your data securely synced via iCloud.\n\n# Key Features:\n\n- Print checks on blank check stock from your Mac, iPhone, iPad or Vision Pro\n- Routing and account numbers at the standard bank (MICR) positions, in the business or personal order\n- The fractional routing number from your bank's checks\n- Line up your printer with a test page and fine adjustments\n- Print several checks at once\n- A register of printed, deposited and voided checks, with filters and totals\n- Void or duplicate checks, with payee suggestions from earlier checks\n- Export to CSV, or QIF for Quicken and QuickBooks\n- Siri, Shortcuts and Spotlight\n- Backed up and synced with iCloud\n- Lock with Face ID, Touch ID or your device passcode\n- Multiple accounts\n- Built for U.S. banks (USD only), one check layout: CheckOMatic\n\nNote: CheckCraft currently supports only the CheckOMatic check layout.\n\n# Frequently Asked Questions\n\n## Can I try it before buying?\n\nThere's no free trial, but if CheckCraft isn't a good fit, you can request a refund: https://support.apple.com/en-us/HT204084\n\n## Where can I buy compatible checks?\n\nYou can purchase CheckOMatic checks from Amazon: https://amzn.to/45NJpUX\n\n## Can I customize the check layout or use other formats?\n\nNot yet. Currently, only the CheckOMatic format is supported.\nIf there\u2019s enough interest, we may add more layouts in future updates.\n\n## Are there alternatives?\n\nYes. If you prefer a simpler or manual approach, you can use Excel or Numbers templates.\u00a0\nCheck out this open-source project: https://github.com/andrewstellman/excel-check-printing\n\n# Privacy Policy\n\nWe believe very strongly in our customers\u2019 right to privacy. Our customer records are not for sale or trade, and we will not disclose our customer data to any third party except as may be required by law.\n\nAny information that you provide to us in the course of interacting with our sales or technical support departments is held in strict confidence. This includes your contact information (including, but not limited to your email address and phone number), as well as any data that you supply to us in the course of a technical support interaction.\n\n# Support\n\nHave suggestions, feature requests, or feedback?\nReach out at: support@loshadki.app",
+      "category": "Finance",
+      "release_date": "2023-10-30",
+      "last_update": "2026-10-19",
+      "rating_count": 43,
+      "review_count": null,
+      "average_rating": 4.48837,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 1.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Legal suffix on a brand name. 43 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@loshadki.app",
+          "email_type": "support",
+          "source_url": "https://loshadki.app/checkcraft/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Loshadki, LLC",
+      "contact_page_url": "https://loshadki.app/checkcraft/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Finance",
+      "filter_reason": "",
+      "score_normalized": 60,
+      "score_points": 60,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 30,
+          "detail": "Under 100 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 1113 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/fb/83/ac/fb83ac2e-0962-c98c-a8d2-7522a1c004bc/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "advisories": [],
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/loshadki-llc/id1546140307?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/fb/83/ac/fb83ac2e-0962-c98c-a8d2-7522a1c004bc/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/fb/83/ac/fb83ac2e-0962-c98c-a8d2-7522a1c004bc/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "sellerUrl": "https://loshadki.app/checkcraft/",
+        "currentVersionReleaseDate": "2026-10-19T02:38:47Z",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "9507840",
+        "formattedPrice": "$1.99",
+        "userRatingCountForCurrentVersion": 43,
+        "trackContentRating": "4+",
+        "artistId": 1546140307,
+        "artistName": "Loshadki, LLC",
+        "genres": [
+          "Finance",
+          "Business"
+        ],
+        "averageUserRatingForCurrentVersion": 4.48837,
+        "minimumOsVersion": "17.0",
+        "bundleId": "app.loshadki.CheckCraft",
+        "releaseNotes": "- Routing and account numbers now print at the standard positions banks read. Print a test page (Settings > Printer Alignment) before your next check.\n- Choose the business or personal MICR line: the check number before the routing number, or after the account number.\n- Print the fractional routing number from your bank's checks under the check number.\n- Printer alignment: shift everything that prints, and check it with a test page.\n- Print several checks at once.\n- Void or duplicate a check. Voided checks print with a VOID stamp.\n- Filter the register by unprinted, printed, deposited or voided checks, with totals.\n- Export to QIF for Quicken, QuickBooks and other finance apps. The CSV export now includes voided checks.\n- Payee suggestions fill in the name, memo and amount from your last check to them.\n- Siri and Shortcuts: \"Write a check in CheckCraft\". Find checks in Spotlight.\n- The lock now falls back to your device passcode, and keeps your checks out of the app switcher, Siri and Spotlight.\n- Account numbers up to 17 digits; long payee names and large amounts shrink to fit their line.\n- Checks print at their actual size on iPhone and iPad. Ready for iPhone Duo.\n- Fixes: \u2318V pastes on the Mac, and opening an old check no longer changes its date.",
+        "genreIds": [
+          "6015",
+          "6000"
+        ],
+        "releaseDate": "2023-10-30T07:00:00Z",
+        "primaryGenreName": "Finance",
+        "primaryGenreId": 6015,
+        "sellerName": "Loshadki, LLC",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.3.0",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Available on macOS, iOS, iPadOS, and visionOS\n\nCheckCraft lets you easily print personal checks from your Mac, iPhone, iPad, or Vision Pro, with all your data securely synced via iCloud.\n\n# Key Features:\n\n- Print checks on blank check stock from your Mac, iPhone, iPad or Vision Pro\n- Routing and account numbers at the standard bank (MICR) positions, in the business or personal order\n- The fractional routing number from your bank's checks\n- Line up your printer with a test page and fine adjustments\n- Print several checks at once\n- A register of printed, deposited and voided checks, with filters and totals\n- Void or duplicate checks, with payee suggestions from earlier checks\n- Export to CSV, or QIF for Quicken and QuickBooks\n- Siri, Shortcuts and Spotlight\n- Backed up and synced with iCloud\n- Lock with Face ID, Touch ID or your device passcode\n- Multiple accounts\n- Built for U.S. banks (USD only), one check layout: CheckOMatic\n\nNote: CheckCraft currently supports only the CheckOMatic check layout.\n\n# Frequently Asked Questions\n\n## Can I try it before buying?\n\nThere's no free trial, but if CheckCraft isn't a good fit, you can request a refund: https://support.apple.com/en-us/HT204084\n\n## Where can I buy compatible checks?\n\nYou can purchase CheckOMatic checks from Amazon: https://amzn.to/45NJpUX\n\n## Can I customize the check layout or use other formats?\n\nNot yet. Currently, only the CheckOMatic format is supported.\nIf there\u2019s enough interest, we may add more layouts in future updates.\n\n## Are there alternatives?\n\nYes. If you prefer a simpler or manual approach, you can use Excel or Numbers templates.\u00a0\nCheck out this open-source project: https://github.com/andrewstellman/excel-check-printing\n\n# Privacy Policy\n\nWe believe very strongly in our customers\u2019 right to privacy. Our customer records are not for sale or trade, and we will not disclose our customer data to any third party except as may be required by law.\n\nAny information that you provide to us in the course of interacting with our sales or technical support departments is held in strict confidence. This includes your contact information (including, but not limited to your email address and phone number), as well as any data that you supply to us in the course of a technical support interaction.\n\n# Support\n\nHave suggestions, feature requests, or feedback?\nReach out at: support@loshadki.app",
+        "trackCensoredName": "CheckCraft",
+        "trackViewUrl": "https://apps.apple.com/us/app/checkcraft/id6469945468?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.48837,
+        "trackId": 6469945468,
+        "trackName": "CheckCraft",
+        "price": 1.99,
+        "userRatingCount": 43
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "358228999",
+      "app_name": "My Wallet+",
+      "developer_name": "Block21 AB",
+      "app_store_url": "https://apps.apple.com/us/app/id358228999",
+      "developer_website": "https://www.block21.com/mywallet/",
+      "support_url": "",
+      "description": "Where did the money go this month? My Wallet+ shows you \u2014 clearly, in your own numbers. Log what you spend and earn in seconds, and the picture builds itself: where your money goes, what comes in, and how this month compares to the last. Once you can see it, changing it gets a lot easier.\n\nSEE WHERE IT GOES\nYour spending, sorted into the categories that fit your life. Tap any category to see what's inside it, down to the last coffee. Make the categories your own \u2014 names, icons, subcategories.\n\nKNOW WHAT COMES IN\nSwitch to income to see salary and everything else side by side with your spending, and the balance across your accounts \u2014 cash, cards, savings, even accounts in different currencies.\n\nEVERY DAY COUNTS\nSmall purchases are the ones that add up. Adding one takes a few taps, and the calendar shows each day's spending at a glance, so nothing slips by.\n\nRENT, SALARY AND SUBSCRIPTIONS\nSet them up once and see them ahead of time, every month. Skip or adjust a single payment without touching the rest.\n\nIS IT GETTING BETTER?\nTurn your phone sideways for the Analyzer: months side by side as lines or bars, income against spending, and where each month's money went. It's where habits become visible.\n\nYOUR MONTH STARTS ON PAYDAY\nMoney doesn't follow the calendar, so neither does My Wallet+. Start your month on the day your salary arrives \u2014 the 25th, the 1st, whatever yours is \u2014 and every view follows.\n\nPRIVATE BY DESIGN, YOURS TO KEEP\nNo account to create and no tracking: your data stays on your devices and syncs through your own iCloud, so your iPhones stay in step. No ads and no subscriptions either \u2014 pay once, use forever.\n\nCOMING FROM AN EARLIER VERSION?\nMy Wallet+ has been rebuilt from the ground up. Your history comes with you: transactions, accounts, categories and recurring payments are imported on first launch, and backups from the previous version can be restored from iCloud.\n\nAvailable in English, Danish, Dutch, Finnish, French, German, Hungarian, Italian, Japanese, Korean, Norwegian, Portuguese, Russian, Simplified Chinese, Spanish and Swedish.\n\nSince 2010, My Wallet+ has helped people around the world get a clear view of their money \u2014 chosen by Apple as Best Finance App two years running, and number one in Finance in 100 countries.\n\nQuestions or ideas? Visit block21.com, write to us at support@block21.com, or follow My Wallet+ on Facebook (facebook.com/mywalletapp) and Twitter (@mywalletapp).",
+      "category": "Finance",
+      "release_date": "2010-03-02",
+      "last_update": "2026-11-14",
+      "rating_count": 11,
+      "review_count": null,
+      "average_rating": 4.90909,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 1.99,
+      "has_iap": null,
+      "developer_type": "unknown",
+      "icp_reason": "Not enough evidence to choose an ICP.",
+      "emails": [
+        {
+          "address": "support@block21.com",
+          "email_type": "support",
+          "source_url": "https://www.block21.com/mywallet/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Block21 AB",
+      "contact_page_url": "https://www.block21.com/mywallet/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Finance",
+      "filter_reason": "",
+      "score_normalized": 62,
+      "score_points": 50,
+      "score_known_max": 80,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "unknown",
+          "points": 0,
+          "max_points": 20,
+          "detail": "ICP could not be classified."
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 6103 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [
+        "ICP"
+      ],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/12/37/5d/12375d1d-5b06-c357-cf8e-a33fb4dba49d/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/512x512bb.jpg",
+        "advisories": [],
+        "isGameCenterEnabled": false,
+        "features": [],
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/block21-ab/id358229002?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/12/37/5d/12375d1d-5b06-c357-cf8e-a33fb4dba49d/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/12/37/5d/12375d1d-5b06-c357-cf8e-a33fb4dba49d/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/100x100bb.jpg",
+        "sellerUrl": "https://www.block21.com/mywallet/",
+        "currentVersionReleaseDate": "2026-11-14T18:21:58Z",
+        "languageCodesISO2A": [
+          "DA",
+          "NL",
+          "EN",
+          "FI",
+          "FR",
+          "DE",
+          "HU",
+          "IT",
+          "JA",
+          "KO",
+          "NB",
+          "PT",
+          "RU",
+          "ZH",
+          "ES",
+          "SV"
+        ],
+        "fileSizeBytes": "11613184",
+        "formattedPrice": "$1.99",
+        "userRatingCountForCurrentVersion": 11,
+        "trackContentRating": "4+",
+        "artistId": 358229002,
+        "artistName": "Block21 AB",
+        "genres": [
+          "Finance",
+          "Utilities"
+        ],
+        "averageUserRatingForCurrentVersion": 4.90909,
+        "minimumOsVersion": "26.0",
+        "bundleId": "com.block21.minautgifter",
+        "releaseNotes": "My Wallet+ 2.0 is here \u2014 rebuilt from the ground up, and your history comes with you.\n\n\u2022 Your data, imported: transactions, accounts, categories and recurring payments move over on first launch. Older backups can be restored from iCloud.\n\u2022 iCloud sync: your iPhones stay in step, through your own iCloud.\n\u2022 The Analyzer: turn your phone sideways to compare months as lines or bars and see where each month's money went.\n\u2022 Recurring payments, shown ahead: rent, salary and subscriptions appear before they happen, and single payments can be skipped or adjusted.\n\u2022 Accounts in different currencies, with exchange rates handled for you.\n\u2022 A fresh design, in 16 languages.\n\nThank you for keeping track with us all these years. We'd love to hear what you think: support@block21.com",
+        "genreIds": [
+          "6015",
+          "6002"
+        ],
+        "releaseDate": "2010-03-02T22:42:29Z",
+        "primaryGenreName": "Finance",
+        "primaryGenreId": 6015,
+        "sellerName": "Block21 AB",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "2.0",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Where did the money go this month? My Wallet+ shows you \u2014 clearly, in your own numbers. Log what you spend and earn in seconds, and the picture builds itself: where your money goes, what comes in, and how this month compares to the last. Once you can see it, changing it gets a lot easier.\n\nSEE WHERE IT GOES\nYour spending, sorted into the categories that fit your life. Tap any category to see what's inside it, down to the last coffee. Make the categories your own \u2014 names, icons, subcategories.\n\nKNOW WHAT COMES IN\nSwitch to income to see salary and everything else side by side with your spending, and the balance across your accounts \u2014 cash, cards, savings, even accounts in different currencies.\n\nEVERY DAY COUNTS\nSmall purchases are the ones that add up. Adding one takes a few taps, and the calendar shows each day's spending at a glance, so nothing slips by.\n\nRENT, SALARY AND SUBSCRIPTIONS\nSet them up once and see them ahead of time, every month. Skip or adjust a single payment without touching the rest.\n\nIS IT GETTING BETTER?\nTurn your phone sideways for the Analyzer: months side by side as lines or bars, income against spending, and where each month's money went. It's where habits become visible.\n\nYOUR MONTH STARTS ON PAYDAY\nMoney doesn't follow the calendar, so neither does My Wallet+. Start your month on the day your salary arrives \u2014 the 25th, the 1st, whatever yours is \u2014 and every view follows.\n\nPRIVATE BY DESIGN, YOURS TO KEEP\nNo account to create and no tracking: your data stays on your devices and syncs through your own iCloud, so your iPhones stay in step. No ads and no subscriptions either \u2014 pay once, use forever.\n\nCOMING FROM AN EARLIER VERSION?\nMy Wallet+ has been rebuilt from the ground up. Your history comes with you: transactions, accounts, categories and recurring payments are imported on first launch, and backups from the previous version can be restored from iCloud.\n\nAvailable in English, Danish, Dutch, Finnish, French, German, Hungarian, Italian, Japanese, Korean, Norwegian, Portuguese, Russian, Simplified Chinese, Spanish and Swedish.\n\nSince 2010, My Wallet+ has helped people around the world get a clear view of their money \u2014 chosen by Apple as Best Finance App two years running, and number one in Finance in 100 countries.\n\nQuestions or ideas? Visit block21.com, write to us at support@block21.com, or follow My Wallet+ on Facebook (facebook.com/mywalletapp) and Twitter (@mywalletapp).",
+        "trackCensoredName": "My Wallet+",
+        "trackViewUrl": "https://apps.apple.com/us/app/my-wallet/id358228999?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.90909,
+        "trackId": 358228999,
+        "trackName": "My Wallet+",
+        "price": 1.99,
+        "userRatingCount": 11
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "1339993499",
+      "app_name": "Simple Budget Envelopes",
+      "developer_name": "Joseph Palmer",
+      "app_store_url": "https://apps.apple.com/us/app/id1339993499",
+      "developer_website": "https://untohimbeglory.com",
+      "support_url": "",
+      "description": "An incredibly simple app, perfect for keeping track of how much money remains in your budget.\n\nSimple Budget Envelopes allows you to have as many envelopes as you need, then add or subtract as you receive or spend money.\n\nNo in-app purchases. Yours to simply use as you like.",
+      "category": "Finance",
+      "release_date": "2018-02-02",
+      "last_update": "2026-09-17",
+      "rating_count": 114,
+      "review_count": null,
+      "average_rating": 4.62281,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a person. 114 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "josephdaniellepalmer@me.com",
+          "email_type": "general",
+          "source_url": "https://untohimbeglory.wordpress.com/",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Joseph Palmer",
+      "contact_page_url": "https://untohimbeglory.wordpress.com/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Finance",
+      "filter_reason": "",
+      "score_normalized": 67,
+      "score_points": 67,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 3209 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/39/9a/b3/399ab319-5efe-3d9a-8d14-eac4ebd9d9f2/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "advisories": [],
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/joseph-palmer/id914507761?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/39/9a/b3/399ab319-5efe-3d9a-8d14-eac4ebd9d9f2/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/39/9a/b3/399ab319-5efe-3d9a-8d14-eac4ebd9d9f2/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/100x100bb.jpg",
+        "sellerUrl": "https://untohimbeglory.com",
+        "currentVersionReleaseDate": "2026-09-17T23:17:02Z",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "1056768",
+        "formattedPrice": "$0.99",
+        "userRatingCountForCurrentVersion": 114,
+        "trackContentRating": "4+",
+        "artistId": 914507761,
+        "artistName": "Joseph Palmer",
+        "genres": [
+          "Finance",
+          "Lifestyle"
+        ],
+        "averageUserRatingForCurrentVersion": 4.62281,
+        "minimumOsVersion": "15.0",
+        "bundleId": "com.simplypalmers.Simple-Budget",
+        "releaseNotes": "Updated the background syncing to iCloud.",
+        "genreIds": [
+          "6015",
+          "6012"
+        ],
+        "releaseDate": "2018-02-02T23:13:57Z",
+        "primaryGenreName": "Finance",
+        "primaryGenreId": 6015,
+        "sellerName": "Joseph Palmer",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "2.2.1",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "An incredibly simple app, perfect for keeping track of how much money remains in your budget.\n\nSimple Budget Envelopes allows you to have as many envelopes as you need, then add or subtract as you receive or spend money.\n\nNo in-app purchases. Yours to simply use as you like.",
+        "trackCensoredName": "Simple Budget Envelopes",
+        "trackViewUrl": "https://apps.apple.com/us/app/simple-budget-envelopes/id1339993499?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.62281,
+        "trackId": 1339993499,
+        "trackName": "Simple Budget Envelopes",
+        "price": 0.99,
+        "userRatingCount": 114
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "334278376",
+      "app_name": "Prepware Private Pilot Test",
+      "developer_name": "ASA",
+      "app_store_url": "https://apps.apple.com/us/app/id334278376",
+      "developer_website": "http://www.asa2fly.com",
+      "support_url": "",
+      "description": "A comprehensive study and test preparation tool for the FAA Knowledge Test. Study questions, answers, and detailed explanations by subject, or test your knowledge with realistic practice tests. Includes relevant FAA figures, tables, and charts to help you prepare for the actual exam.",
+      "category": "Education",
+      "release_date": "2009-10-13",
+      "last_update": "2026-11-11",
+      "rating_count": 139,
+      "review_count": null,
+      "average_rating": 3.84892,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 9.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "139 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "customerservice@asa2fly.com",
+          "email_type": "support",
+          "source_url": "https://asa2fly.com/contact-us/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "ASA",
+      "contact_page_url": "https://asa2fly.com/contact-us/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 6243 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "error",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/asa/id334278379?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/09/8f/2f/098f2fb0-0554-42c0-769e-264911cc0028/AppIcon-P-0-0-1x_U007emarketing-0-8-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/09/8f/2f/098f2fb0-0554-42c0-769e-264911cc0028/AppIcon-P-0-0-1x_U007emarketing-0-8-0-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/09/8f/2f/098f2fb0-0554-42c0-769e-264911cc0028/AppIcon-P-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-11-11T16:29:43Z",
+        "genres": [
+          "Education",
+          "Reference"
+        ],
+        "artistId": 334278379,
+        "artistName": "ASA",
+        "minimumOsVersion": "15.0",
+        "bundleId": "com.asa2fly.Prepware",
+        "releaseDate": "2009-10-13T23:54:50Z",
+        "genreIds": [
+          "6017",
+          "6006"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Aviation Supplies and Academics, Inc.",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.65",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "A comprehensive study and test preparation tool for the FAA Knowledge Test. Study questions, answers, and detailed explanations by subject, or test your knowledge with realistic practice tests. Includes relevant FAA figures, tables, and charts to help you prepare for the actual exam.",
+        "averageUserRating": 3.84892,
+        "trackCensoredName": "Prepware Private Pilot Test",
+        "trackViewUrl": "https://apps.apple.com/us/app/prepware-private-pilot-test/id334278376?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "http://www.asa2fly.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "63114240",
+        "formattedPrice": "$9.99",
+        "userRatingCountForCurrentVersion": 139,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 3.84892,
+        "price": 9.99,
+        "trackName": "Prepware Private Pilot Test",
+        "trackId": 334278376,
+        "releaseNotes": "This update includes expanded content aligned with the current FAA Airman Certification Standards (ACS), featuring additional scenario-based questions, CFII study material, and instrument proficiency check (IPC) guidance. The app has user interface improvements for compatibility with the latest iOS versions.",
+        "userRatingCount": 139
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "1135991142",
+      "app_name": "Prepware Remote Pilot UAS",
+      "developer_name": "ASA",
+      "app_store_url": "https://apps.apple.com/us/app/id1135991142",
+      "developer_website": "http://www.asa2fly.com",
+      "support_url": "",
+      "description": "Comprehensive preparation, study and test tool for the Remote Pilot Initial (Unmanned Aircraft General - Small) FAA Knowledge Exam. Questions, answers and explanations included, for you to study with a true-to-form practice test.\n\nOperating a drone for non-hobby operations requires a Remote Pilot Certificate. Applicants must successfully complete the Federal Aviation Administration (FAA) Knowledge Exam to earn the Remote Pilot Certificate with a Small Unmanned Aircraft Systems (sUAS) rating. This app is the key to test success.\n\nRely on the time-tested and dependable ASA Prepware apps to prepare for your FAA Knowledge Exam. Test material is expertly organized into chapters based on subject matter and includes instructional text and illustrations, multiple-choice questions, answer stems, correct answers, explanations (for correct and incorrect answers), and references for further study. This topical study promotes understanding and aids recall to provide an efficient study guide. \n\nSubjects covered include Regulations, National Airspace System, Weather, Loading and Performance, and Operations. This app will be particularly helpful for drone operators interested in earning a Remote Pilot certificate, Remote Pilot Aircraft (RPA) applicants, Unmanned Aircraft System (UAS) training programs preparing applicants for FAA Knowledge exams, self-study applicants interested in learning more about commercial unmanned aircraft operations, and existing (manned aircraft) pilots interested in learning more about drone and unmanned aircraft operations who are sharing the National Airspace System.\n\nASA\u2019s Prepware Remote Pilot app is the best resource for successful test-taking and safe small UAS operations.",
+      "category": "Education",
+      "release_date": "2016-07-21",
+      "last_update": "2026-10-21",
+      "rating_count": 103,
+      "review_count": null,
+      "average_rating": 4.19417,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "103 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "customerservice@asa2fly.com",
+          "email_type": "support",
+          "source_url": "https://asa2fly.com/contact-us/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "ASA",
+      "contact_page_url": "https://asa2fly.com/contact-us/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 3770 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/asa/id334278379?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/8c/d3/50/8cd3503a-405a-a59e-1044-85ff649cf9ce/AppIcon-Remote-0-0-1x_U007emarketing-0-8-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/8c/d3/50/8cd3503a-405a-a59e-1044-85ff649cf9ce/AppIcon-Remote-0-0-1x_U007emarketing-0-8-0-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/8c/d3/50/8cd3503a-405a-a59e-1044-85ff649cf9ce/AppIcon-Remote-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-10-21T19:02:09Z",
+        "genres": [
+          "Education",
+          "Reference"
+        ],
+        "artistId": 334278379,
+        "artistName": "ASA",
+        "minimumOsVersion": "15.0",
+        "bundleId": "com.asa2fly.Remote",
+        "releaseDate": "2016-07-21T00:11:19Z",
+        "genreIds": [
+          "6017",
+          "6006"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Aviation Supplies and Academics, Inc.",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.64",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Comprehensive preparation, study and test tool for the Remote Pilot Initial (Unmanned Aircraft General - Small) FAA Knowledge Exam. Questions, answers and explanations included, for you to study with a true-to-form practice test.\n\nOperating a drone for non-hobby operations requires a Remote Pilot Certificate. Applicants must successfully complete the Federal Aviation Administration (FAA) Knowledge Exam to earn the Remote Pilot Certificate with a Small Unmanned Aircraft Systems (sUAS) rating. This app is the key to test success.\n\nRely on the time-tested and dependable ASA Prepware apps to prepare for your FAA Knowledge Exam. Test material is expertly organized into chapters based on subject matter and includes instructional text and illustrations, multiple-choice questions, answer stems, correct answers, explanations (for correct and incorrect answers), and references for further study. This topical study promotes understanding and aids recall to provide an efficient study guide. \n\nSubjects covered include Regulations, National Airspace System, Weather, Loading and Performance, and Operations. This app will be particularly helpful for drone operators interested in earning a Remote Pilot certificate, Remote Pilot Aircraft (RPA) applicants, Unmanned Aircraft System (UAS) training programs preparing applicants for FAA Knowledge exams, self-study applicants interested in learning more about commercial unmanned aircraft operations, and existing (manned aircraft) pilots interested in learning more about drone and unmanned aircraft operations who are sharing the National Airspace System.\n\nASA\u2019s Prepware Remote Pilot app is the best resource for successful test-taking and safe small UAS operations.",
+        "averageUserRating": 4.19417,
+        "trackCensoredName": "Prepware Remote Pilot UAS",
+        "trackViewUrl": "https://apps.apple.com/us/app/prepware-remote-pilot-uas/id1135991142?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "http://www.asa2fly.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "19651584",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 103,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 4.19417,
+        "price": 4.99,
+        "trackName": "Prepware Remote Pilot UAS",
+        "trackId": 1135991142,
+        "releaseNotes": "Updated the user interface for improved display and compatibility with iOS 27 and iPadOS 27.",
+        "userRatingCount": 103
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "414141811",
+      "app_name": "Private Pilot Test Prep",
+      "developer_name": "Sporty's Pilot Shop",
+      "app_store_url": "https://apps.apple.com/us/app/id414141811",
+      "developer_website": "https://www.sportys.com/learn-to-fly-course-private-pilot-test-prep-online-app-and-tv.html",
+      "support_url": "",
+      "description": "Sporty's Study Buddy prepares you for the FAA Private Pilot knowledge test (the \"written\") with three ways to study: Study Questions, Flashcards and Practice Tests. Questions are organized by knowledge area, with explanations of the right and wrong answers developed by Sporty's team of Master CFIs, based on their experience preparing students for the Private Pilot certificate.\n\n\u2022 STUDY QUESTIONS BY TOPIC \u2022\n\nChoose whole knowledge areas or individual topics to build your own study session. As soon as you answer, you'll see the correct answer, why it's right, and where to read more. Change your answer anytime, bookmark questions as you go, and jump to any question from the question list. Every study session is shuffled.\n\n\u2022 REVIEW WITH FLASHCARDS \u2022\n\nFlashcards show just the question, so you answer from memory before revealing the correct answer and its explanation. Mark each card Know It or Still Learning, then start a new session from the cards you're still learning. On iPhone Duo, study a card with the phone open and close it to check the answer.\n\n\u2022 TAKE PRACTICE TESTS \u2022\n\nEach Practice Test draws 60 questions at random from the full question bank, gives you 2 hours, and is graded at the FAA's 70% passing score. Afterward, see your score by topic, review every question or only the ones you missed, and turn your misses into a new study session.\n\n\u2022 PICK UP WHERE YOU LEFT OFF \u2022\n\nSessions save as you go. The History tab lets you resume any session in progress and review past results, including your scores by topic.\n\n\u2022 EVERY FIGURE, OFFLINE \u2022\n\nThe Figures tab includes the complete FAA Airman Knowledge Testing Supplement, with every figure and legend listed by name and page. Swipe through the pages or open any one full screen. Questions show their figures right alongside, and you can study without a connection.\n\nDesigned for iPhone, iPhone Duo and iPad, with Dark Mode and support for larger text sizes.\n\nThe FAA does not publish its knowledge test questions, so the questions on your test won't necessarily appear in this app. Study Buddy is meant to complement your training, not to replace flight and ground instruction.",
+      "category": "Education",
+      "release_date": "2011-01-14",
+      "last_update": "2026-11-04",
+      "rating_count": 117,
+      "review_count": null,
+      "average_rating": 4.33333,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 14.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a person. 117 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "learntofly@sportys.com",
+          "email_type": "general",
+          "source_url": "https://www.sportys.com/learn-to-fly-course-private-pilot-test-prep-online-app-and-tv.html",
+          "evidence": "Public business address with no founder evidence."
+        },
+        {
+          "address": "support@sportys.com",
+          "email_type": "support",
+          "source_url": "https://www.sportys.com/learn-to-fly-course-private-pilot-test-prep-online-app-and-tv.html",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Sporty's Pilot Shop",
+      "contact_page_url": "https://www.sportys.com/learn-to-fly-course-private-pilot-test-prep-online-app-and-tv.html",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 2 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 5785 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/sportys-pilot-shop/id371817958?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/32/df/74/32df74b6-6a8a-fa3d-3a7b-b94c33575c4d/PrivateIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/32/df/74/32df74b6-6a8a-fa3d-3a7b-b94c33575c4d/PrivateIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/32/df/74/32df74b6-6a8a-fa3d-3a7b-b94c33575c4d/PrivateIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-11-04T15:06:28Z",
+        "genres": [
+          "Education",
+          "Reference"
+        ],
+        "artistId": 371817958,
+        "artistName": "Sporty's Pilot Shop",
+        "minimumOsVersion": "17.0",
+        "bundleId": "com.sportys.studybuddy",
+        "releaseDate": "2011-01-14T23:42:04Z",
+        "genreIds": [
+          "6017",
+          "6006"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Sporty's Pilot Shop",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "5.2",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Sporty's Study Buddy prepares you for the FAA Private Pilot knowledge test (the \"written\") with three ways to study: Study Questions, Flashcards and Practice Tests. Questions are organized by knowledge area, with explanations of the right and wrong answers developed by Sporty's team of Master CFIs, based on their experience preparing students for the Private Pilot certificate.\n\n\u2022 STUDY QUESTIONS BY TOPIC \u2022\n\nChoose whole knowledge areas or individual topics to build your own study session. As soon as you answer, you'll see the correct answer, why it's right, and where to read more. Change your answer anytime, bookmark questions as you go, and jump to any question from the question list. Every study session is shuffled.\n\n\u2022 REVIEW WITH FLASHCARDS \u2022\n\nFlashcards show just the question, so you answer from memory before revealing the correct answer and its explanation. Mark each card Know It or Still Learning, then start a new session from the cards you're still learning. On iPhone Duo, study a card with the phone open and close it to check the answer.\n\n\u2022 TAKE PRACTICE TESTS \u2022\n\nEach Practice Test draws 60 questions at random from the full question bank, gives you 2 hours, and is graded at the FAA's 70% passing score. Afterward, see your score by topic, review every question or only the ones you missed, and turn your misses into a new study session.\n\n\u2022 PICK UP WHERE YOU LEFT OFF \u2022\n\nSessions save as you go. The History tab lets you resume any session in progress and review past results, including your scores by topic.\n\n\u2022 EVERY FIGURE, OFFLINE \u2022\n\nThe Figures tab includes the complete FAA Airman Knowledge Testing Supplement, with every figure and legend listed by name and page. Swipe through the pages or open any one full screen. Questions show their figures right alongside, and you can study without a connection.\n\nDesigned for iPhone, iPhone Duo and iPad, with Dark Mode and support for larger text sizes.\n\nThe FAA does not publish its knowledge test questions, so the questions on your test won't necessarily appear in this app. Study Buddy is meant to complement your training, not to replace flight and ground instruction.",
+        "averageUserRating": 4.33333,
+        "trackCensoredName": "Private Pilot Test Prep",
+        "trackViewUrl": "https://apps.apple.com/us/app/private-pilot-test-prep/id414141811?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "https://www.sportys.com/learn-to-fly-course-private-pilot-test-prep-online-app-and-tv.html",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "65231872",
+        "formattedPrice": "$14.99",
+        "userRatingCountForCurrentVersion": 117,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 4.33333,
+        "price": 14.99,
+        "trackName": "Private Pilot Test Prep",
+        "trackId": 414141811,
+        "releaseNotes": "Fixes for the Figures tab on iPhone Duo:\n\n\u2022 Open like a book, the page count no longer slides under the page arrows, and the toolbar keeps the same layout from page to page.\n\u2022 Partly open, the figure now fits its half of the screen instead of running past the edges, and full screen keeps its Back button.\n\nPlus under-the-hood improvements.",
+        "userRatingCount": 117
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6762313225",
+      "app_name": "Dine Bizaad",
+      "developer_name": "Albert Haskie",
+      "app_store_url": "https://apps.apple.com/us/app/id6762313225",
+      "developer_website": "https://www.adoonee.com/dine-bizaad",
+      "support_url": "",
+      "description": "Unlock the beauty of the Navajo language with Din\u00e9 Bizaad.\nDin\u00e9 Bizaad is the ultimate learning tool, designed and built entirely by indigenous creators to preserve and share the authentic heart of the Navajo language. Whether you are a beginner or a fluent speaker, this app provides an unparalleled depth of resources to help you become more fluent. \nWhy Choose Din\u00e9 Bizaad?\nMassive Library: Access a database of over 30,000 words, making it the most extensive digital Navajo dictionary available.\nInteractive Learning: Test your knowledge with dynamic quizzes that track your progress and build confidence in your speaking and writing skills.\nInstant Conversions: Use our powerful engine for immediate English-to-Navajo and Navajo-to-English translations.\nAuthentically Made: Every word and feature is crafted by native speakers to ensure cultural accuracy and proper pronunciation.\nKey Features:\nComprehensive Search: Quickly find any word or phrase.\nVocabulary Lessons: Focused on daily life, community, and Din\u00e9 culture.\nStudy Modes: Flashcards and spelling challenges to reinforce learning.\nOffline Access: Learn anywhere, even without an internet connection.\nJoin the movement to keep our language and identity strong. Download Din\u00e9 Bizaad and start your journey today.",
+      "category": "Education",
+      "release_date": "2026-04-30",
+      "last_update": "2026-09-21",
+      "rating_count": 16,
+      "review_count": null,
+      "average_rating": 3.8125,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 24.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 16 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "nyzhonstudios@gmail.com",
+          "email_type": "general",
+          "source_url": "https://www.adoonee.com/dine-bizaad",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Albert Haskie",
+      "contact_page_url": "https://www.adoonee.com/dine-bizaad",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 67,
+      "score_points": 67,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/albert-haskie/id1697437861?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/69/8c/43/698c430f-15b3-93e1-b153-9958ea2a7f8c/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/69/8c/43/698c430f-15b3-93e1-b153-9958ea2a7f8c/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/69/8c/43/698c430f-15b3-93e1-b153-9958ea2a7f8c/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-09-21T22:42:52Z",
+        "genres": [
+          "Education",
+          "Reference"
+        ],
+        "artistId": 1697437861,
+        "artistName": "Albert Haskie",
+        "minimumOsVersion": "15.1",
+        "bundleId": "com.nyzhon172.DineBizaadApp",
+        "releaseDate": "2026-04-30T07:00:00Z",
+        "genreIds": [
+          "6017",
+          "6006"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Albert Haskie",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "Dine Bizaad - Audio",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Unlock the beauty of the Navajo language with Din\u00e9 Bizaad.\nDin\u00e9 Bizaad is the ultimate learning tool, designed and built entirely by indigenous creators to preserve and share the authentic heart of the Navajo language. Whether you are a beginner or a fluent speaker, this app provides an unparalleled depth of resources to help you become more fluent. \nWhy Choose Din\u00e9 Bizaad?\nMassive Library: Access a database of over 30,000 words, making it the most extensive digital Navajo dictionary available.\nInteractive Learning: Test your knowledge with dynamic quizzes that track your progress and build confidence in your speaking and writing skills.\nInstant Conversions: Use our powerful engine for immediate English-to-Navajo and Navajo-to-English translations.\nAuthentically Made: Every word and feature is crafted by native speakers to ensure cultural accuracy and proper pronunciation.\nKey Features:\nComprehensive Search: Quickly find any word or phrase.\nVocabulary Lessons: Focused on daily life, community, and Din\u00e9 culture.\nStudy Modes: Flashcards and spelling challenges to reinforce learning.\nOffline Access: Learn anywhere, even without an internet connection.\nJoin the movement to keep our language and identity strong. Download Din\u00e9 Bizaad and start your journey today.",
+        "averageUserRating": 3.8125,
+        "trackCensoredName": "Dine Bizaad",
+        "trackViewUrl": "https://apps.apple.com/us/app/dine-bizaad/id6762313225?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "https://www.adoonee.com/dine-bizaad",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "1045747712",
+        "formattedPrice": "$24.99",
+        "userRatingCountForCurrentVersion": 16,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 3.8125,
+        "price": 24.99,
+        "trackName": "Dine Bizaad",
+        "trackId": 6762313225,
+        "releaseNotes": "This update adds full audio support across the app:\n\nAudio has been added to both the Verb Dictionary and General Dictionary, covering over 20,000 recorded voice lines.\nThe Spelling mini-game now includes audio playback for each word.\nNew iOS widgets let users view their favorite words or the Word of the Day directly from the home screen.\niPad support has been added, including a redesigned UI optimized for larger screens, with widget support included.\nVarious fine-tuning and quality improvements to newly added audio.",
+        "userRatingCount": 16
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "463295925",
+      "app_name": "Official DVSA Theory Test Kit",
+      "developer_name": "TSO (The Stationery Office)",
+      "app_store_url": "https://apps.apple.com/us/app/id463295925",
+      "developer_website": "https://www.safedrivingforlife.info/",
+      "support_url": "",
+      "description": "Pass your Theory Test first time in 2026 using the ONLY OFFICIAL DVSA Theory Test Kit. Download now to join over 4+ million drivers who we\u2019ve helped pass! \n\nThe Driver and Vehicle Standards Agency (DVSA) are the people who set the tests and this app is by their official publisher, The Stationery Office (TSO). It\u2019s regularly updated to cover everything you need to know to pass your theory test and learn safe road skills!\n\nOur app is for CAR DRIVERS & MOTORCYCLE RIDERS in Great Britain and Northern Ireland.\n\nUse this app offline to practice anytime and anywhere. \n\nKEY HIGHLIGHTS\n\u2022 Choose between car or motorcycle revision questions and study materials\n\u2022 Over 770+  practice theory questions\n\u2022 Custom mock tests\n\u2022 36 interactive CGI hazard perception clips\n\u2022 Free access to The Highway Code\n\u2022 Visual media clips\n\u2022 Exclusive access to one of the 3 source materials for the theory test (additional purchase required)\n\u2022 Progress tracking\n\u2022 Advanced search tool\n\u2022 Voiceover features.\n\nAWARDS AND RECOGNITION\n\u2022 Produced by the official publishers of DVSA (TSO)\n\u2022 Over 4+ million downloads\n\u2022 Featured on Apple\u2019s Top Education Apps\n\u2022 Nominated for App of the Year (FirstCar).\n\nTEST YOURSELF\n\u2022 Take unlimited quick and timed mock tests. Build a custom practice set or take a timed mock test with 50 questions \u2013 just like the real thing. \n\u2022 Your progress will be visualised in graphs, so you can see how far you\u2019ve come and when you are ready to pass.\n\nSTUDY AND PRACTISE\n\u2022 Read the exclusive study content to increase your knowledge of all theory test topics and test your understanding by answering practice questions (including all official questions, over 770+).\n\u2022 You can also select specific question sets from areas you may be struggling with. Got a question wrong? See the correct answer, note the explanation and find out more with references to The Highway Code and other official DVSA guides! \n\u2022 Includes the complete study material from both The Official DVSA Theory Test for Car Drivers and The Official DVSA Theory Test for Motorcyclists.\n\nVIDEO CASE STUDIES\n\u2022 9 bonus case studies so that you can practise multiple choice questions about a short video clip. \n\nPROGRESS GAUGE\n\u2022 Backed by learning science, use the progress gauge to measure your test readiness, providing you with confidence that you\u2019re ready to pass your theory test. \n\nTHE HIGHWAY CODE\n\u2022 To support your study, we\u2019ve included a free copy of The Official Highway Code to revise from.\n\nEXCLUSIVE CONTENT\n\u2022 This is the only app to offer \u2018The Official DVSA Guide to Driving \u2013 the essential skills\u2019 and 'The Official DVSA Guide to Riding - the essential skills' one of the key source materials that the multiple choice questions in the theory test for car and motorcycle are based on. Study these to learn the rules and skills you\u2019ll be tested on (additional purchase required). \n\nSEARCH FEATURE\n\u2022 Do you want to learn about airbags, stopping distances, or yellow lines, or practise questions on road markings? Use our advanced search tool to find the content you need.\n\nENGLISH VOICEOVER\n\u2022 If you have reading difficulties (such as dyslexia), or prefer to learn by listening, use our voiceover feature within the test section to support you. \n\nUSEFUL LINKS AND SUPPLIER ZONE\n\u2022 Navigate through useful resources to support your learning, including the Safe Driving for Life website \u2013 a one-stop information resource featuring helpful blogs with lots of tips to help you pass. \n\u2022 Passed your test? Use our supplier zone to help you with the next steps in your driving/riding journey. \n\u2022 Ready to Pass? links to DVSA\u2019s official resources to help you understand what it takes to be ready for your driving/riding test. Give yourself the best possible chance of passing by learning vital skills, managing your nerves and taking mock tests. \n\nSUPPORT AND FEEDBACK\n\u2022 Contact our UK-based team at feedback@williamslea.com  or +44 (0)333 202 5070. We listen and respond to your feedback by updating the app and adding new features.",
+      "category": "Education",
+      "release_date": "2011-09-20",
+      "last_update": "2026-08-18",
+      "rating_count": 60,
+      "review_count": null,
+      "average_rating": 4.38333,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 5.99,
+      "has_iap": null,
+      "developer_type": "unknown",
+      "icp_reason": "Not enough evidence to choose an ICP.",
+      "emails": [
+        {
+          "address": "support@safedrivingforlife.info",
+          "email_type": "support",
+          "source_url": "https://www.safedrivingforlife.info/contact/",
+          "evidence": "The address uses a support mailbox name."
+        },
+        {
+          "address": "feedback@safedrivingforlife.info",
+          "email_type": "support",
+          "source_url": "https://www.safedrivingforlife.info/contact/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "TSO (The Stationery Office)",
+      "contact_page_url": "https://www.safedrivingforlife.info/contact/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 2 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 52,
+      "score_points": 42,
+      "score_known_max": 80,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "unknown",
+          "points": 0,
+          "max_points": 20,
+          "detail": "ICP could not be classified."
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 5536 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [
+        "ICP"
+      ],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/tso-the-stationery-office/id463289102?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/9b/66/a6/9b66a692-cb36-5250-b040-db5823b097e5/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/9b/66/a6/9b66a692-cb36-5250-b040-db5823b097e5/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/9b/66/a6/9b66a692-cb36-5250-b040-db5823b097e5/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-08-18T11:01:13Z",
+        "genres": [
+          "Education",
+          "Reference"
+        ],
+        "artistId": 463289102,
+        "artistName": "TSO (The Stationery Office)",
+        "minimumOsVersion": "15.0",
+        "bundleId": "com.tso.cartheorytestkit",
+        "releaseDate": "2011-09-20T10:03:39Z",
+        "genreIds": [
+          "6017",
+          "6006"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "The Stationery Office Limited",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "6.14.4",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Pass your Theory Test first time in 2026 using the ONLY OFFICIAL DVSA Theory Test Kit. Download now to join over 4+ million drivers who we\u2019ve helped pass! \n\nThe Driver and Vehicle Standards Agency (DVSA) are the people who set the tests and this app is by their official publisher, The Stationery Office (TSO). It\u2019s regularly updated to cover everything you need to know to pass your theory test and learn safe road skills!\n\nOur app is for CAR DRIVERS & MOTORCYCLE RIDERS in Great Britain and Northern Ireland.\n\nUse this app offline to practice anytime and anywhere. \n\nKEY HIGHLIGHTS\n\u2022 Choose between car or motorcycle revision questions and study materials\n\u2022 Over 770+  practice theory questions\n\u2022 Custom mock tests\n\u2022 36 interactive CGI hazard perception clips\n\u2022 Free access to The Highway Code\n\u2022 Visual media clips\n\u2022 Exclusive access to one of the 3 source materials for the theory test (additional purchase required)\n\u2022 Progress tracking\n\u2022 Advanced search tool\n\u2022 Voiceover features.\n\nAWARDS AND RECOGNITION\n\u2022 Produced by the official publishers of DVSA (TSO)\n\u2022 Over 4+ million downloads\n\u2022 Featured on Apple\u2019s Top Education Apps\n\u2022 Nominated for App of the Year (FirstCar).\n\nTEST YOURSELF\n\u2022 Take unlimited quick and timed mock tests. Build a custom practice set or take a timed mock test with 50 questions \u2013 just like the real thing. \n\u2022 Your progress will be visualised in graphs, so you can see how far you\u2019ve come and when you are ready to pass.\n\nSTUDY AND PRACTISE\n\u2022 Read the exclusive study content to increase your knowledge of all theory test topics and test your understanding by answering practice questions (including all official questions, over 770+).\n\u2022 You can also select specific question sets from areas you may be struggling with. Got a question wrong? See the correct answer, note the explanation and find out more with references to The Highway Code and other official DVSA guides! \n\u2022 Includes the complete study material from both The Official DVSA Theory Test for Car Drivers and The Official DVSA Theory Test for Motorcyclists.\n\nVIDEO CASE STUDIES\n\u2022 9 bonus case studies so that you can practise multiple choice questions about a short video clip. \n\nPROGRESS GAUGE\n\u2022 Backed by learning science, use the progress gauge to measure your test readiness, providing you with confidence that you\u2019re ready to pass your theory test. \n\nTHE HIGHWAY CODE\n\u2022 To support your study, we\u2019ve included a free copy of The Official Highway Code to revise from.\n\nEXCLUSIVE CONTENT\n\u2022 This is the only app to offer \u2018The Official DVSA Guide to Driving \u2013 the essential skills\u2019 and 'The Official DVSA Guide to Riding - the essential skills' one of the key source materials that the multiple choice questions in the theory test for car and motorcycle are based on. Study these to learn the rules and skills you\u2019ll be tested on (additional purchase required). \n\nSEARCH FEATURE\n\u2022 Do you want to learn about airbags, stopping distances, or yellow lines, or practise questions on road markings? Use our advanced search tool to find the content you need.\n\nENGLISH VOICEOVER\n\u2022 If you have reading difficulties (such as dyslexia), or prefer to learn by listening, use our voiceover feature within the test section to support you. \n\nUSEFUL LINKS AND SUPPLIER ZONE\n\u2022 Navigate through useful resources to support your learning, including the Safe Driving for Life website \u2013 a one-stop information resource featuring helpful blogs with lots of tips to help you pass. \n\u2022 Passed your test? Use our supplier zone to help you with the next steps in your driving/riding journey. \n\u2022 Ready to Pass? links to DVSA\u2019s official resources to help you understand what it takes to be ready for your driving/riding test. Give yourself the best possible chance of passing by learning vital skills, managing your nerves and taking mock tests. \n\nSUPPORT AND FEEDBACK\n\u2022 Contact our UK-based team at feedback@williamslea.com  or +44 (0)333 202 5070. We listen and respond to your feedback by updating the app and adding new features.",
+        "averageUserRating": 4.38333,
+        "trackCensoredName": "Official DVSA Theory Test Kit",
+        "trackViewUrl": "https://apps.apple.com/us/app/official-dvsa-theory-test-kit/id463295925?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "https://www.safedrivingforlife.info/",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "1237028864",
+        "formattedPrice": "$5.99",
+        "userRatingCountForCurrentVersion": 60,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 4.38333,
+        "price": 5.99,
+        "trackName": "Official DVSA Theory Test Kit",
+        "trackId": 463295925,
+        "releaseNotes": "LATEST UPDATES\n\u2022 New revision questions for car and motorcycle theory tests\n\u2022 Updated study content for cars and motorcycles\n\u2022 New visual media clips for motorcyclists",
+        "userRatingCount": 60
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "385104649",
+      "app_name": "Private Pilot Checkride",
+      "developer_name": "ASA",
+      "app_store_url": "https://apps.apple.com/us/app/id385104649",
+      "developer_website": "http://www.asa2fly.com",
+      "support_url": "",
+      "description": "Using a question-and-answer format, Private Pilot Checkride lists the questions most likely to be asked by examiners during the last step in the pilot certification process \u2013 the Practical Exam \u2013 and provides succinct, ready responses. Pilots will find this App an indispensable tool in both planning for what to expect during the airplane checkride and mastering the subject matter. Instructors rate them as excellent preparation for students, as well as preps for Flight Reviews, aircraft transitions, and as general refresher material.\n\n\nThis Private Pilot Checkride app is based on the popular Private Oral Exam Guide book by Jason Blair and aligns with the FAA Airman Certification Standards (ACS). It is designed for student pilots training for the Private Pilot Certificate with an airplane rating. More than 900 questions and responses ensure all the subjects a Private Pilot candidate will be tested on during a checkride and review flight are covered. Topics include: pilot qualifications and limitations, aircraft airworthiness requirements, preflight procedures, postflight procedures, human factors, performance and limitations, airport operations, national airspace system, weather information, cross-country flight planning, night operations, emergency equipment and survival gear, and scenario-based training. Answers and explanations were researched using FAA documents (which are identified so pilots know where to go for further study) as well as interviewing FAA examiners and include the corresponding ACS code. Questions can be marked for further study from any subject to build your own collection of flashcards. An Applicant Practical Test Checklist and quick-reference to the Private Pilot maneuvers and tolerances (as defined in the Airman Certification Standards) are also included.\n\nCompatible with iOS phones and tablets, this app teaches applicants not only what to expect, but also how to exhibit subject mastery and confidence when under the examiner\u2019s scrutiny. It identifies candidates\u2019 strengths, weaknesses, and gaps in their aeronautical knowledge, which increases study efficiency.\n\nApp features:\n\u2022 More than 800 questions are included with succinct, ready responses.\n\u2022 Questions from any subject can be flagged for further study into a separate group.\n\u2022 Includes all the questions and answers from the popular book, Private Pilot Oral Exam Guide by Jason Blair.\n\u2022 Answers supported with FAA references and ACS codes.\n\u2022 Brought to you by a trusted resource in aviation training and publishing, Aviation Supplies & Academics (ASA).",
+      "category": "Education",
+      "release_date": "2010-08-06",
+      "last_update": "2026-11-14",
+      "rating_count": 20,
+      "review_count": null,
+      "average_rating": 3.25,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 9.99,
+      "has_iap": null,
+      "developer_type": "unknown",
+      "icp_reason": "Not enough evidence to choose an ICP.",
+      "emails": [
+        {
+          "address": "customerservice@asa2fly.com",
+          "email_type": "support",
+          "source_url": "https://asa2fly.com/contact-us/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "ASA",
+      "contact_page_url": "https://asa2fly.com/contact-us/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 62,
+      "score_points": 50,
+      "score_known_max": 80,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "unknown",
+          "points": 0,
+          "max_points": 20,
+          "detail": "ICP could not be classified."
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 5946 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [
+        "ICP"
+      ],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/asa/id334278379?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/8a/5f/2b/8a5f2bac-1071-777b-378e-d5033e5af052/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/8a/5f/2b/8a5f2bac-1071-777b-378e-d5033e5af052/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/8a/5f/2b/8a5f2bac-1071-777b-378e-d5033e5af052/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-11-14T17:03:23Z",
+        "genres": [
+          "Education",
+          "Reference"
+        ],
+        "artistId": 334278379,
+        "artistName": "ASA",
+        "minimumOsVersion": "15.6",
+        "bundleId": "com.asa2fly.OEGPrivate",
+        "releaseDate": "2010-08-06T18:14:12Z",
+        "genreIds": [
+          "6017",
+          "6006"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Aviation Supplies and Academics, Inc.",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "4.4",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Using a question-and-answer format, Private Pilot Checkride lists the questions most likely to be asked by examiners during the last step in the pilot certification process \u2013 the Practical Exam \u2013 and provides succinct, ready responses. Pilots will find this App an indispensable tool in both planning for what to expect during the airplane checkride and mastering the subject matter. Instructors rate them as excellent preparation for students, as well as preps for Flight Reviews, aircraft transitions, and as general refresher material.\n\n\nThis Private Pilot Checkride app is based on the popular Private Oral Exam Guide book by Jason Blair and aligns with the FAA Airman Certification Standards (ACS). It is designed for student pilots training for the Private Pilot Certificate with an airplane rating. More than 900 questions and responses ensure all the subjects a Private Pilot candidate will be tested on during a checkride and review flight are covered. Topics include: pilot qualifications and limitations, aircraft airworthiness requirements, preflight procedures, postflight procedures, human factors, performance and limitations, airport operations, national airspace system, weather information, cross-country flight planning, night operations, emergency equipment and survival gear, and scenario-based training. Answers and explanations were researched using FAA documents (which are identified so pilots know where to go for further study) as well as interviewing FAA examiners and include the corresponding ACS code. Questions can be marked for further study from any subject to build your own collection of flashcards. An Applicant Practical Test Checklist and quick-reference to the Private Pilot maneuvers and tolerances (as defined in the Airman Certification Standards) are also included.\n\nCompatible with iOS phones and tablets, this app teaches applicants not only what to expect, but also how to exhibit subject mastery and confidence when under the examiner\u2019s scrutiny. It identifies candidates\u2019 strengths, weaknesses, and gaps in their aeronautical knowledge, which increases study efficiency.\n\nApp features:\n\u2022 More than 800 questions are included with succinct, ready responses.\n\u2022 Questions from any subject can be flagged for further study into a separate group.\n\u2022 Includes all the questions and answers from the popular book, Private Pilot Oral Exam Guide by Jason Blair.\n\u2022 Answers supported with FAA references and ACS codes.\n\u2022 Brought to you by a trusted resource in aviation training and publishing, Aviation Supplies & Academics (ASA).",
+        "averageUserRating": 3.25,
+        "trackCensoredName": "Private Pilot Checkride",
+        "trackViewUrl": "https://apps.apple.com/us/app/private-pilot-checkride/id385104649?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "http://www.asa2fly.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "12998656",
+        "formattedPrice": "$9.99",
+        "userRatingCountForCurrentVersion": 20,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 3.25,
+        "price": 9.99,
+        "trackName": "Private Pilot Checkride",
+        "trackId": 385104649,
+        "releaseNotes": "Updates for the latest iOS versions.",
+        "userRatingCount": 20
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "453126527",
+      "app_name": "Flashnote Derby",
+      "developer_name": "Luke Bartolomeo",
+      "app_store_url": "https://apps.apple.com/us/app/id453126527",
+      "developer_website": "https://flashnotederby.com",
+      "support_url": "",
+      "description": "Flashnote Derby is a fun, effective way for kids to learn to read music through fast-paced note flashcard games.\nPerfect for piano, guitar, band, orchestra, and general music students, this teacher-created app turns note recognition into an engaging game that works equally well at home or in music lessons.\n\n\u2014\u2014\u2014\u2014\n\nLearn to Read Music \u2014 Fast\n\nEach race is a fast-paced challenge: identify notes correctly as you learn to read music faster and speed your horse toward the finish line. Missed or slow answers allow the other horse to catch up.\nAfter each round, students can review the notes they missed\u2014 turning every race into a meaningful learning opportunity.\n\n\u2014\u2014\u2014\u2014\n\nNew! Practice Mode (No Timer, No Stress)\n\nStudents can now choose a relaxed 'practice mode' with unlimited time for each note.\nPerfect for beginners, this mode builds accuracy and confidence before racing competitively.\n\n\u2014\u2014\u2014\u2014\n\nMultiple Ways to Answer\n\nPlayers can answer flashcards in a variety of ways:\n\u2022 Play the note on any instrument. Flashnote Derby listens and recognizes what you play (including transposing instruments).\n\u2022 Use a MIDI instrument\n\u2022 Tap on-screen letter names\n\u2022 Or play notes on the on-screen piano keyboard\n\n\u2014\u2014\u2014\u2014\n\nFully Customizable for Any Student\n\nTailor each drill to match your student\u2019s level:\n\u2022 Treble, bass, alto, or tenor clef\n\u2022 Select specific note ranges or individual notes\n\u2022 Add sharps, flats, or full key signatures\n\u2022 Adjust time limits (or remove them entirely in Practice Mode)\n\u2022 Expand difficulty all the way up to five-and-a-half ledger lines above and below the staff.\n\nAs skills grow, you can increase the challenge. Higher difficulty earns higher scores\u2014keeping students motivated.\n\n\u2014\u2014\u2014\u2014\n\nMultiple themes keep practice fresh\n\nIn addition to the classic horse race, students can take flight with the whimsical Pretty Pegasus course, blast through an arcade-style space challenge in Ecliptic Encounter, or switch to the seasonal Reindeer Race during the holidays.\n\n\u2014\u2014\u2014\u2014\n\nBuilt for Teachers, Loved by Students\n\nFlashnote Derby is designed to fit easily into lessons:\n\u2022 Quick to set up and perfect for a 1\u20132 minute warm-up\n\u2022 Send homework assignments directly to students\n\u2022 Track progress automatically\n\u2022 See which notes need more review\n\nTeachers see real improvement. Students stay engaged. Parents appreciate the progress.\n\n\u2014\u2014\u2014\u2014\n\nWhy Flashnote Derby Works\n\nMany students struggle because drilling note names feels boring and difficult. Flashnote Derby turns this essential skill into a game\u2014one they\u2019ll want to keep playing.\nA little daily practice adds up quickly, and students learn to read music with confidence.\n\n\u2014\u2014\u2014\u2014\n\nGet on the road to confident music reading today!\n\nDownload Flashnote Derby and help your young musician master notes with joy\u2014not frustration.",
+      "category": "Education",
+      "release_date": "2011-08-04",
+      "last_update": "2026-06-07",
+      "rating_count": 160,
+      "review_count": null,
+      "average_rating": 4.03749,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a person. 160 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@flashnotederby.com",
+          "email_type": "support",
+          "source_url": "https://flashnotederby.com/support/",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Luke Bartolomeo",
+      "contact_page_url": "https://flashnotederby.com/support/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 60,
+      "score_points": 60,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 20,
+          "detail": "Updated within 180 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 5583 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/luke-bartolomeo/id453126530?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/a1/48/a8/a148a89d-48a1-53b4-d67e-229d744d67aa/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/a1/48/a8/a148a89d-48a1-53b4-d67e-229d744d67aa/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/a1/48/a8/a148a89d-48a1-53b4-d67e-229d744d67aa/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-06-07T16:09:53Z",
+        "genres": [
+          "Education",
+          "Music"
+        ],
+        "artistId": 453126530,
+        "artistName": "Luke Bartolomeo",
+        "minimumOsVersion": "16.6",
+        "bundleId": "com.lukedbartolomeo.flashnotederby",
+        "releaseDate": "2011-08-04T00:17:16Z",
+        "genreIds": [
+          "6017",
+          "6011"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Luke Bartolomeo",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "4.0.6",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Flashnote Derby is a fun, effective way for kids to learn to read music through fast-paced note flashcard games.\nPerfect for piano, guitar, band, orchestra, and general music students, this teacher-created app turns note recognition into an engaging game that works equally well at home or in music lessons.\n\n\u2014\u2014\u2014\u2014\n\nLearn to Read Music \u2014 Fast\n\nEach race is a fast-paced challenge: identify notes correctly as you learn to read music faster and speed your horse toward the finish line. Missed or slow answers allow the other horse to catch up.\nAfter each round, students can review the notes they missed\u2014 turning every race into a meaningful learning opportunity.\n\n\u2014\u2014\u2014\u2014\n\nNew! Practice Mode (No Timer, No Stress)\n\nStudents can now choose a relaxed 'practice mode' with unlimited time for each note.\nPerfect for beginners, this mode builds accuracy and confidence before racing competitively.\n\n\u2014\u2014\u2014\u2014\n\nMultiple Ways to Answer\n\nPlayers can answer flashcards in a variety of ways:\n\u2022 Play the note on any instrument. Flashnote Derby listens and recognizes what you play (including transposing instruments).\n\u2022 Use a MIDI instrument\n\u2022 Tap on-screen letter names\n\u2022 Or play notes on the on-screen piano keyboard\n\n\u2014\u2014\u2014\u2014\n\nFully Customizable for Any Student\n\nTailor each drill to match your student\u2019s level:\n\u2022 Treble, bass, alto, or tenor clef\n\u2022 Select specific note ranges or individual notes\n\u2022 Add sharps, flats, or full key signatures\n\u2022 Adjust time limits (or remove them entirely in Practice Mode)\n\u2022 Expand difficulty all the way up to five-and-a-half ledger lines above and below the staff.\n\nAs skills grow, you can increase the challenge. Higher difficulty earns higher scores\u2014keeping students motivated.\n\n\u2014\u2014\u2014\u2014\n\nMultiple themes keep practice fresh\n\nIn addition to the classic horse race, students can take flight with the whimsical Pretty Pegasus course, blast through an arcade-style space challenge in Ecliptic Encounter, or switch to the seasonal Reindeer Race during the holidays.\n\n\u2014\u2014\u2014\u2014\n\nBuilt for Teachers, Loved by Students\n\nFlashnote Derby is designed to fit easily into lessons:\n\u2022 Quick to set up and perfect for a 1\u20132 minute warm-up\n\u2022 Send homework assignments directly to students\n\u2022 Track progress automatically\n\u2022 See which notes need more review\n\nTeachers see real improvement. Students stay engaged. Parents appreciate the progress.\n\n\u2014\u2014\u2014\u2014\n\nWhy Flashnote Derby Works\n\nMany students struggle because drilling note names feels boring and difficult. Flashnote Derby turns this essential skill into a game\u2014one they\u2019ll want to keep playing.\nA little daily practice adds up quickly, and students learn to read music with confidence.\n\n\u2014\u2014\u2014\u2014\n\nGet on the road to confident music reading today!\n\nDownload Flashnote Derby and help your young musician master notes with joy\u2014not frustration.",
+        "averageUserRating": 4.03749,
+        "trackCensoredName": "Flashnote Derby",
+        "trackViewUrl": "https://apps.apple.com/us/app/flashnote-derby/id453126527?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "https://flashnotederby.com",
+        "languageCodesISO2A": [
+          "EN",
+          "DE",
+          "IT",
+          "JA",
+          "RU",
+          "ZH",
+          "ES",
+          "ZH"
+        ],
+        "fileSizeBytes": "115782656",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 160,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 4.03749,
+        "price": 4.99,
+        "trackName": "Flashnote Derby",
+        "trackId": 453126527,
+        "releaseNotes": "Tournaments can again be created on iPhones.\nPreset drills will be sent in the correct language.",
+        "userRatingCount": 160
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "961205469",
+      "app_name": "Learning To Deal Roulette",
+      "developer_name": "Hatch Software Solutions LLC",
+      "app_store_url": "https://apps.apple.com/us/app/id961205469",
+      "developer_website": "http://www.learningtodeal.com",
+      "support_url": "",
+      "description": "The quickest and most convenient way for Casino Table Game Dealers to practice Roulette Payouts, Picture Bets, and Times Tables in a fun and interactive way!\n\nCreated for dealers by a dealer:\n\n!!! Warning !!! This is not a roulette game. This app is strictly for educational and training purposes for those who are looking to become a better Roulette dealer in a casino.\n\nFeatures:\n\n\u221a Practice your times tables: 35, 17, 11, 8 and 5\n\u221a 16 of the most common picture bets\n\u221a Beginner Level allows you to build off the foundation of all payouts.\n\u221a Intermediate, Advanced, and Master Levels\n\u221a Over Hundreds of thousands of randomly generated possible bets.\n\u221a Different payouts every time you use it\n\u221a Get Quicker and More Accurate\n\u221a Real Chip Colors\n\u221a Roulette Calculator allows you to double-check your work when practicing on a wheel or for supervisors who want to double-check a payout. \n\nNothing can replace time at a casino dealer school or time behind a roulette table, but when you want to practice on your own time, this app will aid you in becoming the best dealer you can be. \n\nI am always looking to improve the app with more dealer feedback through our social media and website.",
+      "category": "Education",
+      "release_date": "2015-02-04",
+      "last_update": "2026-11-03",
+      "rating_count": 36,
+      "review_count": null,
+      "average_rating": 3.97222,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Legal suffix on a brand name. 36 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "info@learningtodeal.com",
+          "email_type": "general",
+          "source_url": "https://learningtodeal.com/",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "Hatch Software Solutions LLC",
+      "contact_page_url": "https://learningtodeal.com/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 60,
+      "score_points": 60,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 30,
+          "detail": "Under 100 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 4303 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [
+          "Frequent/Intense Simulated Gambling"
+        ],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/hatch-software-solutions-llc/id927192728?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0b/dc/77/0bdc774b-6052-bd1e-1d59-90be8097cbc0/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0b/dc/77/0bdc774b-6052-bd1e-1d59-90be8097cbc0/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0b/dc/77/0bdc774b-6052-bd1e-1d59-90be8097cbc0/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-11-03T03:08:38Z",
+        "genres": [
+          "Education",
+          "Games",
+          "Casino"
+        ],
+        "artistId": 927192728,
+        "artistName": "Hatch Software Solutions LLC",
+        "minimumOsVersion": "18.0",
+        "bundleId": "self.edu.allen.LTD-Roulette",
+        "releaseDate": "2015-02-04T08:05:00Z",
+        "genreIds": [
+          "6017",
+          "6014",
+          "7006"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Hatch Software Solutions LLC",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "2.0.0 Updated Layouts and Helper Answers",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "The quickest and most convenient way for Casino Table Game Dealers to practice Roulette Payouts, Picture Bets, and Times Tables in a fun and interactive way!\n\nCreated for dealers by a dealer:\n\n!!! Warning !!! This is not a roulette game. This app is strictly for educational and training purposes for those who are looking to become a better Roulette dealer in a casino.\n\nFeatures:\n\n\u221a Practice your times tables: 35, 17, 11, 8 and 5\n\u221a 16 of the most common picture bets\n\u221a Beginner Level allows you to build off the foundation of all payouts.\n\u221a Intermediate, Advanced, and Master Levels\n\u221a Over Hundreds of thousands of randomly generated possible bets.\n\u221a Different payouts every time you use it\n\u221a Get Quicker and More Accurate\n\u221a Real Chip Colors\n\u221a Roulette Calculator allows you to double-check your work when practicing on a wheel or for supervisors who want to double-check a payout. \n\nNothing can replace time at a casino dealer school or time behind a roulette table, but when you want to practice on your own time, this app will aid you in becoming the best dealer you can be. \n\nI am always looking to improve the app with more dealer feedback through our social media and website.",
+        "averageUserRating": 3.97222,
+        "trackCensoredName": "Learning To Deal Roulette",
+        "trackViewUrl": "https://apps.apple.com/us/app/learning-to-deal-roulette/id961205469?uo=4",
+        "contentAdvisoryRating": "17+",
+        "sellerUrl": "http://www.learningtodeal.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "7529472",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 36,
+        "trackContentRating": "17+",
+        "averageUserRatingForCurrentVersion": 3.97222,
+        "price": 4.99,
+        "trackName": "Learning To Deal Roulette",
+        "trackId": 961205469,
+        "releaseNotes": "- Iphone Duo Compatible\n- Now with instructional aids when you miss 3 in a row\n- App is back to Native iOS with familiar UI controls",
+        "userRatingCount": 36
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "931936670",
+      "app_name": "Nighty Night Circus",
+      "developer_name": "Fox and Sheep GmbH",
+      "app_store_url": "https://apps.apple.com/us/app/id931936670",
+      "developer_website": "https://www.foxandsheep.com/",
+      "support_url": "",
+      "description": "\u201cNighty Night Circus\u201c is the sequel to the most popular bedtime app of all time, Apple App of the Year 2012, \u201cNighty Night!\u201c More than 3 million parents bring their children to bed with \u201cNighty Night\u201c.\n\n\"Nighty Night Circus\" has a magical setting and a very special bedtime-atmosphere full of animations and color.\n\nChildren find themselves in a circus setting with 10 circus animals. Seven are included in the app, while Monkey, Pig and Fish are available through an in-app purchase. Children bring the animals to bed by switching off the lights or blowing out candles.\n\nEach circus animal performs several tricks and wants to show them off to the child before going to sleep. \u201cNighty Night Circus\u201c is the perfect App for a daily go-to-sleep ritual with cute animals, sweet lullaby music and great narration.\n\n\u201cNighty Night Circus\u201d is brought to you by Oscar-nominated artist Heidi Wittlinger, who puts a lot of passion and effort into constructing little sets made of paper and props and combining them with 2D illustration and animation.\n\nHighlights:\n\u2022 Stunning designs and animations by Oscar nominated artist Heidi Wittlinger\n\u2022 Great illustrations and animations\n\u2022 10 interactive animals \u2014 7 included, with 3 more available through an in-app purchase: Lion, Elephant, Seal, Fleas, Rabbit, Snake, Bear, Monkey, Pig and Fish\n\u2022 Autoplay-mode\n\u2022 16 languages with narration: English (UK and US), German, Swiss German, Spanish, French, Dutch, Swedish, Italian, Norwegian, Brazilian Portuguese, Russian, Turkish, Chinese, Japanese and Korean.\n\nPlease also check out our other great Apps for kids:\n\n\u201ePETTING ZOO\u201c - is a fantastic storybook app for the iPad and iPhone. It features beautiful, fun, interactive animations of over 20 animals, and it\u2019s bound to be a big favorite for kids and animal lovers of all ages.\n\n\u201eNIGHTY NIGHT\u201c - is the perfect App for a daily go-to-sleep ritual with lovely animals, sweet music and great narration.\n\n\u201eLITTLE FOX MUSIC BOX\u201c \u2013 is a sing-along songbook with more than 100 interactive elements in 3 songs and the little fox music studio where you can record your own songs.\n\nIf you experience any trouble with the App or have any questions or comments, please don't hesitate to contact us any time: contact@foxandsheep.com. We\u00b4d love to help you out. Please also mention your device model and iOS version.\nPlease also visit our website www.foxandsheep.com for more information and support.\n\nAbout Fox & Sheep:\nWe are a Studio in Berlin and develop high quality apps for kids at the age of 2-8 years. We are parents ourselves and work passionately and with a lot of commitment on our products. We work with the best illustrators and animators around the world to create and present the best apps possible \u2013 to enrich the lives of our and your kids.",
+      "category": "Education",
+      "release_date": "2014-11-06",
+      "last_update": "2026-09-08",
+      "rating_count": 112,
+      "review_count": null,
+      "average_rating": 4.33929,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 3.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Legal suffix on a person's name. 112 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "contact@foxandsheep.com",
+          "email_type": "general",
+          "source_url": "https://foxandsheep.com/",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "Fox and Sheep GmbH",
+      "contact_page_url": "https://foxandsheep.com/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Education",
+      "filter_reason": "",
+      "score_normalized": 67,
+      "score_points": 67,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 4393 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "isGameCenterEnabled": false,
+        "kind": "software",
+        "artistViewUrl": "https://apps.apple.com/us/developer/fox-and-sheep-gmbh/id666759463?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/48/fb/71/48fb719e-cb41-a896-087c-c6d15bb123f6/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/48/fb/71/48fb719e-cb41-a896-087c-c6d15bb123f6/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/48/fb/71/48fb719e-cb41-a896-087c-c6d15bb123f6/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "currentVersionReleaseDate": "2026-09-08T08:36:17Z",
+        "genres": [
+          "Education",
+          "Books"
+        ],
+        "artistId": 666759463,
+        "artistName": "Fox and Sheep GmbH",
+        "minimumOsVersion": "15.0",
+        "bundleId": "com.mobileventures.NightyNightCircus",
+        "releaseDate": "2014-11-06T01:08:54Z",
+        "genreIds": [
+          "6017",
+          "6018"
+        ],
+        "primaryGenreName": "Education",
+        "primaryGenreId": 6017,
+        "sellerName": "Fox and Sheep GmbH",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "4.9",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "\u201cNighty Night Circus\u201c is the sequel to the most popular bedtime app of all time, Apple App of the Year 2012, \u201cNighty Night!\u201c More than 3 million parents bring their children to bed with \u201cNighty Night\u201c.\n\n\"Nighty Night Circus\" has a magical setting and a very special bedtime-atmosphere full of animations and color.\n\nChildren find themselves in a circus setting with 10 circus animals. Seven are included in the app, while Monkey, Pig and Fish are available through an in-app purchase. Children bring the animals to bed by switching off the lights or blowing out candles.\n\nEach circus animal performs several tricks and wants to show them off to the child before going to sleep. \u201cNighty Night Circus\u201c is the perfect App for a daily go-to-sleep ritual with cute animals, sweet lullaby music and great narration.\n\n\u201cNighty Night Circus\u201d is brought to you by Oscar-nominated artist Heidi Wittlinger, who puts a lot of passion and effort into constructing little sets made of paper and props and combining them with 2D illustration and animation.\n\nHighlights:\n\u2022 Stunning designs and animations by Oscar nominated artist Heidi Wittlinger\n\u2022 Great illustrations and animations\n\u2022 10 interactive animals \u2014 7 included, with 3 more available through an in-app purchase: Lion, Elephant, Seal, Fleas, Rabbit, Snake, Bear, Monkey, Pig and Fish\n\u2022 Autoplay-mode\n\u2022 16 languages with narration: English (UK and US), German, Swiss German, Spanish, French, Dutch, Swedish, Italian, Norwegian, Brazilian Portuguese, Russian, Turkish, Chinese, Japanese and Korean.\n\nPlease also check out our other great Apps for kids:\n\n\u201ePETTING ZOO\u201c - is a fantastic storybook app for the iPad and iPhone. It features beautiful, fun, interactive animations of over 20 animals, and it\u2019s bound to be a big favorite for kids and animal lovers of all ages.\n\n\u201eNIGHTY NIGHT\u201c - is the perfect App for a daily go-to-sleep ritual with lovely animals, sweet music and great narration.\n\n\u201eLITTLE FOX MUSIC BOX\u201c \u2013 is a sing-along songbook with more than 100 interactive elements in 3 songs and the little fox music studio where you can record your own songs.\n\nIf you experience any trouble with the App or have any questions or comments, please don't hesitate to contact us any time: contact@foxandsheep.com. We\u00b4d love to help you out. Please also mention your device model and iOS version.\nPlease also visit our website www.foxandsheep.com for more information and support.\n\nAbout Fox & Sheep:\nWe are a Studio in Berlin and develop high quality apps for kids at the age of 2-8 years. We are parents ourselves and work passionately and with a lot of commitment on our products. We work with the best illustrators and animators around the world to create and present the best apps possible \u2013 to enrich the lives of our and your kids.",
+        "averageUserRating": 4.33929,
+        "trackCensoredName": "Nighty Night Circus",
+        "trackViewUrl": "https://apps.apple.com/us/app/nighty-night-circus/id931936670?uo=4",
+        "contentAdvisoryRating": "4+",
+        "sellerUrl": "https://www.foxandsheep.com/",
+        "languageCodesISO2A": [
+          "NL",
+          "EN",
+          "FR",
+          "DE",
+          "IT",
+          "JA",
+          "KO",
+          "PT",
+          "RU",
+          "ZH",
+          "ES",
+          "SV",
+          "TH",
+          "TR"
+        ],
+        "fileSizeBytes": "283084800",
+        "formattedPrice": "$3.99",
+        "userRatingCountForCurrentVersion": 112,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 4.33929,
+        "price": 3.99,
+        "trackName": "Nighty Night Circus",
+        "trackId": 931936670,
+        "releaseNotes": "We have fixed some bugs and optimized the App. Enjoy!",
+        "userRatingCount": 112
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6766321194",
+      "app_name": "ECHOCAT - Ham Radio Remote",
+      "developer_name": "Aspen Ventures, LLC",
+      "app_store_url": "https://apps.apple.com/us/app/id6766321194",
+      "developer_website": "https://potacat.com",
+      "support_url": "",
+      "description": "ECHOCAT is the iPhone and iPad companion for POTACAT, the desktop app for amateur radio operators chasing Parks on the Air (POTA), Summits on the Air (SOTA), Worldwide Bunkers on the Air (WWBOTA), Tiles on the Air and DX. \n\nConnect your iPad or iPhone to your shack computer from anywhere in the world. POTACAT Cloud Tunnel (optional subscription) handles the remote connection with no router config, no port forwarding, and no VPN setup \u2014 it\u2019s the easiest path. If you prefer to bring your own networking, ECHOCAT also works over Tailscale, WireGuard, or 44NetConnect. On your local network, ECHOCAT works out of the box for free. From any of these paths you have comprehensive remote control of your shack, allowing you to work all your favorite modes.\n\nRemote SSB, CW, FT8 and SSTV! Imagine you're stuck in that long line at the supermarket and you get a notification your buddy is on a summit. Just open up ECHOCAT, QSY to their frequency and call them on single side band with the Push to Talk button. Or send a CW Macro. Or connect your TinyMIDI from N6ARA and send them your fist. Snap a photo and mock up a quick SSTV and bounce it off the ionosphere. Or my most used mode - chase rare DX on FT8 (and FT4 and FT2) when you wake up in the middle of the night for a quick run to the powder room. It's really that easy -- then log it all with one click. Slick!\n\nSelect the entities you want to chase (POTA, SOTA, DX Clusters, WWFF, LLOTA, Tiles on the Air) and the region you want to see (North America, South America, Europe, etc), and enjoy two views: \n\nSPOTS View - See all the spots in a nice, large view showcasing the operator's callsign, name, distance from your QTH, mode and park/summit\n\nMAP View - See a beautiful map with pins at all the activating spots. Click a spot to see their callsign, 1-click tune to them by pressing \"QSY\" and work the contact on SSB or CW. \n\nDIRECTORY view shows a list of current and upcoming HF nets, as well as Short Wave Listening (SWL) stations. Now you can tune into a net on a long drive and chat with your buddies, or catch the latest from Voice of Turkey.\n\nBy utilizing the SDR connection, you can connect ECHOCAT to your favorite KiwiSDR or WebSDR so you can listen to spots and nets even when your shack rig is unavailable. \n\nPOTACAT CLOUD (OPTIONAL SUBSCRIPTION)\n\nSubscribe to POTACAT Cloud to back up your logbook and sync QSOs between your phone and every desktop you operate from. Built for activators in the field, contesters with portable stations, and anyone with more than one shack.\n\n+ POTACAT Cloud Tunnel \u2014 remote rig control from anywhere on the internet, no VPN required\n+ Guest Pass \u2014 issue a time-limited, owner-revocable code that lets another licensed operator drive your station for a contest, a club session, or remote help. Server-enforced TX power and band limits\n+ Cross-device QSO sync \u2014 log on mobile when your desktop is offline, watch it appear when you get home\n+ Cloud backup with full ADIF export\n+ Settings sync between devices\n+ Multiple computers, one canonical log\n+ Widgets to embed on QRZ that show your latest activation, total QSOs and more\n\n73s,\n\nK3SBP\n\nSubscriptions: POTACAT Cloud is an auto-renewable subscription. Monthly and annual plans are available; pricing is shown at purchase. Subscription auto-renews unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple ID at purchase confirmation. Manage your subscription in your Apple ID account settings. Free trial converts to a paid subscription unless cancelled at least 24 hours before the trial ends.\n\nTerms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPrivacy Policy: https://api.potacat.com/privacy-terms.html\nSupport: https://api.potacat.com/support",
+      "category": "Utilities",
+      "release_date": "2026-06-08",
+      "last_update": "2026-10-01",
+      "rating_count": 29,
+      "review_count": null,
+      "average_rating": 4.96552,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 9.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Legal suffix on a person's name. 29 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@potacat.com",
+          "email_type": "support",
+          "source_url": "https://potacat.com/support",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Aspen Ventures, LLC",
+      "contact_page_url": "https://potacat.com/support",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 77,
+      "score_points": 77,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/aspen-ventures-llc/id1479334231?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/96/cc/19/96cc1927-ebcf-8cd4-66e1-11968ab180db/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/96/cc/19/96cc1927-ebcf-8cd4-66e1-11968ab180db/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/96/cc/19/96cc1927-ebcf-8cd4-66e1-11968ab180db/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [
+          "Unrestricted Web Access"
+        ],
+        "kind": "software",
+        "trackCensoredName": "ECHOCAT - Ham Radio Remote",
+        "trackViewUrl": "https://apps.apple.com/us/app/echocat-ham-radio-remote/id6766321194?uo=4",
+        "contentAdvisoryRating": "17+",
+        "averageUserRating": 4.96552,
+        "releaseNotes": "Major SSTV and CW paddle improvements. Make sure your POTACAT install is 1.11 or newer.",
+        "sellerUrl": "https://potacat.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "53720064",
+        "formattedPrice": "$9.99",
+        "userRatingCountForCurrentVersion": 29,
+        "trackContentRating": "17+",
+        "artistId": 1479334231,
+        "artistName": "Aspen Ventures, LLC",
+        "genres": [
+          "Utilities",
+          "Reference"
+        ],
+        "price": 9.99,
+        "averageUserRatingForCurrentVersion": 4.96552,
+        "bundleId": "co.cmox.echocat",
+        "trackId": 6766321194,
+        "trackName": "ECHOCAT - Ham Radio Remote",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "sellerName": "Aspen Ventures, LLC",
+        "minimumOsVersion": "15.1",
+        "genreIds": [
+          "6002",
+          "6006"
+        ],
+        "releaseDate": "2026-06-08T07:00:00Z",
+        "currentVersionReleaseDate": "2026-10-01T20:13:39Z",
+        "version": "1.5.2",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "ECHOCAT is the iPhone and iPad companion for POTACAT, the desktop app for amateur radio operators chasing Parks on the Air (POTA), Summits on the Air (SOTA), Worldwide Bunkers on the Air (WWBOTA), Tiles on the Air and DX. \n\nConnect your iPad or iPhone to your shack computer from anywhere in the world. POTACAT Cloud Tunnel (optional subscription) handles the remote connection with no router config, no port forwarding, and no VPN setup \u2014 it\u2019s the easiest path. If you prefer to bring your own networking, ECHOCAT also works over Tailscale, WireGuard, or 44NetConnect. On your local network, ECHOCAT works out of the box for free. From any of these paths you have comprehensive remote control of your shack, allowing you to work all your favorite modes.\n\nRemote SSB, CW, FT8 and SSTV! Imagine you're stuck in that long line at the supermarket and you get a notification your buddy is on a summit. Just open up ECHOCAT, QSY to their frequency and call them on single side band with the Push to Talk button. Or send a CW Macro. Or connect your TinyMIDI from N6ARA and send them your fist. Snap a photo and mock up a quick SSTV and bounce it off the ionosphere. Or my most used mode - chase rare DX on FT8 (and FT4 and FT2) when you wake up in the middle of the night for a quick run to the powder room. It's really that easy -- then log it all with one click. Slick!\n\nSelect the entities you want to chase (POTA, SOTA, DX Clusters, WWFF, LLOTA, Tiles on the Air) and the region you want to see (North America, South America, Europe, etc), and enjoy two views: \n\nSPOTS View - See all the spots in a nice, large view showcasing the operator's callsign, name, distance from your QTH, mode and park/summit\n\nMAP View - See a beautiful map with pins at all the activating spots. Click a spot to see their callsign, 1-click tune to them by pressing \"QSY\" and work the contact on SSB or CW. \n\nDIRECTORY view shows a list of current and upcoming HF nets, as well as Short Wave Listening (SWL) stations. Now you can tune into a net on a long drive and chat with your buddies, or catch the latest from Voice of Turkey.\n\nBy utilizing the SDR connection, you can connect ECHOCAT to your favorite KiwiSDR or WebSDR so you can listen to spots and nets even when your shack rig is unavailable. \n\nPOTACAT CLOUD (OPTIONAL SUBSCRIPTION)\n\nSubscribe to POTACAT Cloud to back up your logbook and sync QSOs between your phone and every desktop you operate from. Built for activators in the field, contesters with portable stations, and anyone with more than one shack.\n\n+ POTACAT Cloud Tunnel \u2014 remote rig control from anywhere on the internet, no VPN required\n+ Guest Pass \u2014 issue a time-limited, owner-revocable code that lets another licensed operator drive your station for a contest, a club session, or remote help. Server-enforced TX power and band limits\n+ Cross-device QSO sync \u2014 log on mobile when your desktop is offline, watch it appear when you get home\n+ Cloud backup with full ADIF export\n+ Settings sync between devices\n+ Multiple computers, one canonical log\n+ Widgets to embed on QRZ that show your latest activation, total QSOs and more\n\n73s,\n\nK3SBP\n\nSubscriptions: POTACAT Cloud is an auto-renewable subscription. Monthly and annual plans are available; pricing is shown at purchase. Subscription auto-renews unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple ID at purchase confirmation. Manage your subscription in your Apple ID account settings. Free trial converts to a paid subscription unless cancelled at least 24 hours before the trial ends.\n\nTerms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPrivacy Policy: https://api.potacat.com/privacy-terms.html\nSupport: https://api.potacat.com/support",
+        "userRatingCount": 29
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "1138193193",
+      "app_name": "SidePilot",
+      "developer_name": "Tom Brereton",
+      "app_store_url": "https://apps.apple.com/us/app/id1138193193",
+      "developer_website": "https://sidepilot.net",
+      "support_url": "",
+      "description": "The BEST ArduPilot GCS for iPhone and iPadOS!\n\nWorks with ArduPilot autopilot via WiFi, Bluetooth Low Energy or Cellular connection, including 3DR Solo.\nSupports ExpressLRS MAVLink telemetry.\n\nNOTE: You must have either WiFi, Cellular or Serial Bluetooth connection to your drone.\n\nUser Manual is available at https://sidepilot.net\n\nFeatures:\n\u2022 Supports ArduCopter, ArduPlane and ArduRover via ELRS, WiFi or Bluetooth.\n\u2022 Displays current drone location, with information such as altitude, yaw, pitch and roll.\n\u2022 Internet ADSB to display nearby aircraft and provide warnings.\n\u2022 Create, edit and delete waypoints and geofences.\n\u2022 Audible alerts for important information.\n\u2022 Edit, save and load parameters.\n\u2022 Perform a Pre-Flight checklist with live weather information.\n\u2022 Low battery warnings and alerts.\n\u2022 View onboard video, and live stream it to YouTube.\n\u2022 Record telemetry logs and export for sharing.\n\u2022 Follow Me - Have your drone follow you using your devices GPS location, or visually with Object Tracking.\n\u2022 Orbit mode - Automatically orbit an object for a fantastic cinematic shots!\n\u2022 Grid Waypoints - Create a survey grid to fly.\n\u2022 Tap to fly - Tap a location on the map to send your drone there!\n\u2022 Perform calibrations at the field.\n\u2022 DroneCAN Viewer and parameter editor.\n\u2022 And many, many more...\n\nQuick-start guide (Using a WiFi connection):\n1. Turn on drone and connect using WiFi.\n2. Start SidePilot, navigate to settings and select either WiFi UDP, TCP or 3DR Solo (as applicable).\n3. If setting up WiFi manually, click on WiFi Settings and input the correct IP address and port that the MAVLink protocol is running over.\n4. Go back to the main screen and press the connect button on the top right. The app will begin displaying information about the drone. If not, double check your WiFi settings.\n\nPlease post suggestions and bug reports on the SidePilot Facebook page or via email to tom@sidepilot.net\n\n\nWARNING: Continued use of GPS running in the background can dramatically decrease battery life.\n\nNote: iPads without cellular do not have GPS capability unless tethered to a iOS Device with cellular, and even then it is poor and not suitable for navigation.",
+      "category": "Utilities",
+      "release_date": "2016-09-29",
+      "last_update": "2026-10-31",
+      "rating_count": 109,
+      "review_count": null,
+      "average_rating": 3.95413,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 13.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a person. 109 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "tom@sidepilot.net",
+          "email_type": "general",
+          "source_url": "https://sidepilot.net",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Tom Brereton",
+      "contact_page_url": "https://sidepilot.net",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 3700 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/tom-brereton/id1137848787?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/18/4a/fd/184afd8a-50ac-c580-b60f-d27d8b271a6f/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-85-220.jpeg/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/18/4a/fd/184afd8a-50ac-c580-b60f-d27d8b271a6f/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-85-220.jpeg/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/18/4a/fd/184afd8a-50ac-c580-b60f-d27d8b271a6f/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-85-220.jpeg/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [],
+        "kind": "software",
+        "trackCensoredName": "SidePilot",
+        "trackViewUrl": "https://apps.apple.com/us/app/sidepilot/id1138193193?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 3.95413,
+        "releaseNotes": "- Quick Map Controls on main window\n- Terrain shader overlay\n- Improved network stability\n- Improved feedback reporting\n- Bug fixes",
+        "sellerUrl": "https://sidepilot.net",
+        "languageCodesISO2A": [
+          "EN",
+          "FR",
+          "DE",
+          "ZH",
+          "ES",
+          "UK"
+        ],
+        "fileSizeBytes": "124876800",
+        "formattedPrice": "$13.99",
+        "userRatingCountForCurrentVersion": 109,
+        "trackContentRating": "4+",
+        "artistId": 1137848787,
+        "artistName": "Tom Brereton",
+        "genres": [
+          "Utilities",
+          "Photo & Video"
+        ],
+        "price": 13.99,
+        "averageUserRatingForCurrentVersion": 3.95413,
+        "bundleId": "com.tombrereton.imavlink.100",
+        "trackId": 1138193193,
+        "trackName": "SidePilot",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "sellerName": "Tom Brereton",
+        "minimumOsVersion": "16.6",
+        "genreIds": [
+          "6002",
+          "6008"
+        ],
+        "releaseDate": "2016-09-29T00:37:28Z",
+        "currentVersionReleaseDate": "2026-10-31T17:04:25Z",
+        "version": "2.180",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "The BEST ArduPilot GCS for iPhone and iPadOS!\n\nWorks with ArduPilot autopilot via WiFi, Bluetooth Low Energy or Cellular connection, including 3DR Solo.\nSupports ExpressLRS MAVLink telemetry.\n\nNOTE: You must have either WiFi, Cellular or Serial Bluetooth connection to your drone.\n\nUser Manual is available at https://sidepilot.net\n\nFeatures:\n\u2022 Supports ArduCopter, ArduPlane and ArduRover via ELRS, WiFi or Bluetooth.\n\u2022 Displays current drone location, with information such as altitude, yaw, pitch and roll.\n\u2022 Internet ADSB to display nearby aircraft and provide warnings.\n\u2022 Create, edit and delete waypoints and geofences.\n\u2022 Audible alerts for important information.\n\u2022 Edit, save and load parameters.\n\u2022 Perform a Pre-Flight checklist with live weather information.\n\u2022 Low battery warnings and alerts.\n\u2022 View onboard video, and live stream it to YouTube.\n\u2022 Record telemetry logs and export for sharing.\n\u2022 Follow Me - Have your drone follow you using your devices GPS location, or visually with Object Tracking.\n\u2022 Orbit mode - Automatically orbit an object for a fantastic cinematic shots!\n\u2022 Grid Waypoints - Create a survey grid to fly.\n\u2022 Tap to fly - Tap a location on the map to send your drone there!\n\u2022 Perform calibrations at the field.\n\u2022 DroneCAN Viewer and parameter editor.\n\u2022 And many, many more...\n\nQuick-start guide (Using a WiFi connection):\n1. Turn on drone and connect using WiFi.\n2. Start SidePilot, navigate to settings and select either WiFi UDP, TCP or 3DR Solo (as applicable).\n3. If setting up WiFi manually, click on WiFi Settings and input the correct IP address and port that the MAVLink protocol is running over.\n4. Go back to the main screen and press the connect button on the top right. The app will begin displaying information about the drone. If not, double check your WiFi settings.\n\nPlease post suggestions and bug reports on the SidePilot Facebook page or via email to tom@sidepilot.net\n\n\nWARNING: Continued use of GPS running in the background can dramatically decrease battery life.\n\nNote: iPads without cellular do not have GPS capability unless tethered to a iOS Device with cellular, and even then it is poor and not suitable for navigation.",
+        "userRatingCount": 109
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6474479684",
+      "app_name": "Spark - Ren'Py Novels",
+      "developer_name": "Devon Lewis",
+      "app_store_url": "https://apps.apple.com/us/app/id6474479684",
+      "developer_website": "https://spark.devl.ai",
+      "support_url": "",
+      "description": "Spark: The Essential Tool for Managing Ren'Py Visual Novels\n\nSpark is an independent utility for organizing and launching Ren'Py visual novels. It is not affiliated with or supported by the official Ren'Py project. For any issues with this app, please contact Spark support, not the Ren'Py team.\n\nLaunch and Play Your Novels with Ease\nImport and start your favorite Ren'Py visual novels directly in Spark. Once added, your titles are ready to launch with a tap, so you can focus on reading and playing instead of manual setup.\n\nTailored Compatibility for Each Novel\nChoose from multiple Ren'Py engine versions to match your novel and improve stability:\n8.x: 8.5.4, 8.5.2, 8.5.0, 8.4.1, 8.3.7, 8.3.4, 8.2.3, 8.1.3, 8.0.3  \n7.x: 7.8.8, 7.8.4, 7.7.3, 7.6.3, 7.5.3, 7.4.11  \n\nPer-novel configuration lets you:\n- Select the best Ren'Py version for each title\n- Fine-tune settings to improve quality of life.\n- Improve performance on complex or older games\n\nNote: Performance and compatibility vary by novel. Older titles or very large games may contain bugs or fail to run. Smaller devices can experience rendering issues. Some novels may not work at all, though we strive to support as many as possible.\n\nPowerful Save Management\nTake full control of your progress across all novels:\n- View all saves in one place instead of hunting through folders\n- Backup saves before big choices or endings so you can revisit them anytime\n- Restore old saves if something breaks or you want to replay a specific branch\n- Import saves from other devices and delete unwanted saves to keep things tidy\n\nOrganize Your Entire Library\nKeep your Ren'Py collection clean and easy to navigate:\n- See all installed novels at a glance\n- Rename titles to match your personal library style\n- Manage multiple versions of the same novel, such as different language patches or updated builds\n\nFlexible Novel Import\nAdd new novels from a variety of common formats:\n- Import from zip, apk, 7z, tar, or rar files\n- Quickly bring in titles from backups, downloads, or other devices\nOnce imported, novels become part of your Spark library with version and save management ready to use.\n\nRen'Py-Specific Tools and Enhancements\nDig deeper into your visual novels with advanced utilities:\n\nGallery Viewer\n- Browse novel assets directly inside Spark\n- View\\Play images, videos, and music used by the game\n\nVariable Editor\n- View and edit game variables while playing\n- Skip grinding, fix bugged flags, or jump to specific routes by adjusting in-game values\n\nOn-Device Translation\n- Translate novels using Apple\u2019s on-device translation system\n- Make foreign-language titles more approachable without leaving the app\n- Keep translations private and fast by staying on your device\n\nYour Gateway to the Ren'Py Visual Novel Universe\nWhile Spark is not affiliated with Ren'Py, it is designed as a powerful companion for players who want full control over how they install, launch, customize, and maintain their Ren'Py visual novels in one place.\n\nAdditional Licensing Information\nRen'Py includes free software licensed under various terms, including the GNU Lesser General Public License. For a complete list of included software and license details, please visit the official Ren'Py website.\n\nTerms of Use\nhttps://spark.devl.ai/reference/terms/",
+      "category": "Utilities",
+      "release_date": "2023-12-21",
+      "last_update": "2026-10-29",
+      "rating_count": 224,
+      "review_count": null,
+      "average_rating": 4.75893,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 6.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a person. 224 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "spark@devl.ai",
+          "email_type": "general",
+          "source_url": "https://spark.devl.ai",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Devon Lewis",
+      "contact_page_url": "https://spark.devl.ai",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 1061 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/devon-lewis/id1721718576?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/89/4d/a5/894da542-d295-eb34-54f9-094707000c4f/Spark_Retro_Icon_Main-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/89/4d/a5/894da542-d295-eb34-54f9-094707000c4f/Spark_Retro_Icon_Main-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/89/4d/a5/894da542-d295-eb34-54f9-094707000c4f/Spark_Retro_Icon_Main-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [],
+        "kind": "software",
+        "trackCensoredName": "Spark - Ren'Py Novels",
+        "trackViewUrl": "https://apps.apple.com/us/app/spark-renpy-novels/id6474479684?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.75893,
+        "releaseNotes": "- Gallery Optimizations\n- Duo Optimizations\n- Misc UI Optimizations\n\n- In-game Device Variant Switcher now properly saves to the game configuration.",
+        "sellerUrl": "https://spark.devl.ai",
+        "languageCodesISO2A": [
+          "EN",
+          "FR",
+          "DE",
+          "JA",
+          "KO",
+          "PT",
+          "RU",
+          "ZH",
+          "ES",
+          "ZH",
+          "UK",
+          "VI"
+        ],
+        "fileSizeBytes": "729588736",
+        "formattedPrice": "$6.99",
+        "userRatingCountForCurrentVersion": 224,
+        "trackContentRating": "4+",
+        "artistId": 1721718576,
+        "artistName": "Devon Lewis",
+        "genres": [
+          "Utilities"
+        ],
+        "price": 6.99,
+        "averageUserRatingForCurrentVersion": 4.75893,
+        "bundleId": "ai.devl.RenPySpark",
+        "trackId": 6474479684,
+        "trackName": "Spark - Ren'Py Novels",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "sellerName": "Devon Lewis",
+        "minimumOsVersion": "15.5",
+        "genreIds": [
+          "6002"
+        ],
+        "releaseDate": "2023-12-21T08:00:00Z",
+        "currentVersionReleaseDate": "2026-10-29T19:17:08Z",
+        "version": "1.4.2",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Spark: The Essential Tool for Managing Ren'Py Visual Novels\n\nSpark is an independent utility for organizing and launching Ren'Py visual novels. It is not affiliated with or supported by the official Ren'Py project. For any issues with this app, please contact Spark support, not the Ren'Py team.\n\nLaunch and Play Your Novels with Ease\nImport and start your favorite Ren'Py visual novels directly in Spark. Once added, your titles are ready to launch with a tap, so you can focus on reading and playing instead of manual setup.\n\nTailored Compatibility for Each Novel\nChoose from multiple Ren'Py engine versions to match your novel and improve stability:\n8.x: 8.5.4, 8.5.2, 8.5.0, 8.4.1, 8.3.7, 8.3.4, 8.2.3, 8.1.3, 8.0.3  \n7.x: 7.8.8, 7.8.4, 7.7.3, 7.6.3, 7.5.3, 7.4.11  \n\nPer-novel configuration lets you:\n- Select the best Ren'Py version for each title\n- Fine-tune settings to improve quality of life.\n- Improve performance on complex or older games\n\nNote: Performance and compatibility vary by novel. Older titles or very large games may contain bugs or fail to run. Smaller devices can experience rendering issues. Some novels may not work at all, though we strive to support as many as possible.\n\nPowerful Save Management\nTake full control of your progress across all novels:\n- View all saves in one place instead of hunting through folders\n- Backup saves before big choices or endings so you can revisit them anytime\n- Restore old saves if something breaks or you want to replay a specific branch\n- Import saves from other devices and delete unwanted saves to keep things tidy\n\nOrganize Your Entire Library\nKeep your Ren'Py collection clean and easy to navigate:\n- See all installed novels at a glance\n- Rename titles to match your personal library style\n- Manage multiple versions of the same novel, such as different language patches or updated builds\n\nFlexible Novel Import\nAdd new novels from a variety of common formats:\n- Import from zip, apk, 7z, tar, or rar files\n- Quickly bring in titles from backups, downloads, or other devices\nOnce imported, novels become part of your Spark library with version and save management ready to use.\n\nRen'Py-Specific Tools and Enhancements\nDig deeper into your visual novels with advanced utilities:\n\nGallery Viewer\n- Browse novel assets directly inside Spark\n- View\\Play images, videos, and music used by the game\n\nVariable Editor\n- View and edit game variables while playing\n- Skip grinding, fix bugged flags, or jump to specific routes by adjusting in-game values\n\nOn-Device Translation\n- Translate novels using Apple\u2019s on-device translation system\n- Make foreign-language titles more approachable without leaving the app\n- Keep translations private and fast by staying on your device\n\nYour Gateway to the Ren'Py Visual Novel Universe\nWhile Spark is not affiliated with Ren'Py, it is designed as a powerful companion for players who want full control over how they install, launch, customize, and maintain their Ren'Py visual novels in one place.\n\nAdditional Licensing Information\nRen'Py includes free software licensed under various terms, including the GNU Lesser General Public License. For a complete list of included software and license details, please visit the official Ren'Py website.\n\nTerms of Use\nhttps://spark.devl.ai/reference/terms/",
+        "userRatingCount": 224
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6502996298",
+      "app_name": "No Shorts: Blocker for YouTube",
+      "developer_name": "Guillaume Claverie",
+      "app_store_url": "https://apps.apple.com/us/app/id6502996298",
+      "developer_website": "https://www.guillaumeclaverie.com/apps/no-shorts",
+      "support_url": "",
+      "description": "Hide YouTube Shorts on youtube.com in Safari on iPhone, iPad and Mac. The native YouTube app is unchanged. One-time purchase, with no subscription.\n\nNo Shorts Blocker for YouTube hides the Shorts feed, previews and suggestions on the YouTube website in Safari so you can focus on regular videos.\n\n- Works in Safari on iPhone, iPad, and Mac\n- Lightweight and privacy-friendly \u2014 no tracking, no data collection\n- Keeps your YouTube homepage clean and focused\n- One-time purchase. No subscriptions, no hidden fees\n\nPerfect for students, professionals, or anyone who values focus and productivity.\n\nWatch smarter, stay focused, and reclaim your time from endless scrolling.\n\nNote: Works only on YouTube opened in Safari, not inside the YouTube app.",
+      "category": "Utilities",
+      "release_date": "2024-05-22",
+      "last_update": "2026-11-09",
+      "rating_count": 15,
+      "review_count": null,
+      "average_rating": 4.46666,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 2.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 15 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "guillaume351.claverie@gmail.com",
+          "email_type": "general",
+          "source_url": "https://www.guillaumeclaverie.com/apps/no-shorts",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Guillaume Claverie",
+      "contact_page_url": "https://www.guillaumeclaverie.com/apps/no-shorts",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 70,
+      "score_points": 70,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 908 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/guillaume-claverie/id1223020090?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/4d/7b/32/4d7b320e-7ea7-7076-352a-e4d6ab492423/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/4d/7b/32/4d7b320e-7ea7-7076-352a-e4d6ab492423/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/4d/7b/32/4d7b320e-7ea7-7076-352a-e4d6ab492423/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [],
+        "kind": "software",
+        "trackCensoredName": "No Shorts: Blocker for YouTube",
+        "trackViewUrl": "https://apps.apple.com/us/app/no-shorts-blocker-for-youtube/id6502996298?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.46666,
+        "releaseNotes": "The app and the Safari extension now speak 8 more languages, including Japanese, Dutch and Polish.",
+        "sellerUrl": "https://www.guillaumeclaverie.com/apps/no-shorts",
+        "languageCodesISO2A": [
+          "AR",
+          "DA",
+          "NL",
+          "EN",
+          "FI",
+          "FR",
+          "DE",
+          "IT",
+          "JA",
+          "NB",
+          "PL",
+          "RU",
+          "ES",
+          "SV",
+          "TR"
+        ],
+        "fileSizeBytes": "10728448",
+        "formattedPrice": "$2.99",
+        "userRatingCountForCurrentVersion": 15,
+        "trackContentRating": "4+",
+        "artistId": 1223020090,
+        "artistName": "Guillaume Claverie",
+        "genres": [
+          "Utilities",
+          "Social Networking"
+        ],
+        "price": 2.99,
+        "averageUserRatingForCurrentVersion": 4.46666,
+        "bundleId": "com.guillaumeclaverie.No-Youtube-Shorts",
+        "trackId": 6502996298,
+        "trackName": "No Shorts: Blocker for YouTube",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "sellerName": "Guillaume Claverie",
+        "minimumOsVersion": "15.0",
+        "genreIds": [
+          "6002",
+          "6005"
+        ],
+        "releaseDate": "2024-05-22T07:00:00Z",
+        "currentVersionReleaseDate": "2026-11-09T22:31:47Z",
+        "version": "1.2.10",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Hide YouTube Shorts on youtube.com in Safari on iPhone, iPad and Mac. The native YouTube app is unchanged. One-time purchase, with no subscription.\n\nNo Shorts Blocker for YouTube hides the Shorts feed, previews and suggestions on the YouTube website in Safari so you can focus on regular videos.\n\n- Works in Safari on iPhone, iPad, and Mac\n- Lightweight and privacy-friendly \u2014 no tracking, no data collection\n- Keeps your YouTube homepage clean and focused\n- One-time purchase. No subscriptions, no hidden fees\n\nPerfect for students, professionals, or anyone who values focus and productivity.\n\nWatch smarter, stay focused, and reclaim your time from endless scrolling.\n\nNote: Works only on YouTube opened in Safari, not inside the YouTube app.",
+        "userRatingCount": 15
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6759216148",
+      "app_name": "Itsytv: Remote for Apple TV",
+      "developer_name": "Nikolajs Ustinovs",
+      "app_store_url": "https://apps.apple.com/us/app/id6759216148",
+      "developer_website": "https://itsytv.app",
+      "support_url": "",
+      "description": "Itsytv is a remote control for Apple TV that shows you what's playing.\n\nConnect to any Apple TV on your network and control it with a familiar touch interface. The circular d-pad supports taps, swipes, and directional input. All the buttons you need are right there \u2013 back, home, play/pause, volume, and a keyboard for search fields.\n\nERGONOMIC DESIGN\nBuilt for both left-handed and right-handed use. Drag the remote to whichever side of the screen feels natural. You can also reposition it vertically to find the most comfortable spot for your grip.\n\nNOW PLAYING WITH SEEK BAR\nSee what's on at a glance. The now playing bar shows artwork, title, and artist with transport controls for skip, play, and pause. Drag the seek bar to scrub to any point in the content directly from your phone \u2013 no need to hold down the d-pad like on the Siri Remote.\n\nWHAT'S PLAYING\nWhen you're watching something, Itsytv looks up the show or movie and displays the backdrop, plot summary, rating, genres, and cast \u2013 all without leaving the remote. Tap the info area to see the full detail view with cast photos and credits, then tap again to return to the remote.\n\nAPP LAUNCHER\nBrowse and launch apps installed on your Apple TV. Drag to rearrange them in your preferred order. After launching an app, Itsytv can automatically switch back to the remote tab so you're ready to navigate.\n\nKEYBOARD INPUT\nType directly into search fields and text inputs on your Apple TV. When a hardware keyboard is connected, use arrow keys, return, escape, space, and volume shortcuts to control your Apple TV without touching the screen.\n\nUNIVERSAL APP\nWorks on macOS (menu bar app) and iPhone/iPad.\n\nFEATURES\n- Ergonomic design for left-handed and right-handed use\n- Circular d-pad with tap, swipe, and directional input\n- Play/pause, volume, back, home, and power buttons\n- Now playing bar with artwork, seek bar, and transport controls\n- On-screen keyboard for text input and search\n- Hardware keyboard support with arrow keys and shortcuts\n- App launcher with drag-to-reorder\n- Content info with backdrop, plot, rating, genres, and cast\n- Scrollable detail view with full cast and crew\n- Automatic reconnection to your last Apple TV\n- Multiple Apple TV support with quick switching\n- Works on iPhone and iPad\n\nREQUIREMENTS\n- Apple TV (4th generation or later)\n- iPhone or iPad on the same Wi-Fi network\n- One-time pairing with a PIN code shown on your TV",
+      "category": "Utilities",
+      "release_date": "2026-02-20",
+      "last_update": "2026-11-11",
+      "rating_count": 70,
+      "review_count": null,
+      "average_rating": 4.87143,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 70 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "support@itsytv.app",
+          "email_type": "support",
+          "source_url": "https://itsytv.app/en",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Nikolajs Ustinovs",
+      "contact_page_url": "https://itsytv.app/en",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Utilities",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "error",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/nikolajs-ustinovs/id1864893162?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/45/c9/3d/45c93ddb-96d2-f698-42b2-75b39a10eed1/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/45/c9/3d/45c93ddb-96d2-f698-42b2-75b39a10eed1/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/100x100bb.jpg",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/45/c9/3d/45c93ddb-96d2-f698-42b2-75b39a10eed1/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
+        "isGameCenterEnabled": false,
+        "features": [
+          "iosUniversal"
+        ],
+        "advisories": [],
+        "kind": "software",
+        "trackCensoredName": "Itsytv: Remote for Apple TV",
+        "trackViewUrl": "https://apps.apple.com/us/app/itsytv-remote-for-apple-tv/id6759216148?uo=4",
+        "contentAdvisoryRating": "4+",
+        "averageUserRating": 4.87143,
+        "releaseNotes": "A small update with two fixes.\n\n\u2022 iPad: swipes on the D-pad no longer register twice after you move the apps sidebar to the other side.\n\n\u2022 The Now Playing widget no longer shows the last thing you watched after you reopen the app.",
+        "sellerUrl": "https://itsytv.app",
+        "languageCodesISO2A": [
+          "NL",
+          "EN",
+          "FR",
+          "DE",
+          "IT",
+          "JA",
+          "PT",
+          "ES"
+        ],
+        "fileSizeBytes": "6001664",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 70,
+        "trackContentRating": "4+",
+        "artistId": 1864893162,
+        "artistName": "Nikolajs Ustinovs",
+        "genres": [
+          "Utilities",
+          "Entertainment"
+        ],
+        "price": 4.99,
+        "averageUserRatingForCurrentVersion": 4.87143,
+        "bundleId": "com.itsytv.app",
+        "trackId": 6759216148,
+        "trackName": "Itsytv: Remote for Apple TV",
+        "isVppDeviceBasedLicensingEnabled": true,
+        "primaryGenreName": "Utilities",
+        "primaryGenreId": 6002,
+        "sellerName": "Nikolajs Ustinovs",
+        "minimumOsVersion": "17.0",
+        "genreIds": [
+          "6002",
+          "6016"
+        ],
+        "releaseDate": "2026-02-20T08:00:00Z",
+        "currentVersionReleaseDate": "2026-11-11T01:51:29Z",
+        "version": "1.5.2",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Itsytv is a remote control for Apple TV that shows you what's playing.\n\nConnect to any Apple TV on your network and control it with a familiar touch interface. The circular d-pad supports taps, swipes, and directional input. All the buttons you need are right there \u2013 back, home, play/pause, volume, and a keyboard for search fields.\n\nERGONOMIC DESIGN\nBuilt for both left-handed and right-handed use. Drag the remote to whichever side of the screen feels natural. You can also reposition it vertically to find the most comfortable spot for your grip.\n\nNOW PLAYING WITH SEEK BAR\nSee what's on at a glance. The now playing bar shows artwork, title, and artist with transport controls for skip, play, and pause. Drag the seek bar to scrub to any point in the content directly from your phone \u2013 no need to hold down the d-pad like on the Siri Remote.\n\nWHAT'S PLAYING\nWhen you're watching something, Itsytv looks up the show or movie and displays the backdrop, plot summary, rating, genres, and cast \u2013 all without leaving the remote. Tap the info area to see the full detail view with cast photos and credits, then tap again to return to the remote.\n\nAPP LAUNCHER\nBrowse and launch apps installed on your Apple TV. Drag to rearrange them in your preferred order. After launching an app, Itsytv can automatically switch back to the remote tab so you're ready to navigate.\n\nKEYBOARD INPUT\nType directly into search fields and text inputs on your Apple TV. When a hardware keyboard is connected, use arrow keys, return, escape, space, and volume shortcuts to control your Apple TV without touching the screen.\n\nUNIVERSAL APP\nWorks on macOS (menu bar app) and iPhone/iPad.\n\nFEATURES\n- Ergonomic design for left-handed and right-handed use\n- Circular d-pad with tap, swipe, and directional input\n- Play/pause, volume, back, home, and power buttons\n- Now playing bar with artwork, seek bar, and transport controls\n- On-screen keyboard for text input and search\n- Hardware keyboard support with arrow keys and shortcuts\n- App launcher with drag-to-reorder\n- Content info with backdrop, plot, rating, genres, and cast\n- Scrollable detail view with full cast and crew\n- Automatic reconnection to your last Apple TV\n- Multiple Apple TV support with quick switching\n- Works on iPhone and iPad\n\nREQUIREMENTS\n- Apple TV (4th generation or later)\n- iPhone or iPad on the same Wi-Fi network\n- One-time pairing with a PIN code shown on your TV",
+        "userRatingCount": 70
+      }
+    }
+  ]
+}

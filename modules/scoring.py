@@ -426,6 +426,21 @@ def hard_filter_reason(lead: Lead, targeting: dict, today: date | None = None) -
     cap = targeting.get("max_ratings")
     if cap != "any" and lead.rating_count is not None and lead.rating_count > int(cap):
         return f"{lead.rating_count} ratings is above the maximum of {cap}"
+    floor = targeting.get("min_ratings")
+    if floor not in (None, "", "any") and lead.rating_count is not None and lead.rating_count < int(floor):
+        return f"{lead.rating_count} ratings is below the minimum of {floor}"
+    pricing = targeting.get("pricing_model")
+    if pricing == "freemium":
+        if lead.price is not None and lead.price > 0:
+            return "upfront price is outside the freemium filter"
+        if lead.has_iap is False:
+            return "no in-app purchases"
+    elif pricing == "upfront":
+        if lead.price is not None and lead.price == 0:
+            return "free app is outside the upfront-paid filter"
+    elif pricing == "ad_supported":
+        if lead.has_iap is True:
+            return "in-app purchases are outside the ad-supported filter"
     age_key = targeting.get("max_app_age")
     if age_key in AGE_DAYS:
         age = days_since(lead.release_date, current)

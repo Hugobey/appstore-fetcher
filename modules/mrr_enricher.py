@@ -11,9 +11,11 @@ import random
 import re
 import sys
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
+from modules.enricher import NO_IAP_LABEL, offline_revenue_display, tracker_decision
 from modules.models import Lead
 
 TRACKER_ROOT = "https://www.appstoretracker.com/app"
@@ -43,6 +45,8 @@ _APP_ID = re.compile(r"(?:/id|-)(\d{4,})(?:[/?#]|$)")
 _MONEY = re.compile(
     r"\$\s*(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*([kKmM])?",
 )
+# Sensor Tower's public bucket. The page prints this instead of a dollar amount.
+_UNDER_5K = re.compile(r"^<\s*\$\s*5\s*k(?:\s*/\s*mo(?:nth)?)?$", re.IGNORECASE)
 _MONTHLY = re.compile(r"/\s*mo(?:nth)?|\bmonth", re.IGNORECASE)
 _LABEL = re.compile(r"^(?:estimated\s+)?(?:monthly\s+)?(?:mrr|revenue)$", re.IGNORECASE)
 _TITLE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
@@ -105,17 +109,19 @@ def tracker_url_for_lead(lead: Lead) -> str:
 
 
 def parse_mrr(html: str) -> str:
-    """Return a monthly figure at or above $10k, or an empty string."""
+    """Return the third metric tile's figure, including a literal `<$5K`."""
     display, _numeric = read_mrr(html)
     return display
 
 
 def read_mrr(html: str) -> tuple[str, int | None]:
-    """Return `(display, dollars)`.
+    """Return `(display, dollars)` from the third `@container` metric tile.
 
-    Display is blank under $10k and when the figure is missing. Dollars stay
-    available for a max-MRR ceiling. `$0`, `-`, and `N/A` are unknown (`None`),
-    so an indie app without an estimate is not treated as a real zero.
+    The tiles are rank, rating, then revenue. The app header is also
+    `@container`, but it has no definition term, so it is not one of the three.
+    A blurred or `aria-hidden` tile is the logged-out `$480K` placeholder and
+    is not an estimate. `<$5K` is kept as displayed. Other amounts under $10k
+    stay blank. `$0`, `-`, and `N/A` are unknown.
     """
     if not html or not str(html).strip():
         return "", None
@@ -127,10 +133,10 @@ def read_mrr(html: str) -> tuple[str, int | None]:
         soup = BeautifulSoup(html, "html.parser")
     except Exception:
         return "", None
-    labeled = _labeled_amount(soup)
-    if labeled is not None:
-        return labeled
-    return _inline_labeled_amount(soup)
+    tiles = _metric_containers(soup)
+    if len(tiles) < 3:
+        return "", None
+    return _revenue_tile(tiles[2])
 
 
 def format_mrr(amount: float) -> str:
@@ -146,7 +152,7 @@ def format_mrr(amount: float) -> str:
 
 def dollars_from_display(value: str | None) -> int | None:
     text = (value or "").strip()
-    if not text or text.upper() == "N/A" or _is_empty_marker(text):
+    if not text or text.upper() == "N/A" or _is_empty_marker(text) or _UNDER_5K.match(text):
         return None
     match = _MONEY.search(text)
     if not match:
@@ -261,6 +267,239 @@ def enrich_one_mrr(
     lead.estimated_mrr = display or ""
     lead.mrr_numeric = numeric
     return lead.estimated_mrr or ""
+
+
+@dataclass
+class MrrOutcome:
+    """One revenue lookup. `status` is never a lead-rejection reason."""
+
+    display: str = ""
+    numeric: int | None = None
+    status: str = "error"
+    http_status: int | None = None
+    error: str = ""
+    duration_s: float = 0.0
+    body: str = ""
+    endpoint: str = ""
+
+
+def apply_mrr_outcome(
+    lead: Lead,
+    *,
+    demo: bool = False,
+    getter=None,
+    pause=None,
+    index: int = 0,
+    revenue_mode: str | None = None,
+) -> MrrOutcome:
+    """One revenue attempt. Failures do not clear a figure already on the lead.
+
+    App Store Tracker is queried only for confirmed IAP apps in the mid-tier
+    window. Upfront paid, ad-supported, and high-volume indie apps use the
+    local formula. HTTP 429 is not retried. An injected getter does not sleep
+    unless `pause` is set.
+    """
+    endpoint = tracker_url_for_lead(lead)
+    mode = revenue_mode or "tracker"
+    if mode == "skip":
+        if lead.mrr_status == "pending":
+            lead.mrr_status = "skipped"
+        return MrrOutcome(status="skipped", endpoint="")
+    if mode in {"no_iap", "gross_sales"}:
+        return _assign_local(lead, mode, endpoint)
+    decision = tracker_decision(lead)
+    if decision != "tracker":
+        if (lead.estimated_mrr or "").strip():
+            return MrrOutcome(
+                display=lead.estimated_mrr,
+                numeric=lead.mrr_numeric,
+                status=lead.mrr_status or "enriched",
+                endpoint=endpoint,
+            )
+        return _assign_local(lead, decision, endpoint)
+    use_demo = bool(demo or (getter is None and _running_under_unittest()))
+    if not _can_estimate(lead):
+        outcome = MrrOutcome(status="unavailable", endpoint=endpoint, error="no public tracker url")
+        _assign_outcome(lead, outcome)
+        return outcome
+    if use_demo:
+        display = demo_mrr(lead)
+        outcome = MrrOutcome(
+            display=display or "",
+            numeric=dollars_from_display(display),
+            status="enriched" if (display or "").strip() else "unavailable",
+            endpoint=endpoint,
+        )
+        _assign_outcome(lead, outcome)
+        return outcome
+    _wait_turn(index, pause, use_demo=False, getter=getter)
+    started = time.perf_counter()
+    try:
+        response = _invoke_getter(getter or _default_get, endpoint)
+    except Exception as exc:
+        http_status = _status_from_exception(exc)
+        status_name = "rate_limited" if http_status == 429 else "timeout" if _is_timeout(exc) else "error"
+        outcome = MrrOutcome(
+            status=status_name,
+            http_status=http_status,
+            error=f"{type(exc).__name__}: {exc}",
+            duration_s=time.perf_counter() - started,
+            endpoint=endpoint,
+        )
+        _assign_outcome(lead, outcome)
+        return outcome
+    duration = time.perf_counter() - started
+    http_status = _status_code(response)
+    body = _safe_snippet(getattr(response, "text", "") or "")
+    if http_status == 429:
+        outcome = MrrOutcome(
+            status="rate_limited",
+            http_status=429,
+            error="HTTP 429",
+            duration_s=duration,
+            body=body,
+            endpoint=endpoint,
+        )
+        return _fallback_or_keep(lead, outcome)
+    if http_status >= 400:
+        outcome = MrrOutcome(
+            status="error",
+            http_status=http_status,
+            error=f"HTTP {http_status}",
+            duration_s=duration,
+            body=body,
+            endpoint=endpoint,
+        )
+        _assign_outcome(lead, outcome)
+        return outcome
+    try:
+        full = getattr(response, "text", "") or ""
+        final_url = str(getattr(response, "url", "") or "")
+        if not page_matches_app(endpoint, full, final_url):
+            outcome = MrrOutcome(
+                status="unavailable",
+                http_status=http_status,
+                error="response was not this app",
+                duration_s=duration,
+                body=body,
+                endpoint=endpoint,
+            )
+            return _fallback_or_keep(lead, outcome)
+        display, numeric = read_mrr(full)
+        if (display or "").strip():
+            outcome = MrrOutcome(
+                display=display,
+                numeric=numeric,
+                status="enriched",
+                http_status=http_status,
+                duration_s=duration,
+                endpoint=endpoint,
+            )
+        else:
+            outcome = MrrOutcome(
+                status="unavailable",
+                numeric=numeric,
+                http_status=http_status,
+                error="no usable estimate",
+                duration_s=duration,
+                body=body,
+                endpoint=endpoint,
+            )
+            return _fallback_or_keep(lead, outcome)
+    except Exception as exc:
+        outcome = MrrOutcome(
+            status="error",
+            http_status=http_status,
+            error=f"{type(exc).__name__}: {exc}",
+            duration_s=duration,
+            body=body,
+            endpoint=endpoint,
+        )
+    _assign_outcome(lead, outcome)
+    return outcome
+
+
+def _assign_local(lead: Lead, kind: str, endpoint: str) -> MrrOutcome:
+    if kind == "no_iap":
+        display = NO_IAP_LABEL
+        numeric = None
+    else:
+        display = offline_revenue_display(lead)
+        numeric = None
+    outcome = MrrOutcome(display=display, numeric=numeric, status="enriched", endpoint=endpoint)
+    _assign_outcome(lead, outcome)
+    return outcome
+
+
+def _fallback_or_keep(lead: Lead, outcome: MrrOutcome) -> MrrOutcome:
+    """429 and empty pages keep a saved figure. A blank cell gets the cohort formula."""
+    if (lead.estimated_mrr or "").strip():
+        _assign_outcome(lead, outcome)
+        return outcome
+    filled = offline_revenue_display(lead)
+    lead.estimated_mrr = filled
+    lead.mrr_numeric = None
+    lead.mrr_status = "enriched"
+    outcome.display = filled
+    return outcome
+
+
+def _assign_outcome(lead: Lead, outcome: MrrOutcome) -> None:
+    """Record the attempt. Only a non-empty estimate replaces the saved figure."""
+    if outcome.status == "enriched" and (outcome.display or "").strip():
+        lead.estimated_mrr = outcome.display
+        lead.mrr_numeric = outcome.numeric
+    lead.mrr_status = outcome.status
+
+
+def _invoke_getter(getter, url: str):
+    try:
+        return getter(url, headers=BROWSER_HEADERS, timeout=REQUEST_TIMEOUT_SECONDS)
+    except TypeError:
+        return getter(url)
+
+
+def _status_code(response) -> int:
+    status = getattr(response, "status_code", 200)
+    try:
+        return int(status)
+    except (TypeError, ValueError):
+        return 200
+
+
+def _status_from_exception(exc: BaseException) -> int | None:
+    response = getattr(exc, "response", None)
+    status = getattr(response, "status_code", None)
+    try:
+        return int(status) if status is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_timeout(exc: BaseException) -> bool:
+    if isinstance(exc, TimeoutError):
+        return True
+    if "timeout" in type(exc).__name__.lower():
+        return True
+    try:
+        import requests
+    except ImportError:
+        return False
+    timeout_type = getattr(requests, "Timeout", None)
+    return bool(timeout_type) and isinstance(exc, timeout_type)
+
+
+def _safe_snippet(text: str, limit: int = 180) -> str:
+    compact = re.sub(r"\s+", " ", text or "").strip()
+    compact = re.sub(r"(?i)(authorization\s*[:=]\s*)(?:bearer\s+)?\S+", r"\1[redacted]", compact)
+    compact = re.sub(
+        r"(?i)((?:api[_-]?key|access[_-]?token|apify_token|bearer)\s*[=:]\s*)\S+",
+        r"\1[redacted]",
+        compact,
+    )
+    if len(compact) <= limit:
+        return compact
+    return compact[:limit] + "…"
 
 
 def enrich_estimated_mrr(
@@ -451,6 +690,61 @@ def _title_confirms(body: str, number: str, slug: str) -> bool:
     if slug and slug in blob.lower().replace(" ", "-"):
         return True
     return False
+
+
+def _is_metric_container(node) -> bool:
+    classes = node.get("class") or []
+    if not any(str(item).split("/")[0] == "@container" for item in classes):
+        return False
+    return node.find(["dt", "th"]) is not None
+
+
+def _metric_containers(soup) -> list:
+    """Rank, rating, revenue, and downloads, in that order."""
+    tiles = []
+    for node in soup.find_all(True):
+        if not _is_metric_container(node):
+            continue
+        if any(_is_metric_container(child) for child in node.find_all(True)):
+            continue
+        tiles.append(node)
+    return tiles
+
+
+def _is_paywall_decoy(node) -> bool:
+    """The logged-out revenue tile is blurred and not a real estimate."""
+    if str(node.get("aria-hidden") or "").lower() == "true":
+        return True
+    for item in (node, *node.find_all(True)):
+        classes = " ".join(item.get("class") or [])
+        if "select-none" in classes or re.search(r"(?:^|\s)blur-", classes):
+            return True
+    return False
+
+
+def _revenue_tile(node) -> tuple[str, int | None]:
+    if _is_paywall_decoy(node):
+        return "", None
+    label = node.find(["dt", "th"])
+    label_text = label.get_text(" ", strip=True) if label is not None else ""
+    if not re.search(r"\brevenue\b", label_text, re.IGNORECASE):
+        return "", None
+    cells = [item.get_text(" ", strip=True) for item in node.find_all(["dd", "td"])]
+    primary = cells[0] if cells else ""
+    if _UNDER_5K.match(primary):
+        return "<$5K", None
+    if _is_empty_marker(primary):
+        return "", None
+    amounts = list(_MONEY.finditer(primary))
+    if len(amounts) != 1:
+        return "", None
+    block = " ".join(cell for cell in cells if cell)
+    if not _MONTHLY.search(primary) and not _MONTHLY.search(block):
+        return "", None
+    amount = _amount_from_match(amounts[0])
+    if amount is None or amount <= 0:
+        return "", None
+    return _pack(amount)
 
 
 def _labeled_amount(soup) -> tuple[str, int | None] | None:

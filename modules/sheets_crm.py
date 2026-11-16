@@ -6,35 +6,36 @@ conditional-format rules instead of stacking new ones.
 
 from __future__ import annotations
 
+import csv
 import logging
+from datetime import datetime
+from pathlib import Path
 
 from modules.errors import CRMError
 
 LOGGER = logging.getLogger("prospecting.sheets")
 
 CRM_COLUMNS = [
-    "App Name",
-    "App Store URL",
+    "Appname",
+    "Buy Signal",
+    "Appstore URL",
     "Contact",
     "Contact Email",
+    "Rating count",
+    "Review count",
     "Status",
-    "Follow-Up Date",
-    "Last Contacted",
-    "Lead Score",
-    "Estimated MRR",
-    "Ratings",
-    "Category",
     "Platform",
-    "Developer Website",
+    "Website",
+    "Estimated MRR",
+    "Category",
+    "Last contacted",
 ]
 STATUS_OPTIONS = [
     "To Contact",
     "Sent",
-    "Follow-Up 1",
-    "Follow-Up 2",
+    "Follow-Up",
     "Replied",
-    "Call Booked",
-    "Closed / Won",
+    "Booked",
     "Not Interested",
 ]
 LAYOUT_ROWS = 1000
@@ -42,26 +43,32 @@ HEADER_BACKGROUND = "#1E293B"
 HEADER_TEXT = "#FFFFFF"
 # Wider columns first, then the compact numeric and status columns.
 COLUMN_WIDTHS = {
-    "App Name": 240,
-    "App Store URL": 320,
+    "Appname": 240,
+    "Buy Signal": 220,
+    "Appstore URL": 320,
     "Contact": 220,
     "Contact Email": 240,
-    "Developer Website": 240,
+    "Website": 240,
     "Status": 140,
-    "Lead Score": 110,
-    "Estimated MRR": 130,
-    "Ratings": 90,
+    "Estimated MRR": 180,
+    "Rating count": 110,
+    "Review count": 110,
+    "Category": 160,
+    "Last contacted": 140,
 }
 DEFAULT_COLUMN_WIDTH = 150
 _STATUS_COLORS = {
     "To Contact": ("#F8F9FA", None, False),
     "Sent": ("#E8F0FE", "#1967D2", False),
-    "Follow-Up 1": ("#E8F0FE", "#1967D2", False),
-    "Follow-Up 2": ("#E8F0FE", "#1967D2", False),
+    "Follow-Up": ("#E8F0FE", "#1967D2", False),
     "Replied": ("#FEF7E0", "#B06000", False),
-    "Call Booked": ("#FEF7E0", "#B06000", False),
-    "Closed / Won": ("#E6F4EA", "#137333", False),
+    "Booked": ("#E6F4EA", "#137333", False),
     "Not Interested": ("#FCE8E6", "#80868B", True),
+}
+_STATUS_REMAP = {
+    "follow-up 1": "Follow-Up",
+    "follow-up 2": "Follow-Up",
+    "call booked": "Booked",
 }
 
 
@@ -289,3 +296,220 @@ def _paint_header(worksheet, width: int) -> None:
         worksheet.freeze(rows=1)
     except Exception as exc:
         LOGGER.warning("Could not freeze the CRM header row: %s", exc)
+
+
+# CSV exports use the same 13 columns as the Google Sheet.
+EXPORT_COLUMNS = list(CRM_COLUMNS)
+SHEETS_IMPORT_TIP = "File > Import > Upload"
+_EXPORT_ALIASES = {
+    "Appname": ("app_name", "App Name", "Appname"),
+    "Buy Signal": ("buy_signal", "Buy Signal"),
+    "Appstore URL": ("app_store_url", "App Store URL", "Appstore URL"),
+    "Contact": ("Contact", "contact_name", "Contact name", "Contact Name"),
+    "Contact Email": ("primary_email", "Contact Email", "contact email", "email", "Target Email"),
+    "Rating count": ("rating_count", "Rating count", "Ratings", "ratings"),
+    "Review count": ("review_count", "Review count", "Review Count"),
+    "Status": ("Status", "status"),
+    "Platform": ("platform", "Platform"),
+    "Website": ("developer_website", "Developer Website", "website URL", "website_url", "Website"),
+    "Estimated MRR": ("estimated_mrr", "Estimated MRR", "mrr"),
+    "Category": ("Category", "category"),
+    "Last contacted": ("Last contacted", "Last Contacted", "Sent Date", "sent_date"),
+}
+
+
+def lead_to_export_row(item) -> dict:
+    """Map a Lead or a CRM dict onto the 13 export columns. The first filled alias wins."""
+    from modules.discovery import buy_signal
+    from modules.enricher import offline_revenue_display
+
+    source = _export_source(item)
+    row = {column: _first_alias(source, _EXPORT_ALIASES[column]) for column in EXPORT_COLUMNS}
+    row["Platform"] = _platform_label(row["Platform"])
+    if not row["Status"]:
+        row["Status"] = "To Contact"
+    if _can_score_signal(source):
+        row["Buy Signal"] = buy_signal(source)
+    if _recompute_revenue(source) or not row["Estimated MRR"]:
+        row["Estimated MRR"] = offline_revenue_display(source)
+    return row
+
+
+def _can_score_signal(source: dict) -> bool:
+    """A row that already carries a Buy Signal and no dates should keep that signal."""
+    keys = (
+        "released_days_ago",
+        "updated_days_ago",
+        "version_days_ago",
+        "release_date",
+        "last_update",
+        "current_version_release_date",
+    )
+    return any(source.get(key) not in (None, "") for key in keys)
+
+
+def _recompute_revenue(source: dict) -> bool:
+    return "released_days_ago" in source or "updated_days_ago" in source
+
+
+def _platform_label(value: str) -> str:
+    folded = (value or "").strip().lower()
+    if folded == "ios":
+        return "iOS"
+    if folded == "android":
+        return "Android"
+    return (value or "").strip()
+
+
+def schema_is_current(headers: list[str]) -> bool:
+    return _clean_headers(headers) == list(CRM_COLUMNS)
+
+
+def migrate_row(headers: list[str], row: list) -> list[str]:
+    """One physical row in the 13-column order. Lead Score is never copied into Buy Signal."""
+    lookup: dict[str, int] = {}
+    for index, header in enumerate(headers):
+        key = _norm_header(header)
+        if key and key not in lookup:
+            lookup[key] = index
+
+    def cell(*names: str) -> str:
+        for name in names:
+            index = lookup.get(name)
+            if index is None or index >= len(row):
+                continue
+            text = str(row[index]).strip()
+            if text:
+                return text
+        return ""
+
+    status = cell("status")
+    status = _STATUS_REMAP.get(status.lower(), status)
+    platform = _platform_label(cell("platform"))
+    return [
+        cell("appname", "app name"),
+        cell("buy signal"),
+        cell("appstore url", "app store url"),
+        cell("contact") or cell("contact name"),
+        cell("contact email") or cell("target email"),
+        cell("rating count", "ratings"),
+        cell("review count"),
+        status,
+        platform,
+        cell("website", "developer website", "website url"),
+        cell("estimated mrr"),
+        cell("category"),
+        cell("last contacted") or cell("sent date"),
+    ]
+
+
+def migrate_sheet_values(values: list[list], header_index: int) -> list[list[str]]:
+    """Header plus every physical data row, so sheet row numbers stay put."""
+    headers = values[header_index] if header_index < len(values) else []
+    grid = [list(CRM_COLUMNS)]
+    for row in values[header_index + 1 :]:
+        grid.append(migrate_row(headers, row))
+    return grid
+
+
+def _clean_headers(headers: list[str]) -> list[str]:
+    clean = [str(cell).strip() for cell in headers]
+    while clean and not clean[-1]:
+        clean.pop()
+    return clean
+
+
+def _norm_header(header) -> str:
+    return " ".join(str(header).strip().lower().split())
+
+
+def write_export_csv(leads, path: Path) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(EXPORT_COLUMNS), extrasaction="ignore")
+        writer.writeheader()
+        for lead in leads:
+            writer.writerow(lead_to_export_row(lead))
+    return path
+
+
+def deals_export_path(directory: Path | None = None, now: datetime | None = None) -> Path:
+    """exports/deals_YYYY-MM-DD_HHMM.csv. A same-minute collision gets a numeric suffix."""
+    from modules.config import project_path
+
+    folder = directory or project_path("exports")
+    folder.mkdir(parents=True, exist_ok=True)
+    stamp = (now or datetime.now()).strftime("%Y-%m-%d_%H%M")
+    path = folder / f"deals_{stamp}.csv"
+    suffix = 2
+    while path.exists():
+        path = folder / f"deals_{stamp}_{suffix}.csv"
+        suffix += 1
+    return path
+
+
+def _export_source(item) -> dict:
+    if isinstance(item, dict):
+        return item
+    data = {}
+    for name in (
+        "app_name",
+        "estimated_mrr",
+        "rating_count",
+        "review_count",
+        "score_normalized",
+        "lead_score",
+        "contact_name",
+        "category",
+        "app_store_url",
+        "developer_website",
+        "primary_email",
+        "platform",
+        "price",
+        "has_iap",
+        "release_date",
+        "last_update",
+        "current_version_release_date",
+        "recent_ratings_30d",
+        "developer_type",
+        "buy_signal",
+    ):
+        if hasattr(item, name):
+            data[name] = getattr(item, name)
+    return data
+
+
+def _first_alias(source: dict, aliases: tuple[str, ...]) -> str:
+    for alias in aliases:
+        if alias in source:
+            value = _present(source[alias])
+            if value is not None:
+                return value
+    folded = {str(key).strip().lower(): key for key in source}
+    for alias in aliases:
+        key = folded.get(alias.strip().lower())
+        if key is None:
+            continue
+        value = _present(source[key])
+        if value is not None:
+            return value
+    return ""
+
+
+def _present(value):
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, dict):
+        if "address" not in value:
+            return None
+        value = value.get("address")
+    elif hasattr(value, "address") and not isinstance(value, (str, bytes)):
+        value = getattr(value, "address")
+    if isinstance(value, float) and value.is_integer():
+        value = int(value)
+    if isinstance(value, int) and not isinstance(value, bool):
+        return str(value)
+    text = str(value).strip()
+    if text == "" or text.lower() == "none":
+        return None
+    return text

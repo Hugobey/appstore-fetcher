@@ -22,7 +22,7 @@ from modules.prompts import BACK, ScriptedPrompter
 from modules.category_feed import category_plan, chart_url, entry_ids, fetch_genre_apps, lookup_url
 from modules.scraper import ApifyClient, search_jobs
 from modules.scoring import classify_developer, hard_filter_reason
-from modules.wizard import _ask_country, run_wizard
+from modules.wizard import _ask_consider_mrr, _ask_country, _ask_ratings, _steps, run_wizard
 
 
 class WizardTests(unittest.TestCase):
@@ -50,66 +50,43 @@ class WizardTests(unittest.TestCase):
     def test_questions_use_defaults_and_back_returns_to_the_previous_answer(self):
         prompter = ScriptedPrompter(
             [
-                "solo",
+                "indie_founder",
+                "freemium",
                 BACK,
-                "startup",
-                "ios",
-                "continue",
-                ["Health & Fitness"],
-                10,
-                "6m",
-                "30d",
-                70,
-                20,
-                "any",
+                "freemium",
+                "Health & Fitness",
+                "no",
                 "start",
             ]
         )
         shown = []
-        checked = []
         original = prompter.select
-        original_checkbox = prompter.checkbox
 
         def select(message, choices, default=None):
             shown.append((message, list(choices)))
             return original(message, choices, default)
 
-        def checkbox(message, choices, default=None):
-            checked.append((message, list(choices), default))
-            return original_checkbox(message, choices, default)
-
         prompter.select = select
-        prompter.checkbox = checkbox
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
-        self.assertEqual(prompter.prompts[0], "🎯 Which ICP are you targeting?")
-        self.assertEqual(checked[0][0], "🎯 Which ICP are you targeting?")
-        self.assertIn(("Solo developer (Recommended)", "solo"), checked[0][1])
-        self.assertIn(("Agency", "agency"), checked[0][1])
-        self.assertIn(("Startups (Recommended)", "startup"), checked[0][1])
-        self.assertIn(("iOS / Apple App Store", "ios"), shown[0][1])
-        update_choices = next(choices for message, choices in shown if message.startswith("🔄"))
-        volume_choices = next(choices for message, choices in shown if message.startswith("🚀"))
-        self.assertIn(("Last 180 days (Recommended)", "180d"), update_choices)
-        self.assertIn(("30 (Recommended)", 30), volume_choices)
-        rating_choices = next(choices for message, choices in shown if message.startswith("⭐"))
-        self.assertIn(("Under 250 ratings (Recommended)", 250), rating_choices)
-        mrr_choices = next(choices for message, choices in shown if message.startswith("💰"))
-        self.assertEqual(next(message for message, _choices in shown if message.startswith("💰")), "💰 Max MRR to include:")
-        self.assertIn(("No limit (Recommended)", "any"), mrr_choices)
-        self.assertIn(("Under $10k / mo", 10000), mrr_choices)
-        self.assertIn(("Under $25k / mo", 25000), mrr_choices)
-        self.assertIn(("Under $50k / mo", 50000), mrr_choices)
-        self.assertIn(("Under $100k / mo", 100000), mrr_choices)
-        self.assertEqual(result["developer_type"], "startup")
-        self.assertEqual(result["developer_types"], ["startup"])
+        self.assertEqual(prompter.prompts[0], "👤 What best describes you?")
+        self.assertIn(("Angel Investor / VC", "angel_vc"), shown[0][1])
+        self.assertIn(("Growth Consultant / Agency", "growth_agency"), shown[0][1])
+        self.assertIn(("Indie App Founder / Other", "indie_founder"), shown[0][1])
+        self.assertEqual(len(shown[0][1]), 3)
+        self.assertEqual(prompter.prompts[1], "💳 App Pricing Model")
+        toggle = next((message, choices) for message, choices in shown if message.startswith("💰"))
+        self.assertEqual(toggle[0], "💰 Consider Estimated Revenue / MRR?")
+        self.assertIn(("Yes (Filter & enrich with AppStoreTracker / Velocity models)", "yes"), toggle[1])
+        self.assertIn(("No (Skip revenue enrichment for faster lead extraction)", "no"), toggle[1])
+        self.assertNotIn("💰 Max MRR to include:", prompter.prompts)
+        self.assertFalse(any(prompt.startswith("⭐") for prompt in prompter.prompts))
+        self.assertEqual(result["user_profile"], "indie_founder")
+        self.assertEqual(result["pricing_model"], "freemium")
+        self.assertEqual(result["revenue_mode"], "skip")
+        self.assertFalse(result["consider_mrr"])
         self.assertEqual(result["categories"], ["Health & Fitness"])
         self.assertEqual(result["custom_keywords"], [])
-        category_choices = next(choices for message, choices, _default in checked if message.startswith("📂"))
-        self.assertIn(("Health & Fitness (Recommended)", "Health & Fitness"), category_choices)
-        self.assertIn(("Productivity (Recommended)", "Productivity"), category_choices)
-        self.assertIn(("Photo & Video", "Photo & Video"), category_choices)
-        self.assertEqual(result["max_ratings"], 10)
-        self.assertEqual(result["target_prospects"], 20)
+        self.assertEqual(result["developer_type"], "solo")
         self.assertIsNone(result["max_mrr"])
         self.assertTrue(result["confirmed"])
 
@@ -132,6 +109,9 @@ class WizardTests(unittest.TestCase):
     def test_saved_configuration_can_be_edited_without_repeating_every_question(self):
         saved = dict(self.base)
         saved["confirmed"] = True
+        saved["user_profile"] = "growth_agency"
+        saved["pricing_model"] = "freemium"
+        saved["consider_mrr"] = True
         prompter = ScriptedPrompter(["continue", "edit", "ratings", 10, "start"])
         result = run_wizard(prompter, saved, self.settings, self.templates, self.summary)
         self.assertEqual(result["max_ratings"], 10)
@@ -188,8 +168,114 @@ class WizardTests(unittest.TestCase):
     def test_cancel_on_the_summary_does_not_return_a_configuration(self):
         saved = dict(self.base)
         saved["confirmed"] = True
+        saved["user_profile"] = "other"
+        saved["pricing_model"] = "freemium"
+        saved["consider_mrr"] = True
         result = run_wizard(ScriptedPrompter(["continue", "cancel"]), saved, self.settings, self.templates, self.summary)
         self.assertIsNone(result)
+
+    def test_mrr_toggle_defaults_follow_the_profile(self):
+        seen = {}
+
+        class Recording(ScriptedPrompter):
+            def select(self, message, choices, default=None):
+                seen["default"] = default
+                return super().select(message, choices, default)
+
+        agency = _ask_consider_mrr(Recording(["no"]), {"user_profile": "growth_agency"}, allow_back=False)
+        self.assertEqual(seen["default"], "no")
+        self.assertFalse(agency["consider_mrr"])
+        self.assertIsNone(agency["max_mrr"])
+        angel = _ask_consider_mrr(Recording(["yes"]), {"user_profile": "angel_vc"}, allow_back=False)
+        self.assertEqual(seen["default"], "yes")
+        self.assertTrue(angel["consider_mrr"])
+        self.assertEqual(angel["max_ratings"], "any")
+        self.assertEqual(angel["last_update"], "90d")
+
+    def test_agency_path_offers_under_250_and_angel_hides_the_rating_menu(self):
+        prompter = ScriptedPrompter([250])
+        shown = []
+        original = prompter.select
+
+        def select(message, choices, default=None):
+            shown.append((message, list(choices)))
+            return original(message, choices, default)
+
+        prompter.select = select
+        result = _ask_ratings(prompter, {"consider_mrr": False, "developer_types": ["agency"], "max_ratings": 1000})
+        self.assertEqual(result["max_ratings"], 250)
+        self.assertIn(("Under 250 ratings (Recommended)", 250), shown[0][1])
+        self.assertIn(("Under 10 ratings", 10), shown[0][1])
+        names = [step.__name__ for step in _steps({"consider_mrr": True, "user_profile": "angel_vc", "pricing_model": "freemium"})]
+        self.assertNotIn("_ask_ratings", names)
+        self.assertNotIn("_ask_max_mrr", names)
+        self.assertIn("_ask_consider_mrr", names)
+        off = [step.__name__ for step in _steps({"consider_mrr": False, "user_profile": "growth_agency", "pricing_model": "freemium"})]
+        self.assertIn("_ask_min_ratings", off)
+        self.assertIn("_ask_ratings", off)
+        self.assertNotIn("_ask_max_mrr", off)
+        internal = [step.__name__ for step in _steps({"consider_mrr": True, "user_profile": "angel_vc", "pricing_model": "freemium"}, internal=True)]
+        self.assertIn("_ask_consider_mrr", internal)
+        self.assertNotIn("_ask_min_ratings", internal)
+        self.assertNotIn("_ask_ratings", internal)
+        self.assertNotIn("_ask_max_mrr", internal)
+        upfront = [step.__name__ for step in _steps({"pricing_model": "upfront", "user_profile": "angel_vc"})]
+        self.assertNotIn("_ask_consider_mrr", upfront)
+
+    def test_angel_yes_skips_ratings_and_the_mrr_ceiling(self):
+        prompter = ScriptedPrompter(["angel_vc", "freemium", "Finance", "yes", "start"])
+        result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
+        self.assertEqual(result["user_profile"], "angel_vc")
+        self.assertEqual(result["pricing_model"], "freemium")
+        self.assertEqual(result["revenue_mode"], "tracker")
+        self.assertTrue(result["consider_mrr"])
+        self.assertEqual(result["max_ratings"], "any")
+        self.assertEqual(result["last_update"], "90d")
+        self.assertEqual(result["categories"], ["Finance"])
+        self.assertIsNone(result["max_mrr"])
+        self.assertFalse(any(prompt.startswith("⭐") for prompt in prompter.prompts))
+        self.assertNotIn("💰 Max MRR to include:", prompter.prompts)
+
+    def test_upfront_paid_skips_the_mrr_question(self):
+        prompter = ScriptedPrompter(["angel_vc", "upfront", "Finance", "start"])
+        result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
+        self.assertEqual(result["pricing_model"], "upfront")
+        self.assertEqual(result["revenue_mode"], "gross_sales")
+        self.assertFalse(result["consider_mrr"])
+        self.assertNotIn("💰 Consider Estimated Revenue / MRR?", prompter.prompts)
+
+    def test_ad_supported_skips_the_mrr_question(self):
+        prompter = ScriptedPrompter(["indie_founder", "ad_supported", "Utilities", "start"])
+        result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
+        self.assertEqual(result["pricing_model"], "ad_supported")
+        self.assertEqual(result["revenue_mode"], "no_iap")
+        self.assertFalse(result["consider_mrr"])
+        self.assertNotIn("💰 Consider Estimated Revenue / MRR?", prompter.prompts)
+
+    def test_agency_freemium_asks_min_and_max_ratings(self):
+        prompter = ScriptedPrompter(["growth_agency", "freemium", "Productivity", "no", "any", 250, "start"])
+        result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
+        self.assertEqual(result["user_profile"], "growth_agency")
+        self.assertFalse(result["consider_mrr"])
+        self.assertNotIn("min_ratings", result)
+        self.assertEqual(result["max_ratings"], 250)
+        self.assertEqual(prompter.prompts[4], "⭐ What is the minimum number of ratings an app can have?")
+        self.assertEqual(prompter.prompts[5], "⭐ What is the maximum number of ratings an app can have?")
+
+    def test_saved_run_without_a_profile_asks_the_opening_prompts_first(self):
+        saved = dict(self.base)
+        saved["confirmed"] = True
+        prompter = ScriptedPrompter(["growth_agency", "freemium", "no", "continue", "start"])
+        result = run_wizard(prompter, saved, self.settings, self.templates, self.summary)
+        self.assertEqual(prompter.prompts[0], "👤 What best describes you?")
+        self.assertEqual(prompter.prompts[1], "💳 App Pricing Model")
+        self.assertEqual(prompter.prompts[2], "💰 Consider Estimated Revenue / MRR?")
+        self.assertEqual(result["user_profile"], "growth_agency")
+        self.assertEqual(result["pricing_model"], "freemium")
+        self.assertEqual(result["revenue_mode"], "skip")
+        self.assertFalse(result["consider_mrr"])
+        self.assertEqual(result["platforms"], "ios")
+        self.assertEqual(result["categories"], ["Productivity", "Health & Fitness"])
 
 
 class PipelineTests(unittest.TestCase):
@@ -258,7 +344,8 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(quiet.primary_email.address, "jane@quiet.example")
         self.assertEqual(quiet.primary_email.email_type, "founder")
         self.assertEqual(quiet.contact_name, "Jane Doe")
-        self.assertEqual(quiet.estimated_mrr, "$15k/mo")
+        self.assertEqual(quiet.estimated_mrr, "")
+        self.assertEqual(quiet.mrr_status, "pending")
         self.assertEqual(
             next(lead for lead in discovery.missing_site if lead.app_name == "Paper Day").estimated_mrr,
             "",
@@ -311,10 +398,10 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Quiet Focus"})
         self.assertTrue(any("expanding search for 1 more" in line for line in voice.lines))
         self.assertTrue(any("[1/1 qualified leads found]" in line for line in voice.lines))
-        qualified_at = next(index for index, line in enumerate(voice.lines) if "Qualified Quiet Focus" in line)
-        mrr_at = next(index for index, line in enumerate(voice.lines) if "Checking MRR" in line)
-        self.assertLess(qualified_at, mrr_at)
-        self.assertEqual(discovery.qualified[0].estimated_mrr, "$15k/mo")
+        self.assertTrue(any("Qualified Quiet Focus" in line for line in voice.lines))
+        self.assertFalse(any("Checking MRR" in line for line in voice.lines))
+        self.assertEqual(discovery.qualified[0].estimated_mrr, "")
+        self.assertEqual(discovery.qualified[0].mrr_status, "pending")
 
     def test_a_repeated_app_is_enriched_once(self):
         settings = load_settings()
@@ -476,13 +563,15 @@ class PipelineTests(unittest.TestCase):
             demo=True,
         )
         self.assertEqual(calls, [("Productivity", 1)])
-        self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Quiet Focus 1", "Quiet Focus 3"})
+        self.assertEqual([lead.app_name for lead in discovery.qualified], ["Quiet Focus 0", "Quiet Focus 1"])
         self.assertTrue(all(lead.estimated_mrr == "" for lead in discovery.qualified))
+        self.assertTrue(all(lead.mrr_status == "pending" for lead in discovery.qualified))
         self.assertTrue(all(lead.mrr_numeric is None for lead in discovery.qualified))
         stats = discovery.stats
         self.assertEqual(stats["discovered"], 4)
         self.assertEqual(stats["qualified"], 2)
         self.assertEqual(stats["filtered_out"], 2)
+        self.assertEqual(stats["rejections"]["mrr_exceeded"], 0)
         self.assertFalse(stats["errors"])
 
     def test_blank_mrr_still_completes_scoring_and_the_sheet_phase(self):
@@ -516,10 +605,14 @@ class PipelineTests(unittest.TestCase):
             body = "<html><head><title>Quiet Focus 1001</title></head><body><dt>Revenue</dt><dd>-</dd></body></html>"
             return SimpleNamespace(status_code=200, text=body, url=url)
 
+        from modules.pipeline import analyze_saved
+        from modules.run_store import RunStore
+
         board = AgentDashboard(1, enabled=False)
         board.begin_clock()
         board.focus(1, "Indexing existing CRM leads...")
         board.complete(1, "Indexed 0 leads")
+        store = RunStore("blank-mrr")
         discovery = discover(
             targeting,
             settings,
@@ -531,15 +624,23 @@ class PipelineTests(unittest.TestCase):
             narrator=_Capture(),
             demo=False,
             dashboard=board,
-            mrr_getter=getter,
+            on_saved=store.save,
         )
         self.assertEqual(len(discovery.qualified), 1)
         self.assertEqual(discovery.qualified[0].estimated_mrr, "")
+        self.assertEqual(discovery.qualified[0].mrr_status, "pending")
         self.assertIsNone(discovery.qualified[0].mrr_numeric)
         self.assertEqual(board.phases[1]["state"], "complete")
         self.assertEqual(board.phases[2]["state"], "complete")
         self.assertEqual(board.phases[3]["state"], "complete")
+        self.assertEqual(board.phases[4]["state"], "pending")
+        self.assertEqual(board.funnel["qualified_count"], 1)
+        analyze_saved(store, demo=False, getter=getter, dashboard=board, narrator=_Capture())
+        self.assertEqual(discovery.qualified[0].estimated_mrr, "")
+        self.assertEqual(board.phases[2]["state"], "complete")
+        self.assertEqual(board.phases[3]["state"], "complete")
         self.assertEqual(board.phases[4]["state"], "complete")
+        self.assertEqual(board.funnel["qualified_count"], 1)
         self.assertEqual(board.phases[5]["state"], "pending")
         templates = load_templates(settings)
         code = _review(
@@ -620,7 +721,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(discovery.qualified), 2)
         self.assertFalse(discovery.stats["errors"])
 
-    def test_analyst_fetches_mrr_while_the_scout_is_still_searching(self):
+    def test_scouting_does_not_fetch_mrr_while_the_next_chart_is_in_flight(self):
         settings = load_settings()
         settings["apify"] = dict(settings["apify"], max_searches_per_run=4, end_page=1)
         settings["category_keywords"] = {"Productivity": ["focus timer"]}
@@ -647,28 +748,17 @@ class PipelineTests(unittest.TestCase):
             item["trackViewUrl"] = f"https://apps.apple.com/us/app/quiet-focus-{offset}/id{app_id}"
             apps.append(item)
         calls = []
-        in_page2 = threading.Event()
-        release_page2 = threading.Event()
-        page2_done = threading.Event()
-        overlap = {"ok": False, "checked": False}
+        tracker_calls = []
 
         def search(_platform, keyword, _country, page=1):
             calls.append((keyword, page))
             if page == 1:
                 return [apps[0]], {"cached": False}
-            in_page2.set()
-            release_page2.wait(3)
-            page2_done.set()
             return [apps[1]], {"cached": False}
 
         def getter(url, headers=None, timeout=None):
-            if not overlap["checked"]:
-                entered = in_page2.wait(2)
-                overlap["ok"] = entered and not page2_done.is_set()
-                overlap["checked"] = True
-                release_page2.set()
-            body = "<html><head><title>Quiet Focus</title></head><body><dt>Revenue</dt><dd>-</dd></body></html>"
-            return SimpleNamespace(status_code=200, text=body, url=url)
+            tracker_calls.append(url)
+            raise AssertionError("scouting must not call the revenue provider")
 
         voice = _Capture()
         discovery = discover(
@@ -684,12 +774,11 @@ class PipelineTests(unittest.TestCase):
             mrr_getter=getter,
         )
         self.assertEqual(calls, [("Productivity", 1), ("Productivity", 2)])
-        self.assertTrue(overlap["ok"])
+        self.assertEqual(tracker_calls, [])
         self.assertEqual(len(discovery.qualified), 2)
+        self.assertTrue(all(lead.mrr_status == "pending" for lead in discovery.qualified))
         self.assertTrue(all(lead.estimated_mrr == "" for lead in discovery.qualified))
-        self.assertTrue(
-            any("No public MRR listed — keeping lead" in line for line in voice.lines)
-        )
+        self.assertFalse(any("No public MRR listed" in line for line in voice.lines))
         self.assertFalse(discovery.stats["errors"])
 
     def test_rate_limited_mrr_keeps_the_lead_and_does_not_search_again(self):
@@ -738,10 +827,9 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(calls, [("Productivity", 1)])
         self.assertEqual(len(discovery.qualified), 1)
         self.assertEqual(discovery.qualified[0].estimated_mrr, "")
+        self.assertEqual(discovery.qualified[0].mrr_status, "pending")
         self.assertIsNone(discovery.qualified[0].mrr_numeric)
-        self.assertTrue(
-            any(line == "• Quiet Focus: No public MRR listed — keeping lead" for line in voice.lines)
-        )
+        self.assertFalse(any("keeping lead" in line for line in voice.lines))
         self.assertFalse(discovery.stats["errors"])
 
     def test_parallel_waves_finish_fast_and_stop_at_the_target(self):

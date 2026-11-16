@@ -9,6 +9,40 @@ DEVELOPER_TYPES = [
     ("scaleup", "Scaleup"),
 ]
 
+# Who is running the CLI. This is separate from the ICP being targeted.
+USER_PROFILES = [
+    ("angel_vc", "Angel Investor / VC"),
+    ("growth_agency", "Growth Consultant / Agency"),
+    ("indie_founder", "Indie App Founder"),
+    ("other", "Other"),
+]
+
+# The wizard collapses Indie and Other into one choice. Saved `other` stays valid.
+WIZARD_PROFILES = [
+    ("angel_vc", "Angel Investor / VC"),
+    ("growth_agency", "Growth Consultant / Agency"),
+    ("indie_founder", "Indie App Founder / Other"),
+]
+
+PRICING_MODELS = [
+    ("freemium", "Free + In-App Purchases / Subscriptions (Freemium - Best for MRR)"),
+    ("upfront", "Upfront Paid Apps Only (One-time purchase / Different market)"),
+    ("both", "Both Free/Freemium and Upfront Paid Apps Together"),
+    ("ad_supported", "Free / Ad-Supported (No IAP)"),
+]
+
+# Discovery categories that have a 6-month cohort benchmark.
+ONBOARDING_CATEGORIES = [
+    "Finance",
+    "Business",
+    "Health & Fitness",
+    "Productivity",
+    "Education",
+    "Lifestyle",
+    "Photo & Video",
+    "Utilities",
+]
+
 # Saved answers from the previous audience question.
 LEGACY_DEVELOPER_TYPES = {
     "solo_small": "solo",
@@ -29,6 +63,7 @@ CATEGORIES = [
     "Productivity",
     "Lifestyle",
     "Finance",
+    "Business",
     "Education",
     "Utilities",
     "Photo & Video",

@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from modules.agent_ui import AgentDashboard, WITTY_LINES, clock, sheet_url
+from modules.agent_ui import AgentDashboard, WITTY_LINES, clock, is_high_mrr, sheet_url
 
 
 class AgentDashboardTests(unittest.TestCase):
@@ -61,6 +61,7 @@ class AgentDashboardTests(unittest.TestCase):
         self.assertIn("✓", text)
         board.add_funnel(raw_scanned=40, duplicates_skipped=6, emails_found=8)
         board.remember_save([_Lead("$15k/mo"), _Lead(""), _Lead("N/A")])
+        self.assertFalse(is_high_mrr("<$5K"))
         lines = "\n".join(board.summary_lines())
         self.assertIn("Total time elapsed:", lines)
         self.assertIn("Scanned 40", lines)

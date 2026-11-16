@@ -1,0 +1,1469 @@
+{
+  "run_id": "20261113T175318Z",
+  "leads": [
+    {
+      "platform": "ios",
+      "app_store_id": "6743547737",
+      "app_name": "PowNap",
+      "developer_name": "Valentin Haberling",
+      "app_store_url": "https://apps.apple.com/us/app/id6743547737",
+      "developer_website": "https://pownap.carrd.co",
+      "support_url": "",
+      "description": "PowNap helps you wake up at the right moment by tracking your recovery.\n\nInstead of forcing you awake with a random timer, PowNap watches your heart rate and wakes you when your body feels ready.\n\nLess grogginess.\nLess guessing.\nBetter naps.\n\nPower Nap\n\nChoose:\n\n15 min\n20 min\n25 min\n\nPowNap may wake you earlier if your body recovers faster.\n\nIf not, your selected duration remains the maximum limit.\n\nInfinity Nap\n\nNo fixed timer.\n\nPowNap monitors your recovery and wakes you when your body appears ready.\n\nPerfect when you want rest without watching the clock.\n\nHow it works\n\nStart your nap.\nClose your eyes.\nPowNap tracks your heart rate in the background.\n\nWhen your body shows signs of recovery, you're gently woken up with haptic feedback.\n\nNo loud alarms.\nNo countdown pressure.\n\nDesigned for calm naps\n\n\u2022 Heart-rate based wake detection\n\u2022 Gentle haptic wake-up\n\u2022 Custom nap lengths\n\u2022 Adjustable sensitivity\n\u2022 Adjustable vibration strength\n\u2022 Nap history\n\u2022 Minimal distraction-free interface\n\nEverything runs directly on your Apple Watch.\n\nNo account.\nNo ads.\nNo subscriptions.\n\nPrivate by design\n\nAll processing happens locally on your device.\n\nYour health data stays private.\n\nImportant\n\nApple Health access is required for heart-rate tracking.\n\nPowNap uses a Mind & Body workout session because watchOS requires continuous heart-rate monitoring.\n\nActivity Rings may be affected.\n\nPowNap is not a medical device.\n\nCompatibility\n\nApple Watch Series 4 or newer\n(including Apple Watch SE)\n\nSeries 3 and older are not supported.",
+      "category": "Health & Fitness",
+      "release_date": "2025-03-21",
+      "last_update": "2026-05-27",
+      "rating_count": 6,
+      "review_count": null,
+      "average_rating": 5.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 5.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 6 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "info.pownap@yahoo.com",
+          "email_type": "general",
+          "source_url": "https://pownap.carrd.co",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "Valentin Haberling",
+      "contact_page_url": "https://pownap.carrd.co",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 65,
+      "score_points": 65,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 20,
+          "detail": "Updated within 180 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/valentin-haberling/id1803412455?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/15/aa/0a/15aa0a03-b295-6b28-1fe2-8eabc0949261/AppIcon-0-0-1x_U007ewatch-0-20-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/15/aa/0a/15aa0a03-b295-6b28-1fe2-8eabc0949261/AppIcon-0-0-1x_U007ewatch-0-20-0-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [],
+        "features": [],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/15/aa/0a/15aa0a03-b295-6b28-1fe2-8eabc0949261/AppIcon-0-0-1x_U007ewatch-0-20-0-85-220.png/512x512bb.jpg",
+        "averageUserRating": 5,
+        "contentAdvisoryRating": "4+",
+        "trackCensoredName": "PowNap",
+        "trackViewUrl": "https://apps.apple.com/us/app/pownap/id6743547737?uo=4",
+        "releaseNotes": "Bug fixes and reliability improvements.",
+        "artistId": 1803412455,
+        "artistName": "Valentin Haberling",
+        "genres": [
+          "Health & Fitness",
+          "Productivity"
+        ],
+        "trackId": 6743547737,
+        "trackName": "PowNap",
+        "bundleId": "BluGrey.PowNap",
+        "genreIds": [
+          "6013",
+          "6007"
+        ],
+        "releaseDate": "2025-03-21T07:00:00Z",
+        "sellerName": "Valentin Haberling",
+        "minimumOsVersion": "18.6",
+        "currentVersionReleaseDate": "2026-05-27T20:30:15Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "2.4.4",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "PowNap helps you wake up at the right moment by tracking your recovery.\n\nInstead of forcing you awake with a random timer, PowNap watches your heart rate and wakes you when your body feels ready.\n\nLess grogginess.\nLess guessing.\nBetter naps.\n\nPower Nap\n\nChoose:\n\n15 min\n20 min\n25 min\n\nPowNap may wake you earlier if your body recovers faster.\n\nIf not, your selected duration remains the maximum limit.\n\nInfinity Nap\n\nNo fixed timer.\n\nPowNap monitors your recovery and wakes you when your body appears ready.\n\nPerfect when you want rest without watching the clock.\n\nHow it works\n\nStart your nap.\nClose your eyes.\nPowNap tracks your heart rate in the background.\n\nWhen your body shows signs of recovery, you're gently woken up with haptic feedback.\n\nNo loud alarms.\nNo countdown pressure.\n\nDesigned for calm naps\n\n\u2022 Heart-rate based wake detection\n\u2022 Gentle haptic wake-up\n\u2022 Custom nap lengths\n\u2022 Adjustable sensitivity\n\u2022 Adjustable vibration strength\n\u2022 Nap history\n\u2022 Minimal distraction-free interface\n\nEverything runs directly on your Apple Watch.\n\nNo account.\nNo ads.\nNo subscriptions.\n\nPrivate by design\n\nAll processing happens locally on your device.\n\nYour health data stays private.\n\nImportant\n\nApple Health access is required for heart-rate tracking.\n\nPowNap uses a Mind & Body workout session because watchOS requires continuous heart-rate monitoring.\n\nActivity Rings may be affected.\n\nPowNap is not a medical device.\n\nCompatibility\n\nApple Watch Series 4 or newer\n(including Apple Watch SE)\n\nSeries 3 and older are not supported.",
+        "sellerUrl": "https://pownap.carrd.co",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "3834880",
+        "formattedPrice": "$5.99",
+        "userRatingCountForCurrentVersion": 6,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 5,
+        "price": 5.99,
+        "userRatingCount": 6
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "1477944755",
+      "app_name": "Health Export CSV",
+      "developer_name": "Tomas Parizek",
+      "app_store_url": "https://apps.apple.com/us/app/id1477944755",
+      "developer_website": "https://healthexport.app/",
+      "support_url": "",
+      "description": "Export your Apple Health data to CSV or GPX - back it up, open it in Excel or Google Sheets, or analyze it with AI. HealthExport Remote syncs in the background and works with Claude, Codex, and any LLM  through an open-source CLI. End-to-end encrypted - we never see your data.\n\nKey Features:\n- Manual Exports: Export your health data to CSV, PDF or GPX files manually in the app while tailoring the configuration to your needs (desired data types, time period, aggregation, etc.)\n- Automated Exports: Health data export can be automated using Apple Shortcuts for seamless integration into your daily routines.\n- HealthExport Remote: Access your health data remotely from your computer through a secure and customizable web dashboard. Synchronization with the web app happens effortlessly without the need to open the app on your phone. Your data is end-to-end encrypted for ultimate privacy.\n\nYour privacy is our priority - we don't collect or share your health data with anyone.\n\nCategories of Health Data:\n- Aggregation based types - Export can be aggregated by minutes, hours, days, months, or years\n- Record based types - Export contains all entries from the Health app\n- Workouts and Workout Routes\n\n-----------------------------\nAggregated data types:\n-----------------------------\nActivity:\n- Apple Watch stand hours\n- Distance cycling\n- Distance downhill snow sports\n- Distance swimming\n- Distance walking / running\n- Exercise time\n- Flights Climbed\n- Stand time\n- Step count\n- Swimming stroke count\n\nEnergy:\n- Active energy burned\n- Basal energy burned\n\nHeart rate:\n- Heart rate\n- Resting heart rate\n- Walking heart rate\n\nNutrition:\n- Caffeine\n- Calcium\n- Carbohydrates\n- Cholesterol\n- Energy consumed\n- Fat saturated\n- Fat total\n- Fiber\n- Iron\n- Magnesium\n- Potassium\n- Protein\n- Sodium\n- Sugar\n- Vitamin A\n- Vitamin C\n- Vitamin D\n- Water\n\nWheelchair:\n- Distance wheelchair\n- Wheelchair push count\n\n-----------------------------\nRecord based data types:\n-----------------------------\nAudio exposure:\n- Environmental sound levels\n- Headphone sound levels\n\nBlood:\n- Blood glucose\n- Blood pressure (Diastolic)\n- Blood pressure (Systolic)\n- Insulin delivery\n\nBody:\n- 6 minute walk test\n- Alcoholic beverages\n- Body fat percentage\n- Body mass\n- Body mass index\n- Body temperature\n- Handwashing\n- Height\n- Lean body mass\n- Mindfulness\n- Medications\n- Oxygen saturation\n- Physical effort\n- Respiratory rate\n- State of Mind\n- Time in daylight\n- Tooth brushing\n- VO2 Max\n- Waist circumference\n- Walking asymmetry percentage\n- Walking double support percentage\n- Walking speed\n- Walking steadiness\n- Walking steadiness notification\n- Walking step length\n- Wrist temperature\n\nCycling:\n- Cadence\n- Functional threshold power\n- Power\n- Speed\n\nDiving:\n- Underwater depth\n- Water temperature\n\nHeart rate:\n- Event: High heart rate\n- Event: Irregular heart rhythm\n- Event: Low heart rate\n- Heart rate\n- Heart rate variability (SDNN)\n- Resting heart rate\n- Walking heart rate\n\nReproductive health:\n- Basal body temperature\n- Cervical mucus quality\n- Intermenstrual bleeding\n- Menstrual flow\n- Ovulation test result\n- Pregnancy test\n- Progesterone test\n- Sexual activity\n\nRunning:\n- Ground contact time\n- Power\n- Speed\n- Stride length\n- Vertical oscillation\n\nSleep:\n- Time asleep\n- Time awake\n- Time core\n- Time deep\n- Time in bed\n- Time REM\n\n-----------------------------\n\nHealthExport Remote lets you visualize your health data on a customizable dashboard accessible from a browser on your computer. You can also perform remote CSV exports on the website. Health data is automatically synced to the service multiple times per day in the background, so there is no need for opening the app on your phone anymore. The data is end to end encrypted between your phone and your browser. HealthExport Remote requires a subscription payment due to monthly fees associated with running the service.\n\nRemote Service EULA: https://healthexport.app/terms/remote.html",
+      "category": "Health & Fitness",
+      "release_date": "2019-09-19",
+      "last_update": "2026-10-27",
+      "rating_count": 155,
+      "review_count": null,
+      "average_rating": 4.50968,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 2.99,
+      "has_iap": null,
+      "developer_type": "startup",
+      "icp_reason": "Developer name looks like a person. 155 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "hello@healthexport.app",
+          "email_type": "general",
+          "source_url": "https://healthexport.app/",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "Tomas Parizek",
+      "contact_page_url": "https://healthexport.app/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 75,
+      "score_points": 75,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "100\u20134,999 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Startups"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 2612 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/tomas-parizek/id1425394913?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/e4/64/27/e46427ca-95b0-0186-0e45-95684dc781f6/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/e4/64/27/e46427ca-95b0-0186-0e45-95684dc781f6/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [],
+        "features": [],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/e4/64/27/e46427ca-95b0-0186-0e45-95684dc781f6/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/512x512bb.jpg",
+        "averageUserRating": 4.50968,
+        "contentAdvisoryRating": "4+",
+        "trackCensoredName": "Health Export CSV",
+        "trackViewUrl": "https://apps.apple.com/us/app/health-export-csv/id1477944755?uo=4",
+        "releaseNotes": "Optimized for iPhone Duo, with improved layouts and side-by-side charts.",
+        "artistId": 1425394913,
+        "artistName": "Tomas Parizek",
+        "genres": [
+          "Health & Fitness",
+          "Utilities"
+        ],
+        "trackId": 1477944755,
+        "trackName": "Health Export CSV",
+        "bundleId": "cz.tomasparizek.HealthExport",
+        "genreIds": [
+          "6013",
+          "6002"
+        ],
+        "releaseDate": "2019-09-19T07:00:00Z",
+        "sellerName": "Tomas Parizek",
+        "minimumOsVersion": "16.0",
+        "currentVersionReleaseDate": "2026-10-27T14:02:43Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "3.14.0",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Export your Apple Health data to CSV or GPX - back it up, open it in Excel or Google Sheets, or analyze it with AI. HealthExport Remote syncs in the background and works with Claude, Codex, and any LLM  through an open-source CLI. End-to-end encrypted - we never see your data.\n\nKey Features:\n- Manual Exports: Export your health data to CSV, PDF or GPX files manually in the app while tailoring the configuration to your needs (desired data types, time period, aggregation, etc.)\n- Automated Exports: Health data export can be automated using Apple Shortcuts for seamless integration into your daily routines.\n- HealthExport Remote: Access your health data remotely from your computer through a secure and customizable web dashboard. Synchronization with the web app happens effortlessly without the need to open the app on your phone. Your data is end-to-end encrypted for ultimate privacy.\n\nYour privacy is our priority - we don't collect or share your health data with anyone.\n\nCategories of Health Data:\n- Aggregation based types - Export can be aggregated by minutes, hours, days, months, or years\n- Record based types - Export contains all entries from the Health app\n- Workouts and Workout Routes\n\n-----------------------------\nAggregated data types:\n-----------------------------\nActivity:\n- Apple Watch stand hours\n- Distance cycling\n- Distance downhill snow sports\n- Distance swimming\n- Distance walking / running\n- Exercise time\n- Flights Climbed\n- Stand time\n- Step count\n- Swimming stroke count\n\nEnergy:\n- Active energy burned\n- Basal energy burned\n\nHeart rate:\n- Heart rate\n- Resting heart rate\n- Walking heart rate\n\nNutrition:\n- Caffeine\n- Calcium\n- Carbohydrates\n- Cholesterol\n- Energy consumed\n- Fat saturated\n- Fat total\n- Fiber\n- Iron\n- Magnesium\n- Potassium\n- Protein\n- Sodium\n- Sugar\n- Vitamin A\n- Vitamin C\n- Vitamin D\n- Water\n\nWheelchair:\n- Distance wheelchair\n- Wheelchair push count\n\n-----------------------------\nRecord based data types:\n-----------------------------\nAudio exposure:\n- Environmental sound levels\n- Headphone sound levels\n\nBlood:\n- Blood glucose\n- Blood pressure (Diastolic)\n- Blood pressure (Systolic)\n- Insulin delivery\n\nBody:\n- 6 minute walk test\n- Alcoholic beverages\n- Body fat percentage\n- Body mass\n- Body mass index\n- Body temperature\n- Handwashing\n- Height\n- Lean body mass\n- Mindfulness\n- Medications\n- Oxygen saturation\n- Physical effort\n- Respiratory rate\n- State of Mind\n- Time in daylight\n- Tooth brushing\n- VO2 Max\n- Waist circumference\n- Walking asymmetry percentage\n- Walking double support percentage\n- Walking speed\n- Walking steadiness\n- Walking steadiness notification\n- Walking step length\n- Wrist temperature\n\nCycling:\n- Cadence\n- Functional threshold power\n- Power\n- Speed\n\nDiving:\n- Underwater depth\n- Water temperature\n\nHeart rate:\n- Event: High heart rate\n- Event: Irregular heart rhythm\n- Event: Low heart rate\n- Heart rate\n- Heart rate variability (SDNN)\n- Resting heart rate\n- Walking heart rate\n\nReproductive health:\n- Basal body temperature\n- Cervical mucus quality\n- Intermenstrual bleeding\n- Menstrual flow\n- Ovulation test result\n- Pregnancy test\n- Progesterone test\n- Sexual activity\n\nRunning:\n- Ground contact time\n- Power\n- Speed\n- Stride length\n- Vertical oscillation\n\nSleep:\n- Time asleep\n- Time awake\n- Time core\n- Time deep\n- Time in bed\n- Time REM\n\n-----------------------------\n\nHealthExport Remote lets you visualize your health data on a customizable dashboard accessible from a browser on your computer. You can also perform remote CSV exports on the website. Health data is automatically synced to the service multiple times per day in the background, so there is no need for opening the app on your phone anymore. The data is end to end encrypted between your phone and your browser. HealthExport Remote requires a subscription payment due to monthly fees associated with running the service.\n\nRemote Service EULA: https://healthexport.app/terms/remote.html",
+        "sellerUrl": "https://healthexport.app/",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "55424000",
+        "formattedPrice": "$2.99",
+        "userRatingCountForCurrentVersion": 155,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 4.50968,
+        "price": 2.99,
+        "userRatingCount": 155
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6782245341",
+      "app_name": "DrumPulse: Drum Timing Coach",
+      "developer_name": "Perfect Number Llc",
+      "app_store_url": "https://apps.apple.com/us/app/id6782245341",
+      "developer_website": "https://drumpulseapp.com/",
+      "support_url": "",
+      "description": "Turn your drumming into a workout \u2014 and your Apple Watch into a timing coach.\n\nDrumPulse listens to the motion of your snare hand, turns every strike into data, and gives you two things at once: a real fitness record and an honest report on your time. No extra gear, no mics \u2014 just your watch.\n\nARE YOU RUSHING OR DRAGGING?\nA live groove meter swings as you play: orange when you push ahead of the beat, blue when you fall behind. At the end of each set you get an \"in the pocket\" score and a clear breakdown of how many hits landed early, on time, and late.\n\nTWO WAYS TO PRACTICE\n\u2022 Metronome \u2014 set a tempo and every hit is graded against a steady click, like a timing trainer.\n\u2022 Free Play \u2014 no click needed. DrumPulse learns your own groove and flags when you speed up or slow down relative to yourself.\n\nTHE STORY OF YOUR SET\nAverages lie \u2014 your set has an arc. DrumPulse reads the shape of the whole night:\n\u2022 Set-arc trend \u2014 did you fade or hold up? \"Hit strength held steady; timing tightened (\u00b128 \u2192 \u00b125 ms).\"\n\u2022 In-song tempo drift \u2014 the per-song average hides a climb from 105 to 115. DrumPulse measures the slope inside each song: \"Tempo climbed inside 13 of 21 songs \u2014 watch the push.\"\n\u2022 Playing time \u2014 how much of the set you actually played, and your longest unbroken run.\n\u2022 Dynamic range \u2014 the strength gap between your ghost notes and accents, as a ratio (5.7\u00d7 soft to loud).\n\u2022 Accent lag \u2014 do your hard hits land later than your soft ones? A habit mean deviation hides.\n\nDRUMMING IS CARDIO\nEvery session is saved to Apple Health as a workout, with duration, heart rate, and active energy \u2014 your practice adds to your activity rings. Beyond the basics:\n\u2022 Heart-rate recovery one minute after you stop \u2014 a real fitness marker.\n\u2022 Time-in-zone across the whole set.\n\u2022 Loudness (average and peak dB) from the watch's own hearing sensors, with a warning when a set runs loud enough, long enough, to matter.\n\nKNOW YOUR PLAYING\n\u2022 Live tempo (BPM) from the timing between your hits.\n\u2022 Dynamics \u2014 every hit sorted into ghost, body, and accent relative to your own touch.\n\u2022 Per-song breakdown \u2014 a long set splits into songs on the natural pauses, each with its own tempo, timing, and dynamics.\n\u2022 Calibration \u2014 tap eight times and DrumPulse sets its sensitivity from your real strikes.\n\u2022 Honest pauses \u2014 take a water break and the clock, calories, and grading all freeze.\n\nON YOUR PHONE, TOO\nThe DrumPulse iPhone companion pulls your sessions off the watch so you can review them on a bigger screen \u2014 trends across sets, personal bests, and the full detail of any session. Weight and intensity sync from the phone, so calories stay right.\n\nPRIVATE BY DESIGN\nNo accounts. No tracking. No analytics. No servers. Your motion and heart-rate data are used on your device only and never leave it; sessions sync solely between your own watch and iPhone over Apple's encrypted connection.\n\nBuilt by a gigging drummer, for drummers. Strap on your watch, hit play, and find your pocket.\n\nNote: Apple Health has no \"drumming\" workout type, so sessions appear as Other (branded Drumming) in the Fitness app.",
+      "category": "Health & Fitness",
+      "release_date": "2026-09-19",
+      "last_update": "2026-10-16",
+      "rating_count": 2,
+      "review_count": null,
+      "average_rating": 5.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 3.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Legal suffix on a person's name. 2 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "mario@mariothemaker.com",
+          "email_type": "general",
+          "source_url": "https://drumpulseapp.com/",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Perfect Number Llc",
+      "contact_page_url": "https://drumpulseapp.com/",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 90,
+      "score_points": 90,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/perfect-number-llc/id1050517169?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/0b/02/89/0b028928-4008-b6ba-f534-13b481493222/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/0b/02/89/0b028928-4008-b6ba-f534-13b481493222/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [],
+        "features": [],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/0b/02/89/0b028928-4008-b6ba-f534-13b481493222/AppIcon-0-0-1x_U007ephone-0-1-85-220.png/512x512bb.jpg",
+        "averageUserRating": 5,
+        "contentAdvisoryRating": "4+",
+        "trackCensoredName": "DrumPulse: Drum Timing Coach",
+        "trackViewUrl": "https://apps.apple.com/us/app/drumpulse-drum-timing-coach/id6782245341?uo=4",
+        "releaseNotes": "Every hit is kept, and all of it reaches your iPhone. Sessions now store the last 30,000 hits instead of 1,500, enough for a three-hour gig, and a long set syncs to the phone as a whole file instead of a trimmed copy, so the hit-by-hit view covers the full session.",
+        "artistId": 1050517169,
+        "artistName": "Perfect Number Llc",
+        "genres": [
+          "Health & Fitness",
+          "Music"
+        ],
+        "trackId": 6782245341,
+        "trackName": "DrumPulse: Drum Timing Coach",
+        "bundleId": "net.mariocruz.DrumPulse",
+        "genreIds": [
+          "6013",
+          "6011"
+        ],
+        "releaseDate": "2026-09-19T07:00:00Z",
+        "sellerName": "Perfect Number Llc",
+        "minimumOsVersion": "17.0",
+        "currentVersionReleaseDate": "2026-10-16T17:37:14Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.0.6",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Turn your drumming into a workout \u2014 and your Apple Watch into a timing coach.\n\nDrumPulse listens to the motion of your snare hand, turns every strike into data, and gives you two things at once: a real fitness record and an honest report on your time. No extra gear, no mics \u2014 just your watch.\n\nARE YOU RUSHING OR DRAGGING?\nA live groove meter swings as you play: orange when you push ahead of the beat, blue when you fall behind. At the end of each set you get an \"in the pocket\" score and a clear breakdown of how many hits landed early, on time, and late.\n\nTWO WAYS TO PRACTICE\n\u2022 Metronome \u2014 set a tempo and every hit is graded against a steady click, like a timing trainer.\n\u2022 Free Play \u2014 no click needed. DrumPulse learns your own groove and flags when you speed up or slow down relative to yourself.\n\nTHE STORY OF YOUR SET\nAverages lie \u2014 your set has an arc. DrumPulse reads the shape of the whole night:\n\u2022 Set-arc trend \u2014 did you fade or hold up? \"Hit strength held steady; timing tightened (\u00b128 \u2192 \u00b125 ms).\"\n\u2022 In-song tempo drift \u2014 the per-song average hides a climb from 105 to 115. DrumPulse measures the slope inside each song: \"Tempo climbed inside 13 of 21 songs \u2014 watch the push.\"\n\u2022 Playing time \u2014 how much of the set you actually played, and your longest unbroken run.\n\u2022 Dynamic range \u2014 the strength gap between your ghost notes and accents, as a ratio (5.7\u00d7 soft to loud).\n\u2022 Accent lag \u2014 do your hard hits land later than your soft ones? A habit mean deviation hides.\n\nDRUMMING IS CARDIO\nEvery session is saved to Apple Health as a workout, with duration, heart rate, and active energy \u2014 your practice adds to your activity rings. Beyond the basics:\n\u2022 Heart-rate recovery one minute after you stop \u2014 a real fitness marker.\n\u2022 Time-in-zone across the whole set.\n\u2022 Loudness (average and peak dB) from the watch's own hearing sensors, with a warning when a set runs loud enough, long enough, to matter.\n\nKNOW YOUR PLAYING\n\u2022 Live tempo (BPM) from the timing between your hits.\n\u2022 Dynamics \u2014 every hit sorted into ghost, body, and accent relative to your own touch.\n\u2022 Per-song breakdown \u2014 a long set splits into songs on the natural pauses, each with its own tempo, timing, and dynamics.\n\u2022 Calibration \u2014 tap eight times and DrumPulse sets its sensitivity from your real strikes.\n\u2022 Honest pauses \u2014 take a water break and the clock, calories, and grading all freeze.\n\nON YOUR PHONE, TOO\nThe DrumPulse iPhone companion pulls your sessions off the watch so you can review them on a bigger screen \u2014 trends across sets, personal bests, and the full detail of any session. Weight and intensity sync from the phone, so calories stay right.\n\nPRIVATE BY DESIGN\nNo accounts. No tracking. No analytics. No servers. Your motion and heart-rate data are used on your device only and never leave it; sessions sync solely between your own watch and iPhone over Apple's encrypted connection.\n\nBuilt by a gigging drummer, for drummers. Strap on your watch, hit play, and find your pocket.\n\nNote: Apple Health has no \"drumming\" workout type, so sessions appear as Other (branded Drumming) in the Fitness app.",
+        "sellerUrl": "https://drumpulseapp.com/",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "3750912",
+        "formattedPrice": "$3.99",
+        "userRatingCountForCurrentVersion": 2,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 5,
+        "price": 3.99,
+        "userRatingCount": 2
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6819063462",
+      "app_name": "Fituous",
+      "developer_name": "Joshua Ludahl",
+      "app_store_url": "https://apps.apple.com/us/app/id6819063462",
+      "developer_website": "https://fituous.com",
+      "support_url": "",
+      "description": "Fituous is a calm, local-first calorie and nutrition tracker for iPhone and iPad. It brings your food diary, macros, hydration, fasting and weight into one clear view, so you can see how your day is going without juggling four apps.\n\nSTART WITH A TARGET\nThe goal wizard asks a few questions about your body, activity and goal, then suggests a daily calorie target and a macro split. Every number stays editable. Set a target weight and date, a daily step goal and a water goal, and adjust them whenever life changes.\n\nA DIARY THAT ADDS UP\nLog breakfast, lunch, dinner and snacks, then watch the calorie ring fill with each meal. Each meal gets its own color, so the ring shows how the day is built, not just a total. Your remaining calories sit alongside protein, carbs and fat. Open any day in the timeline to edit a portion, remove an entry or see what you ate.\n\nLOG FOOD YOUR WAY\nSearch Open Food Facts and USDA FoodData Central, scan a barcode, or add a food of your own. Choose grams, a serving or a named portion, and Fituous scales the calories and macros for you. Build a meal from several foods and save it for next time. Mark favorites for one-tap logging, and set a repeat schedule for the days you want a saved meal offered again. Repeats are suggestions on the dashboard. Nothing is logged without you confirming it.\n\nSAY IT, REVIEW IT\nVoice logging turns one spoken phrase into proposed diary lines. Review the food, amount and meal, fix anything that was misheard, then log the whole plan at once. Speech runs on-device, and an unmatched name is never logged.\n\nMORE THAN CALORIES\nTrack water with a quick-add bottle and a daily goal. Follow a fasting window with a live timer, stages and 16:8, 18:6, 20:4 or custom protocols. Record weigh-ins, set a target weight and watch the trend. Add workouts and see how movement fits alongside your calorie target. The Nutrients screen goes beyond the big three with fiber, sugar and the rest of the day's totals. Local reminders can nudge you for meals, water and weigh-ins.\n\nSEE THE PATTERN\nProgress shows calories against your target across week, month and year, plus weight trends and how consistently you have been logging. The point is not a perfect record. It is a clearer picture of what is working.\n\nBUILT TO STAY YOURS\nFituous keeps your diary on your device. There is no account, no feed and no social layer. Export a portable backup whenever you want, and restore it when you need to. Apple Health can supply steps, workouts and weight readings; Fituous only reads from Health, it never writes back. The interface follows your system appearance, supports Dynamic Type and works on iPhone and iPad.\n\nFituous is for the person who wants the numbers without the noise. Log the day, see the pattern, and make the next choice a little easier.\n\nNo ads. No subscriptions. Your diary stays yours.",
+      "category": "Health & Fitness",
+      "release_date": "2026-11-08",
+      "last_update": "2026-11-13",
+      "rating_count": 0,
+      "review_count": null,
+      "average_rating": 0.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 0 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "info@softklass.com",
+          "email_type": "general",
+          "source_url": "https://fituous.com/support",
+          "evidence": "The address uses a general business mailbox name."
+        }
+      ],
+      "contact_name": "Joshua Ludahl",
+      "contact_page_url": "https://fituous.com/support",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 90,
+      "score_points": 90,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/joshua-ludahl/id6819063464?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/19/d3/1a/19d31a7a-fae0-336d-48cb-324700839465/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/19/d3/1a/19d31a7a-fae0-336d-48cb-324700839465/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/19/d3/1a/19d31a7a-fae0-336d-48cb-324700839465/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "averageUserRating": 0,
+        "contentAdvisoryRating": "4+",
+        "trackCensoredName": "Fituous",
+        "trackViewUrl": "https://apps.apple.com/us/app/fituous/id6819063462?uo=4",
+        "releaseNotes": "General updates including a better theme, smother navigation and more. Check it out!",
+        "artistId": 6819063464,
+        "artistName": "Joshua Ludahl",
+        "genres": [
+          "Health & Fitness",
+          "Food & Drink"
+        ],
+        "trackId": 6819063462,
+        "trackName": "Fituous",
+        "bundleId": "com.softklass.fituous",
+        "genreIds": [
+          "6013",
+          "6023"
+        ],
+        "releaseDate": "2026-11-08T08:00:00Z",
+        "sellerName": "Joshua Ludahl",
+        "minimumOsVersion": "18.0",
+        "currentVersionReleaseDate": "2026-11-13T03:22:42Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.02",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Fituous is a calm, local-first calorie and nutrition tracker for iPhone and iPad. It brings your food diary, macros, hydration, fasting and weight into one clear view, so you can see how your day is going without juggling four apps.\n\nSTART WITH A TARGET\nThe goal wizard asks a few questions about your body, activity and goal, then suggests a daily calorie target and a macro split. Every number stays editable. Set a target weight and date, a daily step goal and a water goal, and adjust them whenever life changes.\n\nA DIARY THAT ADDS UP\nLog breakfast, lunch, dinner and snacks, then watch the calorie ring fill with each meal. Each meal gets its own color, so the ring shows how the day is built, not just a total. Your remaining calories sit alongside protein, carbs and fat. Open any day in the timeline to edit a portion, remove an entry or see what you ate.\n\nLOG FOOD YOUR WAY\nSearch Open Food Facts and USDA FoodData Central, scan a barcode, or add a food of your own. Choose grams, a serving or a named portion, and Fituous scales the calories and macros for you. Build a meal from several foods and save it for next time. Mark favorites for one-tap logging, and set a repeat schedule for the days you want a saved meal offered again. Repeats are suggestions on the dashboard. Nothing is logged without you confirming it.\n\nSAY IT, REVIEW IT\nVoice logging turns one spoken phrase into proposed diary lines. Review the food, amount and meal, fix anything that was misheard, then log the whole plan at once. Speech runs on-device, and an unmatched name is never logged.\n\nMORE THAN CALORIES\nTrack water with a quick-add bottle and a daily goal. Follow a fasting window with a live timer, stages and 16:8, 18:6, 20:4 or custom protocols. Record weigh-ins, set a target weight and watch the trend. Add workouts and see how movement fits alongside your calorie target. The Nutrients screen goes beyond the big three with fiber, sugar and the rest of the day's totals. Local reminders can nudge you for meals, water and weigh-ins.\n\nSEE THE PATTERN\nProgress shows calories against your target across week, month and year, plus weight trends and how consistently you have been logging. The point is not a perfect record. It is a clearer picture of what is working.\n\nBUILT TO STAY YOURS\nFituous keeps your diary on your device. There is no account, no feed and no social layer. Export a portable backup whenever you want, and restore it when you need to. Apple Health can supply steps, workouts and weight readings; Fituous only reads from Health, it never writes back. The interface follows your system appearance, supports Dynamic Type and works on iPhone and iPad.\n\nFituous is for the person who wants the numbers without the noise. Log the day, see the pattern, and make the next choice a little easier.\n\nNo ads. No subscriptions. Your diary stays yours.",
+        "sellerUrl": "https://fituous.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "6831104",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 0,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 0,
+        "price": 4.99,
+        "userRatingCount": 0
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "1391084560",
+      "app_name": "Modern Essentials Plus",
+      "developer_name": "AromaTools",
+      "app_store_url": "https://apps.apple.com/us/app/id1391084560",
+      "developer_website": "https://aromatools.com/pages/modern-essentials-plus-app",
+      "support_url": "",
+      "description": "Get your d\u014dTERRA\u00ae oils game on\u2014anytime, anywhere\u2014with the #1 app for Wellness Advocates! \nModern Essentials\u00ae Plus delivers all you need to know for using, sharing, and succeeding with essential oils. It is the most comprehensive app for all d\u014dTERRA\u00ae oils, blends, and products! \n\nTwo ways to get going:\n\n\u2022 \u201cBasic\u201d app\u2014thousands of uses for d\u014dTERRA\u00ae oils and blends for a low, one-time fee.\n\u2022 \u201cFull Access\u201d monthly or yearly subscription\u2014features noted below with an asterisk (*).\n\nHere\u2019s the in-depth information included for each d\u014dTERRA\u00ae\u00a0oil and blend:\n\u2022 Primary uses\n\u2022 Secondary and tertiary uses (single oils)*\n\u2022 \"Simple Solutions\" protocols*\n\u2022 Application methods\n\u2022 Body systems*\n\u2022 Safety data\n\u2022 Detailed usage and application charts*\n\u2022 Chemical constituents*\n\u2022 Extraction methods\n\u2022 Aromatic influences\n\u2022 Blend classifications\n\u2022 Blending compatibilities\n\u2022 Historical uses\n\u2022 Scientific and medical research references with PubMed links (some available, more coming)*\n\nHere\u2019s what\u2019s in \"My Usage Guide\"\u2014the working core of the app:\n\u2022 Instantly search through hundreds of conditions and symptoms to find primary recommended oils, blends, supplements*, and personal care products*.\n\u2022 Find secondary and tertiary recommendations of oils and blends, supplements, and personal care products.*\n\u2022 Get \"Simple Solutions\" protocols.*\n\u2022 Access recipes for personal care, health, cooking, cleaning, and home care.*\n\nHere\u2019s how to organize and personalize your app:*\n\u2022 Mark your favorite products.\n\u2022 Bookmark conditions for quick-and-easy reference.\n\u2022 Track your current essential oil inventory to see which recommended oils you already have for any condition.\n\u2022 Make a wish list for easy ordering.\n\u2022 Write personal notes for any product or condition.\n\nHere\u2019s a list of current app languages:+\n\u2022 Chinese  (simplified)\n\u2022 Dutch\n\u2022 English\n\u2022 French\n\u2022 German\n\u2022 Italian\n\u2022 Japanese\n\u2022 Portuguese\n\u2022 Spanish\n\u2022 Russian\n\u2022 More on the way!\n\n\n+Each language version is based on the most recent edition of the Modern Essentials\u00ae Handbook in that language. Both \u201cBasic\u201d and \u201cFull Access\u201d apps will be updated free of charge as new editions are written and translated.\n\n\nDISCLAIMER\nThe information contained in this app is not intended to diagnose, treat, cure, prevent or otherwise reduce the effects of any disease or ailment. Consult a licensed, qualified health care provider for diagnosis, medical care, and treatment.\n\nAromaTools\u00ae, is a true third-party company that does not profit from the sales of essential oils. It is not sponsored by, affiliated with, or endorsed by any essential oil company. \u2028\u2028\n\n\nSubscription payment will be charged to your iTunes Account at confirmation of purchase. Account will be charged for renewal within 24-hours prior to the end of the current period at the purchase price.\u2028Your subscription will automatically renew unless cancelled at least 24 hours before the end of the current period. You can cancel anytime with your iTunes account settings. Any unused portion of a free trial period, if offered, will be forfeited when the user purchases a subscription to that publication. You can manage or turn off auto-renew in your Apple ID Account Setting any time after purchase. \n\nFor additional information please see:\nhttps://aromatools.com/pages/at-apps-privacy-policy\nhttps://aromatools.com/pages/at-apps-terms-of-service",
+      "category": "Health & Fitness",
+      "release_date": "2018-10-31",
+      "last_update": "2026-11-12",
+      "rating_count": 13,
+      "review_count": null,
+      "average_rating": 3.92308,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 3.99,
+      "has_iap": null,
+      "developer_type": "unknown",
+      "icp_reason": "Not enough evidence to choose an ICP.",
+      "emails": [
+        {
+          "address": "service@aromatools.com",
+          "email_type": "support",
+          "source_url": "https://aromatools.com/pages/modern-essentials-plus-app",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "AromaTools",
+      "contact_page_url": "https://aromatools.com/pages/modern-essentials-plus-app",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 62,
+      "score_points": 50,
+      "score_known_max": 80,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "unknown",
+          "points": 0,
+          "max_points": 20,
+          "detail": "ICP could not be classified."
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 2935 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [
+        "ICP"
+      ],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/aromatools/id533956713?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/70/d6/3a/70d63af6-ed84-bc38-5c89-cce657ef53cc/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/70/d6/3a/70d63af6-ed84-bc38-5c89-cce657ef53cc/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [
+          "Infrequent/Mild Medical/Treatment Information"
+        ],
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/70/d6/3a/70d63af6-ed84-bc38-5c89-cce657ef53cc/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/512x512bb.jpg",
+        "averageUserRating": 3.92308,
+        "contentAdvisoryRating": "12+",
+        "trackCensoredName": "Modern Essentials Plus",
+        "trackViewUrl": "https://apps.apple.com/us/app/modern-essentials-plus/id1391084560?uo=4",
+        "releaseNotes": "Bug fixes and stability improvements.",
+        "artistId": 533956713,
+        "artistName": "AromaTools",
+        "genres": [
+          "Health & Fitness",
+          "Reference"
+        ],
+        "trackId": 1391084560,
+        "trackName": "Modern Essentials Plus",
+        "bundleId": "com.aromatools.MEPlus",
+        "genreIds": [
+          "6013",
+          "6006"
+        ],
+        "releaseDate": "2018-10-31T08:52:40Z",
+        "sellerName": "AromaTools",
+        "minimumOsVersion": "16.6",
+        "currentVersionReleaseDate": "2026-11-12T14:52:14Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.6.2",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Get your d\u014dTERRA\u00ae oils game on\u2014anytime, anywhere\u2014with the #1 app for Wellness Advocates! \nModern Essentials\u00ae Plus delivers all you need to know for using, sharing, and succeeding with essential oils. It is the most comprehensive app for all d\u014dTERRA\u00ae oils, blends, and products! \n\nTwo ways to get going:\n\n\u2022 \u201cBasic\u201d app\u2014thousands of uses for d\u014dTERRA\u00ae oils and blends for a low, one-time fee.\n\u2022 \u201cFull Access\u201d monthly or yearly subscription\u2014features noted below with an asterisk (*).\n\nHere\u2019s the in-depth information included for each d\u014dTERRA\u00ae\u00a0oil and blend:\n\u2022 Primary uses\n\u2022 Secondary and tertiary uses (single oils)*\n\u2022 \"Simple Solutions\" protocols*\n\u2022 Application methods\n\u2022 Body systems*\n\u2022 Safety data\n\u2022 Detailed usage and application charts*\n\u2022 Chemical constituents*\n\u2022 Extraction methods\n\u2022 Aromatic influences\n\u2022 Blend classifications\n\u2022 Blending compatibilities\n\u2022 Historical uses\n\u2022 Scientific and medical research references with PubMed links (some available, more coming)*\n\nHere\u2019s what\u2019s in \"My Usage Guide\"\u2014the working core of the app:\n\u2022 Instantly search through hundreds of conditions and symptoms to find primary recommended oils, blends, supplements*, and personal care products*.\n\u2022 Find secondary and tertiary recommendations of oils and blends, supplements, and personal care products.*\n\u2022 Get \"Simple Solutions\" protocols.*\n\u2022 Access recipes for personal care, health, cooking, cleaning, and home care.*\n\nHere\u2019s how to organize and personalize your app:*\n\u2022 Mark your favorite products.\n\u2022 Bookmark conditions for quick-and-easy reference.\n\u2022 Track your current essential oil inventory to see which recommended oils you already have for any condition.\n\u2022 Make a wish list for easy ordering.\n\u2022 Write personal notes for any product or condition.\n\nHere\u2019s a list of current app languages:+\n\u2022 Chinese  (simplified)\n\u2022 Dutch\n\u2022 English\n\u2022 French\n\u2022 German\n\u2022 Italian\n\u2022 Japanese\n\u2022 Portuguese\n\u2022 Spanish\n\u2022 Russian\n\u2022 More on the way!\n\n\n+Each language version is based on the most recent edition of the Modern Essentials\u00ae Handbook in that language. Both \u201cBasic\u201d and \u201cFull Access\u201d apps will be updated free of charge as new editions are written and translated.\n\n\nDISCLAIMER\nThe information contained in this app is not intended to diagnose, treat, cure, prevent or otherwise reduce the effects of any disease or ailment. Consult a licensed, qualified health care provider for diagnosis, medical care, and treatment.\n\nAromaTools\u00ae, is a true third-party company that does not profit from the sales of essential oils. It is not sponsored by, affiliated with, or endorsed by any essential oil company. \u2028\u2028\n\n\nSubscription payment will be charged to your iTunes Account at confirmation of purchase. Account will be charged for renewal within 24-hours prior to the end of the current period at the purchase price.\u2028Your subscription will automatically renew unless cancelled at least 24 hours before the end of the current period. You can cancel anytime with your iTunes account settings. Any unused portion of a free trial period, if offered, will be forfeited when the user purchases a subscription to that publication. You can manage or turn off auto-renew in your Apple ID Account Setting any time after purchase. \n\nFor additional information please see:\nhttps://aromatools.com/pages/at-apps-privacy-policy\nhttps://aromatools.com/pages/at-apps-terms-of-service",
+        "sellerUrl": "https://aromatools.com/pages/modern-essentials-plus-app",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "28779520",
+        "formattedPrice": "$3.99",
+        "userRatingCountForCurrentVersion": 13,
+        "trackContentRating": "12+",
+        "averageUserRatingForCurrentVersion": 3.92308,
+        "price": 3.99,
+        "userRatingCount": 13
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6815726433",
+      "app_name": "Steady Tally: Habit Tracker",
+      "developer_name": "Stephane Nguyen",
+      "app_store_url": "https://apps.apple.com/us/app/id6815726433",
+      "developer_website": "https://www.steadytally.app",
+      "support_url": "",
+      "description": "to 1.2.1. It's 3,977 characters, under the 4,000 limit:\n\nSteady Tally helps you keep the small promises that add up: a morning run, eight glasses of water, ten quiet minutes, the pill you take with breakfast. One tap logs it. Every day becomes a dot. Over weeks, the dots show you what is working.\n\nONE TAP, THE RIGHT WAY\nEach habit gets the button that fits it.\n\u2022 Check-off: done or not, one tap.\n\u2022 Count: tap +1 for every glass, rep or page.\n\u2022 Duration: start a timer right in the list.\n\u2022 Dose: tap Take and the exact time is logged.\nAlso track amounts with units, rate your mood or energy from 1 to 5, count the days you avoided something, or set a daily limit, like one coffee at most. A habit can follow a schedule, or have no repeat and be logged whenever it happens.\n\nMEDICATION, ON TIME\n\u2022 Set dose times, a window for each dose and gentle follow-up reminders.\n\u2022 Late doses still count and are flagged, so you see the real picture.\n\u2022 Log as-needed medication and see how often you take it.\n\u2022 Track tablets on hand and get a refill reminder before you run out.\n\u2022 See 30-day adherence and every time you took each dose.\n\u2022 Export a report to share with your doctor.\n\nAPPLE WATCH\n\u2022 Check off habits from your wrist with one tap.\n\u2022 Turn the Digital Crown to count, and mark a dose Taken or snooze it.\n\u2022 Start a timer and see each habit's last four weeks.\n\nTAP A TAG\nPut an NFC sticker where the habit happens, by the kettle or the pill box, and hold your iPhone near it to log. Add a Shortcuts automation and it logs without opening the app.\n\nREMINDERS THAT KNOW WHEN YOU'RE DONE\n\u2022 Reminders skip anything you already logged.\n\u2022 Smart pace nudges only when you are behind your usual rhythm.\n\u2022 Medication alerts can be Time Sensitive so a Focus does not hide them.\n\u2022 Log straight from the notification: +1 glass, Taken or Snooze.\n\nLOCK SCREEN, WIDGETS AND LIVE ACTIVITIES\n\u2022 Interactive widgets for the Home Screen and Lock Screen.\n\u2022 Live Activities keep timers and dose windows in the Dynamic Island.\n\u2022 Control Center buttons to log water or take your next dose.\n\nSEE YOUR YEAR FILL IN\n\u2022 A dot for every day, for every habit.\n\u2022 Current and best streaks, goal rate and weekday patterns.\n\u2022 Tap any day to fix a log or add a note.\n\nFIND WHAT MOVES TOGETHER\n\u2022 Threads show which habits rise and fall together, in plain words like \"8 days in 10\".\n\u2022 Connections show how habits relate, for example water days and better sleep.\n\u2022 Stack a new habit after one you already do, or set out to break one.\n\u2022 Compare any two habits side by side.\nThese are patterns, not proof.\n\nPRO INSIGHTS, BOUGHT ONCE\nOptional extras, each a one-time purchase with no subscription. Everything above stays free.\n\u2022 Brief and trends: your month in brief and your daily kept rate.\n\u2022 Correlations: every habit against every other, the same day, the next day and by week.\n\u2022 Rhythm: when you log by weekday and hour, flat and in 3D.\n\u2022 Mood and notes: your ratings against the habits you kept, and the words your notes share.\nEvery number is worked out on your iPhone from your own logs. Sold on iPhones that support Apple Intelligence, and a purchase unlocks it on every device of your Apple Account.\n\nBUILT FOR IPHONE DUO AND IPAD\n\u2022 Open it up: today on the left, the habit's full story on the right.\n\u2022 Half-fold it for a meditation timer, or for Rhythm in 3D above the crease.\n\u2022 Closed, your habits are big tiles and every button sits in the side column.\n\nAPPLE HEALTH\nConnect Apple Health and Steady Tally checks off what your iPhone and Apple Watch already know, like sleep, workouts and mindful minutes.\n\nYOUR DATA\n\u2022 No account, no ads, nothing sold. Your habits sync with iCloud.\n\u2022 Import past check-offs from a CSV file, export everything, and restore it on a new iPhone.\n\nDESIGNED FOR IOS 27 & iPhone Duo\nLiquid Glass throughout, a warm paper light theme and a calm navy dark theme, or follow your iPhone.\n\nSteady Tally is a tracker, not medical advice. Always follow your prescriber's instructions.",
+      "category": "Health & Fitness",
+      "release_date": "2026-10-07",
+      "last_update": "2026-11-04",
+      "rating_count": 2,
+      "review_count": null,
+      "average_rating": 3.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 5.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 2 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "stephaneclaw@gmail.com",
+          "email_type": "general",
+          "source_url": "https://www.steadytally.app/support",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Stephane Nguyen",
+      "contact_page_url": "https://www.steadytally.app/support",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 90,
+      "score_points": 90,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/stephane-nguyen/id428962380?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/d8/0d/99/d80d9903-cab0-6432-6bc2-4f27e5d65664/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/d8/0d/99/d80d9903-cab0-6432-6bc2-4f27e5d65664/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/d8/0d/99/d80d9903-cab0-6432-6bc2-4f27e5d65664/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
+        "averageUserRating": 3,
+        "contentAdvisoryRating": "4+",
+        "trackCensoredName": "Steady Tally: Habit Tracker",
+        "trackViewUrl": "https://apps.apple.com/us/app/steady-tally-habit-tracker/id6815726433?uo=4",
+        "releaseNotes": "Bigger text and a tidier medication page.\n\n\u2022 The whole app follows your system text size, up to the largest accessibility sizes. Screens scroll when they need to.\n\u2022 Medication: tap the tablets on hand or a refill amount to type it on the number pad.\n\u2022 Medication page: Edit opens the medication directly. History, Patterns, Refill, Archive and Delete are under More. Take shows in the medication's color.\n\u2022 iPhone Duo closed: each screen's buttons sit in the side column, with a habit's Done, +1 or Start at the bottom.\n\u2022 iPhone Duo open: History, Patterns, Connections and Reminders open beside the list and stay there when you close the device.\n\u2022 Settings: Release notes, under Support, lists what changed in each version.",
+        "artistId": 428962380,
+        "artistName": "Stephane Nguyen",
+        "genres": [
+          "Health & Fitness",
+          "Productivity"
+        ],
+        "trackId": 6815726433,
+        "trackName": "Steady Tally: Habit Tracker",
+        "bundleId": "com.steadytally.app",
+        "genreIds": [
+          "6013",
+          "6007"
+        ],
+        "releaseDate": "2026-10-07T07:00:00Z",
+        "sellerName": "Apple NGUYEN",
+        "minimumOsVersion": "26.6",
+        "currentVersionReleaseDate": "2026-11-04T20:17:04Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.2.1",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "to 1.2.1. It's 3,977 characters, under the 4,000 limit:\n\nSteady Tally helps you keep the small promises that add up: a morning run, eight glasses of water, ten quiet minutes, the pill you take with breakfast. One tap logs it. Every day becomes a dot. Over weeks, the dots show you what is working.\n\nONE TAP, THE RIGHT WAY\nEach habit gets the button that fits it.\n\u2022 Check-off: done or not, one tap.\n\u2022 Count: tap +1 for every glass, rep or page.\n\u2022 Duration: start a timer right in the list.\n\u2022 Dose: tap Take and the exact time is logged.\nAlso track amounts with units, rate your mood or energy from 1 to 5, count the days you avoided something, or set a daily limit, like one coffee at most. A habit can follow a schedule, or have no repeat and be logged whenever it happens.\n\nMEDICATION, ON TIME\n\u2022 Set dose times, a window for each dose and gentle follow-up reminders.\n\u2022 Late doses still count and are flagged, so you see the real picture.\n\u2022 Log as-needed medication and see how often you take it.\n\u2022 Track tablets on hand and get a refill reminder before you run out.\n\u2022 See 30-day adherence and every time you took each dose.\n\u2022 Export a report to share with your doctor.\n\nAPPLE WATCH\n\u2022 Check off habits from your wrist with one tap.\n\u2022 Turn the Digital Crown to count, and mark a dose Taken or snooze it.\n\u2022 Start a timer and see each habit's last four weeks.\n\nTAP A TAG\nPut an NFC sticker where the habit happens, by the kettle or the pill box, and hold your iPhone near it to log. Add a Shortcuts automation and it logs without opening the app.\n\nREMINDERS THAT KNOW WHEN YOU'RE DONE\n\u2022 Reminders skip anything you already logged.\n\u2022 Smart pace nudges only when you are behind your usual rhythm.\n\u2022 Medication alerts can be Time Sensitive so a Focus does not hide them.\n\u2022 Log straight from the notification: +1 glass, Taken or Snooze.\n\nLOCK SCREEN, WIDGETS AND LIVE ACTIVITIES\n\u2022 Interactive widgets for the Home Screen and Lock Screen.\n\u2022 Live Activities keep timers and dose windows in the Dynamic Island.\n\u2022 Control Center buttons to log water or take your next dose.\n\nSEE YOUR YEAR FILL IN\n\u2022 A dot for every day, for every habit.\n\u2022 Current and best streaks, goal rate and weekday patterns.\n\u2022 Tap any day to fix a log or add a note.\n\nFIND WHAT MOVES TOGETHER\n\u2022 Threads show which habits rise and fall together, in plain words like \"8 days in 10\".\n\u2022 Connections show how habits relate, for example water days and better sleep.\n\u2022 Stack a new habit after one you already do, or set out to break one.\n\u2022 Compare any two habits side by side.\nThese are patterns, not proof.\n\nPRO INSIGHTS, BOUGHT ONCE\nOptional extras, each a one-time purchase with no subscription. Everything above stays free.\n\u2022 Brief and trends: your month in brief and your daily kept rate.\n\u2022 Correlations: every habit against every other, the same day, the next day and by week.\n\u2022 Rhythm: when you log by weekday and hour, flat and in 3D.\n\u2022 Mood and notes: your ratings against the habits you kept, and the words your notes share.\nEvery number is worked out on your iPhone from your own logs. Sold on iPhones that support Apple Intelligence, and a purchase unlocks it on every device of your Apple Account.\n\nBUILT FOR IPHONE DUO AND IPAD\n\u2022 Open it up: today on the left, the habit's full story on the right.\n\u2022 Half-fold it for a meditation timer, or for Rhythm in 3D above the crease.\n\u2022 Closed, your habits are big tiles and every button sits in the side column.\n\nAPPLE HEALTH\nConnect Apple Health and Steady Tally checks off what your iPhone and Apple Watch already know, like sleep, workouts and mindful minutes.\n\nYOUR DATA\n\u2022 No account, no ads, nothing sold. Your habits sync with iCloud.\n\u2022 Import past check-offs from a CSV file, export everything, and restore it on a new iPhone.\n\nDESIGNED FOR IOS 27 & iPhone Duo\nLiquid Glass throughout, a warm paper light theme and a calm navy dark theme, or follow your iPhone.\n\nSteady Tally is a tracker, not medical advice. Always follow your prescriber's instructions.",
+        "sellerUrl": "https://www.steadytally.app",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "16339968",
+        "formattedPrice": "$5.99",
+        "userRatingCountForCurrentVersion": 2,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 3,
+        "price": 5.99,
+        "userRatingCount": 2
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "937793199",
+      "app_name": "Ref Guide for Essential Oils",
+      "developer_name": "Abundant Health",
+      "app_store_url": "https://apps.apple.com/us/app/id937793199",
+      "developer_website": "https://abundanthealth4u.com/pages/reference-guide-for-essential-oils-app",
+      "support_url": "",
+      "description": "The Reference\u00a0Guide\u00a0app is the portable, user-friendly\u00a0guide\u00a0to Young Living\u00ae* essential oils and products. You\u2019ll get quick information on-the-go to support better health and an essential oil lifestyle.\n\nNow updated with all products available as of June 2026! \n\nWith a subscription, you\u2019ll receive more detailed information on Young Living\u00ae supplements and personal care products. Plus, with \u201cEveryday Essentials\u201d tips and recipes, you can confidently incorporate essential oils into all aspects of daily living.\u2028\u2028This app combines information from the authoritative Reference Guide for Essential Oils (by Connie and Alan Higley) with convenient search, easy navigation, and personal note-taking features. Use the app anytime, anywhere to quickly find and confidently use recommended single oils and blends for hundreds of health conditions and wellness solutions.\u2028\u2028The Reference Guide app will become your go-to source for personal essential oil use and for sharing your love of essential oils. The app features a personal guide section that details hundreds of health topics for which essential oils can be used to help support the body\u2019s natural ability to heal itself. Additionally, key information on over 100 single oils and over 100 proprietary oil blends will help you better understand and use essential oils.\u2028\u2028The app also provides essential oil application instructions\u2014including detailed information about auricular internal body points, the digestive tract, the autonomic nervous system, and the olfactory system.\nFor over 30 years, our team has:\nReviewed thousands of research articles;\nScoured hundreds of books and lectures by essential oil experts, scientists, medical professionals, historians, and other authorities;\nGained practical experience using essential oils for ourselves and our families;\nPrepared to distill all of the essential information for you in one amazing app!\n(This convenient app runs on the Apple family of iPhones and iPads.)\n\n\n*Abundant Health\u2122 is a true third-party company that does not profit from the sales of essential oils and is not sponsored by, affiliated with, or endorsed by any essential oil company. We offer this material as a third-party, unbiased presentation about oils and products sold by one of the leading essential oil suppliers and producers in the world. Product names throughout this\u00a0app\u00a0are trademarks or registered trademarks of Young Living\u00ae Essential Oils. Abundant Health\u2122\u00a0is not sponsored by, affiliated with, or endorsed by Young Living\u00ae Essential Oils.\n\nDISCLAIMER\n\nThe information contained in this app is not intended to diagnose, treat, cure, prevent, or otherwise reduce the effects of any disease or ailment. Consult a licensed, qualified health care provider for diagnosis, medical care, and treatment.\n\nPrice are in U.S. Dollars (USD). Pricing in other currencies and countries may vary and actual charges may be converted to your local currency depending on the country of residence.\n\nSubscription payment will be charged to your iTunes account at confirmation of purchase. Your account will be charged for renewal within 24 hours before the end of the current period.\u2028Your subscription will automatically renew unless cancelled at least 24 hours before the end of the current period. You can cancel at any time within your iTunes account settings. Any unused portion of a free trial period, if offered, will be forfeited when you purchase a subscription to the app. You can manage or turn off the auto-renew option in your Apple ID account settings at any time after purchase.\n\nFor additional information please see:\nhttps://www.abundanthealth4u.com/privacy-policy\nhttps://www.abundanthealth4u.com/terms",
+      "category": "Health & Fitness",
+      "release_date": "2015-01-15",
+      "last_update": "2026-10-23",
+      "rating_count": 51,
+      "review_count": null,
+      "average_rating": 4.05882,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 4.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 51 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "service@abundanthealth4u.com",
+          "email_type": "support",
+          "source_url": "https://abundanthealth4u.com/pages/reference-guide-for-essential-oils-app",
+          "evidence": "The address uses a support mailbox name."
+        }
+      ],
+      "contact_name": "Abundant Health",
+      "contact_page_url": "https://abundanthealth4u.com/pages/reference-guide-for-essential-oils-app",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 70,
+      "score_points": 70,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 25,
+          "max_points": 30,
+          "detail": "11\u201399 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 15,
+          "detail": "Launched 4320 days ago."
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/abundant-health/id937793198?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/8d/2c/67/8d2c671d-1254-bae7-a366-6bd9ae2564cc/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/8d/2c/67/8d2c671d-1254-bae7-a366-6bd9ae2564cc/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [
+          "Unrestricted Web Access",
+          "Infrequent/Mild Medical/Treatment Information"
+        ],
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/8d/2c/67/8d2c671d-1254-bae7-a366-6bd9ae2564cc/AppIcon-1x_U007emarketing-0-8-0-85-220-0.png/512x512bb.jpg",
+        "averageUserRating": 4.05882,
+        "contentAdvisoryRating": "17+",
+        "trackCensoredName": "Ref Guide for Essential Oils",
+        "trackViewUrl": "https://apps.apple.com/us/app/ref-guide-for-essential-oils/id937793199?uo=4",
+        "releaseNotes": "What\u2019s New in Version 4.1\n\nNew Blends \u2014 Simplified by Jacob + Kait\u2122\nSix new blends added to the Simplified by Jacob + Kait collection: Amber Limeade\u2122, Cherry Float\u2122, Tropical Punch\u2122 (Summer Collection), plus Warm Pumpkin Spice\u2122, Lavender Cr\u00e8me\u2122, and Fresh Linen\u2122 (Spring Collection).\n\nUpdated Primary Uses\nCommon Primary Uses have been reviewed and updated across Single Oil and Blend detail pages to ensure accurate, consistent condition listings.\n\nImproved Detail Pages\nBlend, Supplement, and Personal Care detail pages have been reorganized for easier reading. Safety Data is now its own clearly labeled section, and additional details (Body Systems, Aromatic Influence, Carrier Oils, etc.) are grouped under a \u201cMore Information\u201d dropdown to reduce clutter.\n\nBug Fixes\nFixed an issue on iOS 26 where the Simplified by Jacob + Kait collection dropdowns were unresponsive to taps.",
+        "artistId": 937793198,
+        "artistName": "Abundant Health",
+        "genres": [
+          "Health & Fitness",
+          "Reference"
+        ],
+        "trackId": 937793199,
+        "trackName": "Ref Guide for Essential Oils",
+        "bundleId": "com.abundanthealth4u.RefGuide4EO",
+        "genreIds": [
+          "6013",
+          "6006"
+        ],
+        "releaseDate": "2015-01-15T00:44:45Z",
+        "sellerName": "Abundant Health, LLC",
+        "minimumOsVersion": "16.6",
+        "currentVersionReleaseDate": "2026-10-23T17:42:55Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "4.1",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "The Reference\u00a0Guide\u00a0app is the portable, user-friendly\u00a0guide\u00a0to Young Living\u00ae* essential oils and products. You\u2019ll get quick information on-the-go to support better health and an essential oil lifestyle.\n\nNow updated with all products available as of June 2026! \n\nWith a subscription, you\u2019ll receive more detailed information on Young Living\u00ae supplements and personal care products. Plus, with \u201cEveryday Essentials\u201d tips and recipes, you can confidently incorporate essential oils into all aspects of daily living.\u2028\u2028This app combines information from the authoritative Reference Guide for Essential Oils (by Connie and Alan Higley) with convenient search, easy navigation, and personal note-taking features. Use the app anytime, anywhere to quickly find and confidently use recommended single oils and blends for hundreds of health conditions and wellness solutions.\u2028\u2028The Reference Guide app will become your go-to source for personal essential oil use and for sharing your love of essential oils. The app features a personal guide section that details hundreds of health topics for which essential oils can be used to help support the body\u2019s natural ability to heal itself. Additionally, key information on over 100 single oils and over 100 proprietary oil blends will help you better understand and use essential oils.\u2028\u2028The app also provides essential oil application instructions\u2014including detailed information about auricular internal body points, the digestive tract, the autonomic nervous system, and the olfactory system.\nFor over 30 years, our team has:\nReviewed thousands of research articles;\nScoured hundreds of books and lectures by essential oil experts, scientists, medical professionals, historians, and other authorities;\nGained practical experience using essential oils for ourselves and our families;\nPrepared to distill all of the essential information for you in one amazing app!\n(This convenient app runs on the Apple family of iPhones and iPads.)\n\n\n*Abundant Health\u2122 is a true third-party company that does not profit from the sales of essential oils and is not sponsored by, affiliated with, or endorsed by any essential oil company. We offer this material as a third-party, unbiased presentation about oils and products sold by one of the leading essential oil suppliers and producers in the world. Product names throughout this\u00a0app\u00a0are trademarks or registered trademarks of Young Living\u00ae Essential Oils. Abundant Health\u2122\u00a0is not sponsored by, affiliated with, or endorsed by Young Living\u00ae Essential Oils.\n\nDISCLAIMER\n\nThe information contained in this app is not intended to diagnose, treat, cure, prevent, or otherwise reduce the effects of any disease or ailment. Consult a licensed, qualified health care provider for diagnosis, medical care, and treatment.\n\nPrice are in U.S. Dollars (USD). Pricing in other currencies and countries may vary and actual charges may be converted to your local currency depending on the country of residence.\n\nSubscription payment will be charged to your iTunes account at confirmation of purchase. Your account will be charged for renewal within 24 hours before the end of the current period.\u2028Your subscription will automatically renew unless cancelled at least 24 hours before the end of the current period. You can cancel at any time within your iTunes account settings. Any unused portion of a free trial period, if offered, will be forfeited when you purchase a subscription to the app. You can manage or turn off the auto-renew option in your Apple ID account settings at any time after purchase.\n\nFor additional information please see:\nhttps://www.abundanthealth4u.com/privacy-policy\nhttps://www.abundanthealth4u.com/terms",
+        "sellerUrl": "https://abundanthealth4u.com/pages/reference-guide-for-essential-oils-app",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "49304576",
+        "formattedPrice": "$4.99",
+        "userRatingCountForCurrentVersion": 51,
+        "trackContentRating": "17+",
+        "averageUserRatingForCurrentVersion": 4.05882,
+        "price": 4.99,
+        "userRatingCount": 51
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6771120182",
+      "app_name": "Health Data Widgets",
+      "developer_name": "Daniel Buehner",
+      "app_store_url": "https://apps.apple.com/us/app/id6771120182",
+      "developer_website": "https://hdw.fn11.net",
+      "support_url": "",
+      "description": "Your steps and distance from Apple Health \u2013 on your Home Screen, Lock Screen and Apple Watch.\n\nSmall, medium and large widgets, a multi-widget with two values, and Lock Screen widgets. Every widget is set up on its own: touch and hold, then choose what it shows.\n\nWhat you can do:\n\u2022 Add step or distance widgets to your Home Screen (small, medium, large)\n\u2022 Add a multi-widget with two values side by side or stacked\n\u2022 Put widgets on your Lock Screen (circular, rectangular, inline)\n\u2022 Apple Watch app with complications for your watch face (steps, distance, daily goal)\n\u2022 Set daily goals for steps and distance, with progress in the widget\n\u2022 Goals sync to your Apple Watch automatically\n\u2022 Home screen with today's steps, goal progress and a setup guide\n\u2022 Configure every widget on its own\n\u2022 Choose where the value sits (top/middle/bottom, leading/center/trailing)\n\u2022 Pick a text colour for Home Screen widgets from seven presets\n\u2022 Hide the widget heading when you only want the number\n\u2022 Preview all widgets in the app\n\u2022 Step-by-step help for adding the widgets\n\nFeels like Apple Health: bold pink numbers on a clean, adaptive background. No clutter.\n\nEverything stays local:\n\u2022 Read-only access to Apple Health\n\u2022 No network requests, ever\n\u2022 No analytics, no tracking\n\u2022 Nothing leaves your devices \u2013 goals only go directly from iPhone to Watch\n\nLight and dark mode. Units that match your region (km / mi). English and German. iPhone, iPad and Apple Watch.",
+      "category": "Health & Fitness",
+      "release_date": "2026-05-21",
+      "last_update": "2026-10-16",
+      "rating_count": 0,
+      "review_count": null,
+      "average_rating": 0.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 0.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 0 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "hdw@fn11.net",
+          "email_type": "general",
+          "source_url": "https://hdw.fn11.net",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Daniel Buehner",
+      "contact_page_url": "https://hdw.fn11.net",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 90,
+      "score_points": 90,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/daniel-buehner/id1534927407?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/e9/5c/d5/e95cd56b-d909-ee38-77af-d336ae9ec9ad/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/e9/5c/d5/e95cd56b-d909-ee38-77af-d336ae9ec9ad/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/e9/5c/d5/e95cd56b-d909-ee38-77af-d336ae9ec9ad/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "averageUserRating": 0,
+        "contentAdvisoryRating": "4+",
+        "trackCensoredName": "Health Data Widgets",
+        "trackViewUrl": "https://apps.apple.com/us/app/health-data-widgets/id6771120182?uo=4",
+        "releaseNotes": "\u2022 New home screen: today's steps, your goal progress and a quick setup guide\n\u2022 Apple Watch app with complications for your watch face\n\u2022 Daily goals for steps and distance, with new goal widgets\n\u2022 Better layout on iPad",
+        "artistId": 1534927407,
+        "artistName": "Daniel Buehner",
+        "genres": [
+          "Health & Fitness",
+          "Lifestyle"
+        ],
+        "trackId": 6771120182,
+        "trackName": "Health Data Widgets",
+        "bundleId": "net.fn11.healthdatawidgets",
+        "genreIds": [
+          "6013",
+          "6012"
+        ],
+        "releaseDate": "2026-05-21T07:00:00Z",
+        "sellerName": "Daniel Buehner",
+        "minimumOsVersion": "18.0",
+        "currentVersionReleaseDate": "2026-10-16T12:46:23Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "1.2",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Your steps and distance from Apple Health \u2013 on your Home Screen, Lock Screen and Apple Watch.\n\nSmall, medium and large widgets, a multi-widget with two values, and Lock Screen widgets. Every widget is set up on its own: touch and hold, then choose what it shows.\n\nWhat you can do:\n\u2022 Add step or distance widgets to your Home Screen (small, medium, large)\n\u2022 Add a multi-widget with two values side by side or stacked\n\u2022 Put widgets on your Lock Screen (circular, rectangular, inline)\n\u2022 Apple Watch app with complications for your watch face (steps, distance, daily goal)\n\u2022 Set daily goals for steps and distance, with progress in the widget\n\u2022 Goals sync to your Apple Watch automatically\n\u2022 Home screen with today's steps, goal progress and a setup guide\n\u2022 Configure every widget on its own\n\u2022 Choose where the value sits (top/middle/bottom, leading/center/trailing)\n\u2022 Pick a text colour for Home Screen widgets from seven presets\n\u2022 Hide the widget heading when you only want the number\n\u2022 Preview all widgets in the app\n\u2022 Step-by-step help for adding the widgets\n\nFeels like Apple Health: bold pink numbers on a clean, adaptive background. No clutter.\n\nEverything stays local:\n\u2022 Read-only access to Apple Health\n\u2022 No network requests, ever\n\u2022 No analytics, no tracking\n\u2022 Nothing leaves your devices \u2013 goals only go directly from iPhone to Watch\n\nLight and dark mode. Units that match your region (km / mi). English and German. iPhone, iPad and Apple Watch.",
+        "sellerUrl": "https://hdw.fn11.net",
+        "languageCodesISO2A": [
+          "EN",
+          "DE"
+        ],
+        "fileSizeBytes": "3720192",
+        "formattedPrice": "$0.99",
+        "userRatingCountForCurrentVersion": 0,
+        "trackContentRating": "4+",
+        "averageUserRatingForCurrentVersion": 0,
+        "price": 0.99,
+        "userRatingCount": 0
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6757834926",
+      "app_name": "PepCalc Pro",
+      "developer_name": "Matthew Fishman",
+      "app_store_url": "https://apps.apple.com/us/app/id6757834926",
+      "developer_website": "https://pepcalcapp.com",
+      "support_url": "",
+      "description": "PepCalc Pro is a precise, private calculator and tracker for reconstituted vials. Enter what is in the vial and how you mixed it, and the app works out each measurement, schedules it, records it and keeps track of what is left. Everything stays on your device: no account, no ads, no subscription.\n\nTODAY\n- See what is due and record it in one tap. The vial balance updates itself.\n- The rest of your day at a glance, with undo, progress and your current streak.\n\nONE-STEP VIAL SETUP\n- Enter the amount in the vial, the diluent and your target amount.\n- See units and mL on a clear gauge, and how many measurements the vial holds.\n- Save the preparation and its vial together, then schedule it in one tap.\n\nCALCULATOR\n- Exact concentration and volume, with a \"Show math\" view of every formula and intermediate value.\n- Blend mode for vials that contain 2 to 6 components you name and enter yourself.\n\nSCHEDULE\n- A week view with each day's entries and color-coded protocols, plus a month calendar.\n- Daily, weekly or custom days, several times a day, with an optional end date.\n- On-device reminders. Choose whether names appear in notifications.\n\nRECORDS\n- Completed and skipped entries with exact amounts, times and notes.\n- 7, 30 and 90-day trends: completion rate, streaks and a daily chart.\n- Export to CSV or PDF.\n\nINVENTORY\n- Every vial's balance, run-out date and expiry, with alerts before either.\n- A full history of each vial.\n\nBUILT FOR EVERY SCREEN\n- iPhone, iPad and iPhone Duo, with two-column layouts on larger screens.\n- Light and dark appearance.\n\nPRIVATE BY DESIGN\n- Works fully offline. Your data never leaves your device.\n- Optional App Lock with Face ID, Touch ID or passcode.\n- Backup and restore to a file you control.\n- One-time purchase. All features included.\n\nPepCalc Pro is a calculation and record-keeping tool. It does not provide medical advice.",
+      "category": "Health & Fitness",
+      "release_date": "2026-01-26",
+      "last_update": "2026-11-11",
+      "rating_count": 1,
+      "review_count": null,
+      "average_rating": 5.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 2.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 1 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "pepcalc-support@pepcalcapp.com",
+          "email_type": "general",
+          "source_url": "https://pepcalcapp.com",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Matthew Fishman",
+      "contact_page_url": "https://pepcalcapp.com",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 80,
+      "score_points": 80,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Updated within 30 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 15,
+          "detail": "Launched within 2 years"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/matthew-fishman/id1838052729?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/de/44/d8/de44d8be-39c4-a70e-ed0b-2dfe504e55fd/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/de/44/d8/de44d8be-39c4-a70e-ed0b-2dfe504e55fd/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [],
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/de/44/d8/de44d8be-39c4-a70e-ed0b-2dfe504e55fd/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "averageUserRating": 5,
+        "contentAdvisoryRating": "17+",
+        "trackCensoredName": "PepCalc Pro",
+        "trackViewUrl": "https://apps.apple.com/us/app/pepcalc-pro/id6757834926?uo=4",
+        "releaseNotes": "PepCalc Pro 2.0 is a complete redesign.\n\n\u2022 Today: see what is due and record it in one tap. The vial updates itself.\n\u2022 Set up a vial in one step: the preparation and its vial are saved together.\n\u2022 Schedule: a week view with each day's entries, plus the month calendar.\n\u2022 Records: completion rate, streaks and a 30-day chart.\n\u2022 Inventory: run-out dates, expiry alerts and the full history of each vial.\n\u2022 iPad, tablets and foldables: two-column layouts that use the whole screen.\n\u2022 Light mode: choose System, Light or Dark in Settings.\n\u2022 Reminders are refreshed in the background, and can leave names out of notifications.\n\nYour saved preparations are now in Calculator, under Saved. Protocols are under Schedule.",
+        "artistId": 1838052729,
+        "artistName": "Matthew Fishman",
+        "genres": [
+          "Health & Fitness",
+          "Reference"
+        ],
+        "trackId": 6757834926,
+        "trackName": "PepCalc Pro",
+        "bundleId": "com.pepcalcapp.peptidecalcpro",
+        "genreIds": [
+          "6013",
+          "6006"
+        ],
+        "releaseDate": "2026-01-26T08:00:00Z",
+        "sellerName": "Matthew Fishman",
+        "minimumOsVersion": "16.4",
+        "currentVersionReleaseDate": "2026-11-11T18:21:46Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "2.0.0",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "PepCalc Pro is a precise, private calculator and tracker for reconstituted vials. Enter what is in the vial and how you mixed it, and the app works out each measurement, schedules it, records it and keeps track of what is left. Everything stays on your device: no account, no ads, no subscription.\n\nTODAY\n- See what is due and record it in one tap. The vial balance updates itself.\n- The rest of your day at a glance, with undo, progress and your current streak.\n\nONE-STEP VIAL SETUP\n- Enter the amount in the vial, the diluent and your target amount.\n- See units and mL on a clear gauge, and how many measurements the vial holds.\n- Save the preparation and its vial together, then schedule it in one tap.\n\nCALCULATOR\n- Exact concentration and volume, with a \"Show math\" view of every formula and intermediate value.\n- Blend mode for vials that contain 2 to 6 components you name and enter yourself.\n\nSCHEDULE\n- A week view with each day's entries and color-coded protocols, plus a month calendar.\n- Daily, weekly or custom days, several times a day, with an optional end date.\n- On-device reminders. Choose whether names appear in notifications.\n\nRECORDS\n- Completed and skipped entries with exact amounts, times and notes.\n- 7, 30 and 90-day trends: completion rate, streaks and a daily chart.\n- Export to CSV or PDF.\n\nINVENTORY\n- Every vial's balance, run-out date and expiry, with alerts before either.\n- A full history of each vial.\n\nBUILT FOR EVERY SCREEN\n- iPhone, iPad and iPhone Duo, with two-column layouts on larger screens.\n- Light and dark appearance.\n\nPRIVATE BY DESIGN\n- Works fully offline. Your data never leaves your device.\n- Optional App Lock with Face ID, Touch ID or passcode.\n- Backup and restore to a file you control.\n- One-time purchase. All features included.\n\nPepCalc Pro is a calculation and record-keeping tool. It does not provide medical advice.",
+        "sellerUrl": "https://pepcalcapp.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "46560256",
+        "formattedPrice": "$2.99",
+        "userRatingCountForCurrentVersion": 1,
+        "trackContentRating": "17+",
+        "averageUserRatingForCurrentVersion": 5,
+        "price": 2.99,
+        "userRatingCount": 1
+      }
+    },
+    {
+      "platform": "ios",
+      "app_store_id": "6815450699",
+      "app_name": "Core Atlas",
+      "developer_name": "Daniel Levy",
+      "app_store_url": "https://apps.apple.com/us/app/id6815450699",
+      "developer_website": "https://coreatlas.dnalevity.com",
+      "support_url": "",
+      "description": "Core Atlas is a private, offline learning and practice library for adults with penises.\n\nLearn how sexual response, erections, ejaculation, pelvic-floor coordination, pleasure, communication, and confidence fit together. Follow a self-paced 12-stage foundation or choose a guided practice for breathing, relaxation, awareness, and pelvic-floor control.\n\nEvery topic is clearly labeled as guideline-supported, clinical reference-supported, emerging or limited evidence, or traditional practice. A separate advanced track explains Mantak Chia-associated Taoist sexual cultivation with historical context, evidence limits, contraindications, and clear stop conditions. Forceful or mechanical methods are education only.\n\nCore Atlas includes:\n\n- A structured library of concise lessons\n- Twelve guided practices and a 12-stage foundation\n- Erectile-health and ejaculation-control education\n- Pelvic-floor strength, coordination, and relaxation\n- Consent, confidence, and partner communication\n- Accessible animated diagrams and static alternatives\n- Bookmarks, practice history, and goals stored only on your device\n- Optional background audio for guided sessions\n\nCore Atlas is educational and does not diagnose or treat a medical condition. It does not provide medication or supplement advice. Seek urgent care for an erection lasting 3\u20134 hours or longer (or a painful erection over one hour with sickle cell disease), chest symptoms, fainting, or sudden severe penile or testicular pain. Consult a qualified clinician about persistent or sudden changes, new curvature, painful ejaculation, urinary difficulty, or distress.\n\nNo account. No subscription. No advertising. No analytics. No cloud sync.",
+      "category": "Health & Fitness",
+      "release_date": "2026-10-07",
+      "last_update": "2026-10-10",
+      "rating_count": 0,
+      "review_count": null,
+      "average_rating": 0.0,
+      "install_count": null,
+      "revenue_usd": null,
+      "price": 3.99,
+      "has_iap": null,
+      "developer_type": "solo",
+      "icp_reason": "Developer name looks like a person. 0 ratings. This store did not send downloads or revenue.",
+      "emails": [
+        {
+          "address": "me@dnalevity.com",
+          "email_type": "general",
+          "source_url": "https://coreatlas.dnalevity.com/support",
+          "evidence": "Public business address with no founder evidence."
+        }
+      ],
+      "contact_name": "Daniel Levy",
+      "contact_page_url": "https://coreatlas.dnalevity.com/support",
+      "enrichment_status": "ok",
+      "enrichment_note": "Found 1 public email(s).",
+      "rejected_email_count": 0,
+      "search_keyword": "Health & Fitness",
+      "filter_reason": "",
+      "score_normalized": 82,
+      "score_points": 82,
+      "score_known_max": 100,
+      "score_breakdown": [
+        {
+          "id": "ratings",
+          "label": "Rating count",
+          "status": "awarded",
+          "points": 30,
+          "max_points": 30,
+          "detail": "0\u201310 ratings"
+        },
+        {
+          "id": "developer_type",
+          "label": "ICP",
+          "status": "awarded",
+          "points": 20,
+          "max_points": 20,
+          "detail": "Solo developer"
+        },
+        {
+          "id": "recency",
+          "label": "Recent update",
+          "status": "awarded",
+          "points": 12,
+          "max_points": 20,
+          "detail": "Updated within 90 days"
+        },
+        {
+          "id": "launch_age",
+          "label": "Launch recency",
+          "status": "awarded",
+          "points": 15,
+          "max_points": 15,
+          "detail": "Launched within 6 months"
+        },
+        {
+          "id": "monetization",
+          "label": "Monetization",
+          "status": "awarded",
+          "points": 5,
+          "max_points": 10,
+          "detail": "Basic monetization"
+        },
+        {
+          "id": "founder_contact",
+          "label": "Verified founder contact",
+          "status": "not_matched",
+          "points": 0,
+          "max_points": 5,
+          "detail": "No founder email with supporting evidence."
+        }
+      ],
+      "score_missing": [],
+      "estimated_mrr": "",
+      "mrr_numeric": null,
+      "mrr_status": "unavailable",
+      "source": {
+        "artistViewUrl": "https://apps.apple.com/us/developer/daniel-levy/id1378007458?uo=4",
+        "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0c/54/82/0c5482a9-4124-e1ce-4357-070a5f7b5418/AppIcon-0-0-1x_U007epad-0-1-85-220.png/60x60bb.jpg",
+        "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0c/54/82/0c5482a9-4124-e1ce-4357-070a5f7b5418/AppIcon-0-0-1x_U007epad-0-1-85-220.png/100x100bb.jpg",
+        "isGameCenterEnabled": false,
+        "advisories": [
+          "Frequent/Intense Sexual Content or Nudity",
+          "Frequent/Intense Mature/Suggestive Themes",
+          "Frequent/Intense Medical/Treatment Information"
+        ],
+        "features": [
+          "iosUniversal"
+        ],
+        "kind": "software",
+        "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/0c/54/82/0c5482a9-4124-e1ce-4357-070a5f7b5418/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "averageUserRating": 0,
+        "contentAdvisoryRating": "17+",
+        "trackCensoredName": "Core Atlas",
+        "trackViewUrl": "https://apps.apple.com/us/app/core-atlas/id6815450699?uo=4",
+        "releaseNotes": "A simpler welcome guide, a gentle three-minute starting practice, clearer session controls, and easier access to progress and settings. Interrupted guided practices can now be reviewed and resumed from a paused draft. Readability, completion feedback, and recovery from mistakes have been improved. Your existing activity remains on your device.",
+        "artistId": 1378007458,
+        "artistName": "Daniel Levy",
+        "genres": [
+          "Health & Fitness"
+        ],
+        "trackId": 6815450699,
+        "trackName": "Core Atlas",
+        "bundleId": "io.dnalevity.pelvicfloorintervals",
+        "genreIds": [
+          "6013"
+        ],
+        "releaseDate": "2026-10-07T07:00:00Z",
+        "sellerName": "Humandalas ltd",
+        "minimumOsVersion": "17.0",
+        "currentVersionReleaseDate": "2026-10-10T19:47:45Z",
+        "primaryGenreName": "Health & Fitness",
+        "primaryGenreId": 6013,
+        "isVppDeviceBasedLicensingEnabled": true,
+        "version": "2.1",
+        "wrapperType": "software",
+        "currency": "USD",
+        "description": "Core Atlas is a private, offline learning and practice library for adults with penises.\n\nLearn how sexual response, erections, ejaculation, pelvic-floor coordination, pleasure, communication, and confidence fit together. Follow a self-paced 12-stage foundation or choose a guided practice for breathing, relaxation, awareness, and pelvic-floor control.\n\nEvery topic is clearly labeled as guideline-supported, clinical reference-supported, emerging or limited evidence, or traditional practice. A separate advanced track explains Mantak Chia-associated Taoist sexual cultivation with historical context, evidence limits, contraindications, and clear stop conditions. Forceful or mechanical methods are education only.\n\nCore Atlas includes:\n\n- A structured library of concise lessons\n- Twelve guided practices and a 12-stage foundation\n- Erectile-health and ejaculation-control education\n- Pelvic-floor strength, coordination, and relaxation\n- Consent, confidence, and partner communication\n- Accessible animated diagrams and static alternatives\n- Bookmarks, practice history, and goals stored only on your device\n- Optional background audio for guided sessions\n\nCore Atlas is educational and does not diagnose or treat a medical condition. It does not provide medication or supplement advice. Seek urgent care for an erection lasting 3\u20134 hours or longer (or a painful erection over one hour with sickle cell disease), chest symptoms, fainting, or sudden severe penile or testicular pain. Consult a qualified clinician about persistent or sudden changes, new curvature, painful ejaculation, urinary difficulty, or distress.\n\nNo account. No subscription. No advertising. No analytics. No cloud sync.",
+        "sellerUrl": "https://coreatlas.dnalevity.com",
+        "languageCodesISO2A": [
+          "EN"
+        ],
+        "fileSizeBytes": "4275200",
+        "formattedPrice": "$3.99",
+        "userRatingCountForCurrentVersion": 0,
+        "trackContentRating": "17+",
+        "averageUserRatingForCurrentVersion": 0,
+        "price": 3.99,
+        "userRatingCount": 0
+      }
+    }
+  ]
+}

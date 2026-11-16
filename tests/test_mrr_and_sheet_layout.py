@@ -63,21 +63,44 @@ class TrackerUrlTests(unittest.TestCase):
         )
 
 
+def _tiles(revenue: str, *, revenue_attrs: str = "", value_class: str = "") -> str:
+    value_attr = f' class="{value_class}"' if value_class else ""
+    return f"""
+        <div class="@container mb-4"><h1>Quiet Focus</h1></div>
+        <div class="@container min-w-0 rounded-xl"><dt>Rank</dt><dd>#12</dd></div>
+        <div class="@container min-w-0 rounded-xl"><dt>Rating</dt><dd>4.8</dd></div>
+        <div {revenue_attrs} class="@container min-w-0 rounded-xl">
+          <dt>Revenue</dt><dd{value_attr}>{revenue}</dd><dd>Monthly, worldwide</dd>
+        </div>
+    """
+
+
 class MrrParseTests(unittest.TestCase):
-    def test_monthly_revenue_block_keeps_amounts_at_or_above_10k(self):
-        high = """
-            <div>
-              <dt>Revenue</dt>
-              <dd>$480K</dd>
-              <dd>Monthly, worldwide</dd>
-            </div>
-        """
-        self.assertEqual(parse_mrr(high), "$480k/mo")
-        inline = "<p>Estimated MRR $15k/mo for this app.</p>"
-        self.assertEqual(parse_mrr(inline), "$15k/mo")
+    def test_third_container_keeps_amounts_at_or_above_10k(self):
+        self.assertEqual(parse_mrr(_tiles("$480K")), "$480k/mo")
+        self.assertEqual(parse_mrr(_tiles("$15k/mo")), "$15k/mo")
+
+    def test_under_5k_bucket_is_kept(self):
+        self.assertEqual(parse_mrr(_tiles("&lt;$5K")), "<$5K")
+        self.assertEqual(parse_mrr(_tiles("<$5K")), "<$5K")
+        display, numeric = read_mrr(_tiles("<$5k"))
+        self.assertEqual(display, "<$5K")
+        self.assertIsNone(numeric)
+
+    def test_blurred_placeholder_is_not_revenue(self):
+        decoy = _tiles(
+            "$480K",
+            revenue_attrs='aria-hidden="true"',
+            value_class="select-none blur-[10px]",
+        )
+        leaked = decoy + "<p>Estimated MRR $15k/mo</p>"
+        self.assertEqual(parse_mrr(leaked), "")
+        display, numeric = read_mrr(leaked)
+        self.assertEqual(display, "")
+        self.assertIsNone(numeric)
 
     def test_null_and_small_revenue_stay_blank(self):
-        low = "<div><dt>Revenue</dt><dd>$4K</dd><dd>Monthly</dd></div>"
+        low = _tiles("$4K")
         self.assertEqual(parse_mrr(low), "")
         self.assertEqual(parse_mrr("<p>$9k/mo</p>"), "")
         self.assertEqual(parse_mrr(""), "")
@@ -135,7 +158,7 @@ class MrrFetchTests(unittest.TestCase):
             state["calls"] += 1
             state["max"] = max(state["max"], state["active"])
             state["active"] -= 1
-            return SimpleNamespace(status_code=200, text="<p>Estimated MRR $22k/mo</p>", url=url)
+            return SimpleNamespace(status_code=200, text=_tiles("$22k/mo"), url=url)
 
         enrich_estimated_mrr(leads, demo=False, getter=getter, pause=lambda: pauses.append(1))
         self.assertEqual(state["calls"], 5)
@@ -186,7 +209,7 @@ class MrrFetchTests(unittest.TestCase):
             <html><head>
               <link rel="canonical" href="https://www.appstoretracker.com/app/sleepsense-sleep-tracker-6791916451">
             </head><body>
-              <dt>Revenue</dt><dd>$480K</dd><dd>Monthly, worldwide</dd>
+              """ + _tiles("$480K") + """
             </body></html>
         """
 
@@ -206,7 +229,7 @@ class MrrFetchTests(unittest.TestCase):
                 <html><head>
                   <link rel="canonical" href="https://www.appstoretracker.com/app/quiet-focus-1001">
                 </head><body>
-                  <dt>Revenue</dt><dd>{marker}</dd><dd>Monthly</dd>
+                  """ + _tiles(marker) + """
                   <p>Similar app Estimated MRR $480k/mo</p>
                 </body></html>
             """
@@ -216,7 +239,7 @@ class MrrFetchTests(unittest.TestCase):
             <html><head>
               <link rel="canonical" href="https://www.appstoretracker.com/app/quiet-focus-1001">
             </head><body>
-              <dt>Revenue</dt><dd>$15,000</dd><dd>Monthly, worldwide</dd>
+              """ + _tiles("$15,000") + """
             </body></html>
         """
         self.assertEqual(fetch_mrr(requested, getter=matching(owned)), "$15k/mo")
@@ -239,12 +262,12 @@ class MrrFetchTests(unittest.TestCase):
         pages = {
             "1001": """
                 <html><head><link rel="canonical" href="https://www.appstoretracker.com/app/quiet-focus-1001"></head>
-                <body><p>Estimated MRR $15k/mo</p></body></html>
+                <body>""" + _tiles("$15k/mo") + """</body></html>
             """,
             "1002": """
                 <html><head><link rel="canonical" href="https://www.appstoretracker.com/app/little-habits-1002"></head>
                 <body>
-                  <dt>Revenue</dt><dd>-</dd>
+                  """ + _tiles("-") + """
                   <p>Estimated MRR $480k/mo</p>
                 </body></html>
             """,
@@ -278,9 +301,11 @@ class SheetLayoutTests(unittest.TestCase):
         self.assertEqual(list(CRM_COLUMNS), BLANK_HEADERS)
         self.assertNotIn("Generated Body", CRM_COLUMNS)
         self.assertNotIn("Email Subject", CRM_COLUMNS)
-        self.assertEqual(CRM_COLUMNS[4], "Status")
+        self.assertEqual(CRM_COLUMNS[7], "Status")
         self.assertEqual(len(CRM_COLUMNS), 13)
-        self.assertEqual(CRM_COLUMNS[2], "Contact")
+        self.assertEqual(CRM_COLUMNS[3], "Contact")
+        self.assertEqual(CRM_COLUMNS[0], "Appname")
+        self.assertEqual(CRM_COLUMNS[1], "Buy Signal")
         for excluded in (
             "Generated Body",
             "Email Subject",
@@ -308,8 +333,8 @@ class SheetLayoutTests(unittest.TestCase):
         row = build_import_row(lead, list(CRM_COLUMNS), {"subject": "Hi", "body": "Hello"}, set())
         self.assertEqual(row[CRM_COLUMNS.index("Contact")], "Jane Doe (Quiet Studio)")
         self.assertEqual(row[CRM_COLUMNS.index("Status")], "To Contact")
-        self.assertEqual(row[CRM_COLUMNS.index("Follow-Up Date")], "")
-        self.assertEqual(row[CRM_COLUMNS.index("Last Contacted")], "")
+        self.assertEqual(row[CRM_COLUMNS.index("Last contacted")], "")
+        self.assertEqual(row[CRM_COLUMNS.index("Buy Signal")], "")
         self.assertEqual(row[CRM_COLUMNS.index("Estimated MRR")], "$15k/mo")
         self.assertEqual(row[CRM_COLUMNS.index("Contact Email")], "jane@quiet.example")
 
@@ -323,8 +348,8 @@ class SheetLayoutTests(unittest.TestCase):
         validation = next(item["setDataValidation"] for item in requests if "setDataValidation" in item)
         self.assertEqual(validation["range"]["startRowIndex"], 1)
         self.assertEqual(validation["range"]["endRowIndex"], 1000)
-        self.assertEqual(validation["range"]["startColumnIndex"], 4)
-        self.assertEqual(validation["range"]["endColumnIndex"], 5)
+        self.assertEqual(validation["range"]["startColumnIndex"], 7)
+        self.assertEqual(validation["range"]["endColumnIndex"], 8)
         self.assertEqual(validation["rule"]["condition"]["type"], "ONE_OF_LIST")
         self.assertTrue(validation["rule"]["showCustomUi"])
         self.assertFalse(validation["rule"]["strict"])
@@ -341,19 +366,18 @@ class SheetLayoutTests(unittest.TestCase):
             self.assertEqual((span["startRowIndex"], span["endRowIndex"]), (1, 1000))
             formula = added["rule"]["booleanRule"]["condition"]["values"][0]["userEnteredValue"]
             formulas[formula] = added["rule"]["booleanRule"]["format"]
-        self.assertEqual(formulas['=$E2="To Contact"']["backgroundColor"], rgb("#F8F9FA"))
-        self.assertNotIn("textFormat", formulas['=$E2="To Contact"'])
-        sent = formulas['=$E2="Sent"']
+        self.assertEqual(formulas['=$H2="To Contact"']["backgroundColor"], rgb("#F8F9FA"))
+        self.assertNotIn("textFormat", formulas['=$H2="To Contact"'])
+        sent = formulas['=$H2="Sent"']
         self.assertEqual(sent["backgroundColor"], rgb("#E8F0FE"))
         self.assertEqual(sent["textFormat"]["foregroundColor"], rgb("#1967D2"))
-        self.assertEqual(formulas['=$E2="Follow-Up 1"']["backgroundColor"], rgb("#E8F0FE"))
-        self.assertEqual(formulas['=$E2="Replied"']["backgroundColor"], rgb("#FEF7E0"))
-        self.assertEqual(formulas['=$E2="Replied"']["textFormat"]["foregroundColor"], rgb("#B06000"))
-        self.assertEqual(formulas['=$E2="Call Booked"']["backgroundColor"], rgb("#FEF7E0"))
-        won = formulas['=$E2="Closed / Won"']
-        self.assertEqual(won["backgroundColor"], rgb("#E6F4EA"))
-        self.assertEqual(won["textFormat"]["foregroundColor"], rgb("#137333"))
-        passed = formulas['=$E2="Not Interested"']
+        self.assertEqual(formulas['=$H2="Follow-Up"']["backgroundColor"], rgb("#E8F0FE"))
+        self.assertEqual(formulas['=$H2="Replied"']["backgroundColor"], rgb("#FEF7E0"))
+        self.assertEqual(formulas['=$H2="Replied"']["textFormat"]["foregroundColor"], rgb("#B06000"))
+        booked = formulas['=$H2="Booked"']
+        self.assertEqual(booked["backgroundColor"], rgb("#E6F4EA"))
+        self.assertEqual(booked["textFormat"]["foregroundColor"], rgb("#137333"))
+        passed = formulas['=$H2="Not Interested"']
         self.assertEqual(passed["backgroundColor"], rgb("#FCE8E6"))
         self.assertEqual(passed["textFormat"]["foregroundColor"], rgb("#80868B"))
         self.assertTrue(passed["textFormat"]["strikethrough"])
@@ -377,9 +401,9 @@ class SheetLayoutTests(unittest.TestCase):
             for item in requests
             if "updateDimensionProperties" in item
         }
-        self.assertGreater(widths[CRM_COLUMNS.index("App Name")], widths[CRM_COLUMNS.index("Status")])
-        self.assertGreater(widths[CRM_COLUMNS.index("Contact")], widths[CRM_COLUMNS.index("Ratings")])
-        self.assertGreater(widths[CRM_COLUMNS.index("App Store URL")], widths[CRM_COLUMNS.index("Lead Score")])
+        self.assertGreater(widths[CRM_COLUMNS.index("Appname")], widths[CRM_COLUMNS.index("Status")])
+        self.assertGreater(widths[CRM_COLUMNS.index("Contact")], widths[CRM_COLUMNS.index("Rating count")])
+        self.assertGreater(widths[CRM_COLUMNS.index("Appstore URL")], widths[CRM_COLUMNS.index("Buy Signal")])
         self.assertGreater(widths[CRM_COLUMNS.index("Contact Email")], widths[CRM_COLUMNS.index("Estimated MRR")])
 
     def test_existing_status_column_keeps_its_letter(self):
