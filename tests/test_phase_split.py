@@ -179,7 +179,7 @@ class PhaseSplitTests(unittest.TestCase):
         self.assertEqual(tracker, [])
         self.assertEqual(len(discovery.qualified), 1)
         self.assertEqual(analyzed[0].mrr_status, "enriched")
-        self.assertIn("Velocity Est.", analyzed[0].estimated_mrr)
+        self.assertIn("< $5k MRR", analyzed[0].estimated_mrr)
         self.assertEqual(len(store.load()), 1)
 
     def test_empty_revenue_does_not_discover_a_replacement(self):
@@ -192,7 +192,7 @@ class PhaseSplitTests(unittest.TestCase):
         self.assertEqual(calls, [("Productivity", 1)])
         self.assertEqual(len(analyzed), 1)
         self.assertEqual(analyzed[0].mrr_status, "enriched")
-        self.assertIn("Velocity Est.", analyzed[0].estimated_mrr)
+        self.assertIn("< $5k MRR", analyzed[0].estimated_mrr)
         self.assertEqual(analyzed[0].app_name, "Quiet Focus 0")
 
     def test_a_timeout_does_not_stop_the_next_lead(self):
@@ -208,7 +208,7 @@ class PhaseSplitTests(unittest.TestCase):
         analyzed = analyze_saved(store, getter=getter, narrator=Narrator())
         self.assertEqual(calls, [("Productivity", 1)])
         self.assertEqual([lead.mrr_status for lead in analyzed], ["enriched", "enriched"])
-        self.assertTrue(all("Velocity Est." in lead.estimated_mrr for lead in analyzed))
+        self.assertTrue(all("< $5k MRR" in lead.estimated_mrr for lead in analyzed))
         self.assertEqual(seen, [])
 
     def test_an_unexpected_enrichment_error_does_not_stop_analysis(self):
@@ -223,7 +223,7 @@ class PhaseSplitTests(unittest.TestCase):
 
         analyzed = analyze_saved(store, getter=getter, narrator=Narrator())
         self.assertEqual([lead.mrr_status for lead in analyzed], ["enriched", "enriched"])
-        self.assertTrue(all("Velocity Est." in lead.estimated_mrr for lead in analyzed))
+        self.assertTrue(all("< $5k MRR" in lead.estimated_mrr for lead in analyzed))
         self.assertEqual(seen, [])
 
     def test_every_analyzed_lead_receives_an_enrichment_status(self):
@@ -246,7 +246,7 @@ class PhaseSplitTests(unittest.TestCase):
         analyzed = analyze_saved(store, getter=getter, narrator=Narrator())
         self.assertEqual([lead.mrr_status for lead in analyzed], ["enriched"] * 5)
         self.assertEqual(plan, [])
-        self.assertTrue(all("Velocity Est." in lead.estimated_mrr for lead in analyzed))
+        self.assertTrue(all("< $5k MRR" in lead.estimated_mrr for lead in analyzed))
 
     def test_scouting_stays_complete_while_analysis_runs(self):
         board = AgentDashboard(2, enabled=False)
@@ -289,7 +289,7 @@ class PhaseSplitTests(unittest.TestCase):
 
             analyzed = analyze_saved(reloaded, getter=getter, narrator=Narrator())
             self.assertEqual(analyzed[0].app_name, "Quiet Focus 0")
-            self.assertIn("Velocity Est.", analyzed[0].estimated_mrr)
+            self.assertIn("< $5k MRR", analyzed[0].estimated_mrr)
             self.assertEqual(discovery.qualified[0].app_name, "MUTATED")
 
     def test_failed_enrichment_does_not_overwrite_an_existing_estimate(self):
@@ -358,7 +358,7 @@ class PhaseSplitTests(unittest.TestCase):
         self.assertEqual(sheet.rows[1][3], "$40k/mo")
         self.assertEqual(sheet.updates, [])
         crm.update_estimated_mrr(2, lead.app_store_url, "$15k/mo")
-        self.assertEqual(sheet.rows[1][3], "$15k/mo")
+        self.assertEqual(sheet.rows[1][3], "$10k - $50k MRR")
 
     def test_run_log_records_both_phases_without_secrets(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -423,7 +423,7 @@ class PhaseSplitTests(unittest.TestCase):
 
         analyzed = analyze_saved(store, getter=getter, run_log=log, narrator=Narrator())
         self.assertEqual(analyzed[0].mrr_status, "enriched")
-        self.assertIn("Velocity Est.", analyzed[0].estimated_mrr)
+        self.assertIn("< $5k MRR", analyzed[0].estimated_mrr)
         limited = [item for item in log.events if item["event"] == "enrichment_rate_limited"]
         self.assertEqual(len(limited), 1)
         self.assertEqual(limited[0]["http_status"], 429)

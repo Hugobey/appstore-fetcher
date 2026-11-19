@@ -68,6 +68,7 @@ def format_summary(stats: dict) -> str:
     extras = []
     if stats.get("filtered_hard"):
         extras.append(f"Hard filters: {stats['filtered_hard']}")
+        extras.extend(_rejection_lines(stats))
     if stats.get("filtered_score"):
         extras.append(f"Below the minimum score or too little known data: {stats['filtered_score']}")
     if stats.get("enrichment_errors"):
@@ -78,6 +79,25 @@ def format_summary(stats: dict) -> str:
     if extras:
         text += "\n\n" + "\n".join(extras)
     return text
+
+
+def _rejection_lines(stats: dict) -> list[str]:
+    """The largest hard-filter reasons. Contact gaps stay in the rows above."""
+    from modules.agent_ui import _BOTTLENECKS
+
+    ranked = sorted(
+        (
+            (name, int(count))
+            for name, count in (stats.get("rejections") or {}).items()
+            if int(count or 0) > 0 and name not in {"no_website", "no_email_found", "email_filtered_out"}
+        ),
+        key=lambda item: (-item[1], item[0]),
+    )
+    lines = []
+    for name, count in ranked[:3]:
+        label = _BOTTLENECKS.get(name, name.replace("_", " "))
+        lines.append(f"{label}: {count}")
+    return lines
 
 
 def format_lead(index: int, lead: Lead, today: date | None = None) -> str:

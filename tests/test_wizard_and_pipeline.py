@@ -19,7 +19,8 @@ from modules.demo import demo_enricher, demo_index, demo_itunes, demo_searcher, 
 from modules.models import Lead
 from modules.pipeline import discover
 from modules.prompts import BACK, ScriptedPrompter
-from modules.category_feed import category_plan, chart_url, entry_ids, fetch_genre_apps, lookup_url
+from modules.category_feed import category_plan, category_searcher, chart_url, entry_ids, fetch_genre_apps, lookup_url
+from modules.preview import format_summary
 from modules.scraper import ApifyClient, search_jobs
 from modules.scoring import classify_developer, hard_filter_reason
 from modules.wizard import _ask_consider_mrr, _ask_country, _ask_ratings, _steps, run_wizard
@@ -310,7 +311,7 @@ class PipelineTests(unittest.TestCase):
                 "developer_type": "solo",
                 "platforms": "ios",
                 "categories": ["Productivity", "Health & Fitness"],
-                "max_ratings": 30,
+                "max_ratings": 100,
                 "max_app_age": "2y",
                 "last_update": "90d",
                 "min_score": 50,
@@ -340,7 +341,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(names, {"Quiet Focus"})
         quiet = next(lead for lead in discovery.qualified if lead.app_name == "Quiet Focus")
         self.assertEqual(quiet.developer_type, "solo")
-        self.assertEqual(quiet.score_normalized, 100)
+        self.assertEqual(quiet.score_normalized, 95)
         self.assertEqual(quiet.primary_email.address, "jane@quiet.example")
         self.assertEqual(quiet.primary_email.email_type, "founder")
         self.assertEqual(quiet.contact_name, "Jane Doe")
@@ -366,7 +367,7 @@ class PipelineTests(unittest.TestCase):
                 "developer_type": "solo",
                 "platforms": "ios",
                 "categories": ["Productivity"],
-                "max_ratings": 30,
+                "max_ratings": 100,
                 "max_app_age": "2y",
                 "last_update": "90d",
                 "min_score": 50,
@@ -413,7 +414,7 @@ class PipelineTests(unittest.TestCase):
                 "developer_type": "solo",
                 "platforms": "ios",
                 "categories": ["Productivity"],
-                "max_ratings": 30,
+                "max_ratings": 100,
                 "max_app_age": "2y",
                 "last_update": "90d",
                 "min_score": 50,
@@ -907,7 +908,7 @@ class PipelineTests(unittest.TestCase):
                 "developer_type": "solo",
                 "platforms": "ios",
                 "categories": ["Productivity"],
-                "max_ratings": 30,
+                "max_ratings": 100,
                 "max_app_age": "any",
                 "last_update": "90d",
                 "min_score": 40,
@@ -970,7 +971,7 @@ class PipelineTests(unittest.TestCase):
                 "developer_type": "solo",
                 "platforms": "ios",
                 "categories": ["Productivity"],
-                "max_ratings": 30,
+                "max_ratings": 60,
                 "max_app_age": "any",
                 "last_update": "any",
                 "min_score": 40,
@@ -982,12 +983,12 @@ class PipelineTests(unittest.TestCase):
         near = dict(base)
         near["trackId"] = 4202
         near["trackName"] = "Near Cap"
-        near["userRatingCount"] = 40
+        near["userRatingCount"] = 70
         near["trackViewUrl"] = "https://apps.apple.com/us/app/near-cap/id4202"
         far = dict(base)
         far["trackId"] = 4204
         far["trackName"] = "Far Cap"
-        far["userRatingCount"] = 80
+        far["userRatingCount"] = 120
         far["trackViewUrl"] = "https://apps.apple.com/us/app/far-cap/id4204"
 
         def search(_platform, _keyword, country, page=1):
@@ -1011,6 +1012,68 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(discovery.stats["rejections"]["ratings_above_cap"], 1)
         self.assertTrue(any("Widening storefront & keyword net to hit 1/1 target..." in line for line in voice.lines))
         self.assertFalse(discovery.stats["errors"])
+
+    def test_a_short_chart_run_searches_the_category_phrases(self):
+        settings = load_settings()
+        settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
+        scoring = load_scoring(settings)
+        targeting = validate_targeting(
+            {
+                "developer_type": "solo",
+                "platforms": "ios",
+                "categories": ["Productivity"],
+                "max_ratings": 100,
+                "max_app_age": "any",
+                "last_update": "any",
+                "min_score": 40,
+                "target_prospects": 1,
+                "country": "us",
+            }
+        )
+        by_name = {item["trackName"]: item for _platform, _keyword, item in sample_items()}
+        calls = []
+
+        def search(_platform, keyword, country, page=1):
+            calls.append((keyword, country, page))
+            if keyword == "focus timer" and country == "us":
+                return [by_name["Quiet Focus"]], {"cached": False}
+            if keyword == "Productivity" and country == "us" and page == 1:
+                return [by_name["Giant Tasks"]], {"cached": False}
+            return [], {"cached": False}
+
+        discovery = discover(
+            targeting,
+            settings,
+            scoring,
+            DedupIndex(),
+            searcher=search,
+            enricher=demo_enricher(settings),
+            itunes_fetcher=demo_itunes,
+            narrator=_Capture(),
+            demo=True,
+        )
+        self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Quiet Focus"})
+        self.assertIn(("focus timer", "us", 1), calls)
+        self.assertGreaterEqual(discovery.stats["rejections"]["ratings_above_cap"], 1)
+        self.assertFalse(discovery.stats["errors"])
+
+    def test_summary_names_the_largest_hard_filter(self):
+        text = format_summary(
+            {
+                "discovered": 10,
+                "already_in_crm": 0,
+                "filtered_out": 8,
+                "missing_developer_site": 1,
+                "missing_public_email": 1,
+                "qualified": 0,
+                "filtered_hard": 8,
+                "rejections": {"ratings_above_cap": 6, "pricing": 2, "no_website": 1, "no_email_found": 1},
+            }
+        )
+        self.assertIn("Hard filters: 8", text)
+        self.assertIn("ratings cap: 6", text)
+        self.assertIn("pricing filter: 2", text)
+        self.assertNotIn("no developer website: 1", text)
 
 
 class CategoryFeedTests(unittest.TestCase):
@@ -1066,6 +1129,33 @@ class CategoryFeedTests(unittest.TestCase):
         self.assertIn("formattedPrice", apps[0])
         self.assertTrue(lookup_url("us", ["1001"]).startswith("https://itunes.apple.com/lookup?id=1001"))
         self.assertTrue(all("focus" not in url and "keyword" not in url for url in calls))
+
+    def test_a_phrase_uses_itunes_search_instead_of_a_chart(self):
+        calls = []
+
+        def getter(url: str) -> dict:
+            calls.append(url)
+            return {
+                "results": [
+                    {
+                        "kind": "software",
+                        "trackId": 50,
+                        "trackName": "Habit Grid",
+                        "userRatingCount": 80,
+                        "sellerUrl": "https://habit.example",
+                    }
+                ]
+            }
+
+        search = category_searcher({}, getter)
+        items, meta = search("ios", "habit tracker", "us", 1)
+        self.assertEqual(items[0]["trackName"], "Habit Grid")
+        self.assertEqual(items[0]["sellerUrl"], "https://habit.example")
+        self.assertIn("/search?term=habit+tracker", calls[0])
+        self.assertIn("country=us", calls[0])
+        self.assertNotIn("/rss/", calls[0])
+        self.assertNotIn("/lookup", calls[0])
+        self.assertEqual(meta["usage_usd"], 0)
 
 
 class SaveCapTests(unittest.TestCase):

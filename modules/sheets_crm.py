@@ -16,18 +16,21 @@ from modules.errors import CRMError
 LOGGER = logging.getLogger("prospecting.sheets")
 
 CRM_COLUMNS = [
-    "Appname",
+    "App Name",
+    "Developer / Seller",
+    "Category",
+    "Average Rating",
+    "Rating Count",
+    "Bayesian Score",
+    "Estimated MRR",
+    "App Store URL",
     "Buy Signal",
-    "Appstore URL",
     "Contact",
     "Contact Email",
-    "Rating count",
     "Review count",
     "Status",
     "Platform",
     "Website",
-    "Estimated MRR",
-    "Category",
     "Last contacted",
 ]
 STATUS_OPTIONS = [
@@ -43,17 +46,20 @@ HEADER_BACKGROUND = "#1E293B"
 HEADER_TEXT = "#FFFFFF"
 # Wider columns first, then the compact numeric and status columns.
 COLUMN_WIDTHS = {
-    "Appname": 240,
+    "App Name": 240,
+    "Developer / Seller": 220,
+    "Category": 160,
+    "Average Rating": 120,
+    "Rating Count": 110,
+    "Bayesian Score": 140,
+    "Estimated MRR": 180,
+    "App Store URL": 320,
     "Buy Signal": 220,
-    "Appstore URL": 320,
     "Contact": 220,
     "Contact Email": 240,
     "Website": 240,
     "Status": 140,
-    "Estimated MRR": 180,
-    "Rating count": 110,
     "Review count": 110,
-    "Category": 160,
     "Last contacted": 140,
 }
 DEFAULT_COLUMN_WIDTH = 150
@@ -298,40 +304,51 @@ def _paint_header(worksheet, width: int) -> None:
         LOGGER.warning("Could not freeze the CRM header row: %s", exc)
 
 
-# CSV exports use the same 13 columns as the Google Sheet.
+# CSV exports use the same columns, in the same order, as the Google Sheet.
 EXPORT_COLUMNS = list(CRM_COLUMNS)
 SHEETS_IMPORT_TIP = "File > Import > Upload"
 _EXPORT_ALIASES = {
-    "Appname": ("app_name", "App Name", "Appname"),
+    "App Name": ("app_name", "App Name", "Appname"),
+    "Developer / Seller": ("seller_name", "sellerName", "developer_name", "Developer / Seller", "Developer"),
+    "Category": ("Category", "category"),
+    "Average Rating": ("average_rating", "Average Rating", "averageUserRating"),
+    "Rating Count": ("rating_count", "Rating Count", "Rating count", "Ratings", "ratings"),
+    "Bayesian Score": ("bayesian_score", "Bayesian Score"),
+    "Estimated MRR": ("estimated_mrr", "Estimated MRR", "mrr"),
+    "App Store URL": ("app_store_url", "App Store URL", "Appstore URL"),
     "Buy Signal": ("buy_signal", "Buy Signal"),
-    "Appstore URL": ("app_store_url", "App Store URL", "Appstore URL"),
     "Contact": ("Contact", "contact_name", "Contact name", "Contact Name"),
     "Contact Email": ("primary_email", "Contact Email", "contact email", "email", "Target Email"),
-    "Rating count": ("rating_count", "Rating count", "Ratings", "ratings"),
     "Review count": ("review_count", "Review count", "Review Count"),
     "Status": ("Status", "status"),
     "Platform": ("platform", "Platform"),
     "Website": ("developer_website", "Developer Website", "website URL", "website_url", "Website"),
-    "Estimated MRR": ("estimated_mrr", "Estimated MRR", "mrr"),
-    "Category": ("Category", "category"),
     "Last contacted": ("Last contacted", "Last Contacted", "Sent Date", "sent_date"),
 }
 
 
 def lead_to_export_row(item) -> dict:
-    """Map a Lead or a CRM dict onto the 13 export columns. The first filled alias wins."""
+    """Map a Lead or a CRM dict onto the CRM columns. The first filled alias wins."""
     from modules.discovery import buy_signal
-    from modules.enricher import offline_revenue_display
+    from modules.enricher import bucket_mrr_text, offline_revenue_display
+    from modules.scoring import bayesian_score
 
     source = _export_source(item)
     row = {column: _first_alias(source, _EXPORT_ALIASES[column]) for column in EXPORT_COLUMNS}
     row["Platform"] = _platform_label(row["Platform"])
     if not row["Status"]:
         row["Status"] = "To Contact"
+    row["Average Rating"] = _format_average(row["Average Rating"])
     if _can_score_signal(source):
         row["Buy Signal"] = buy_signal(source)
     if _recompute_revenue(source) or not row["Estimated MRR"]:
         row["Estimated MRR"] = offline_revenue_display(source)
+    row["Estimated MRR"] = bucket_mrr_text(row["Estimated MRR"])
+    if not row["Bayesian Score"]:
+        score = bayesian_score(row["Average Rating"], row["Rating Count"])
+        row["Bayesian Score"] = "" if score is None else f"{score:.2f}"
+    else:
+        row["Bayesian Score"] = _format_score(row["Bayesian Score"])
     return row
 
 
@@ -366,7 +383,12 @@ def schema_is_current(headers: list[str]) -> bool:
 
 
 def migrate_row(headers: list[str], row: list) -> list[str]:
-    """One physical row in the 13-column order. Lead Score is never copied into Buy Signal."""
+    """One physical row in the current column order.
+
+    Lead Score is never copied into Buy Signal or Bayesian Score.
+    """
+    from modules.enricher import bucket_mrr_text
+
     lookup: dict[str, int] = {}
     for index, header in enumerate(headers):
         key = _norm_header(header)
@@ -385,22 +407,25 @@ def migrate_row(headers: list[str], row: list) -> list[str]:
 
     status = cell("status")
     status = _STATUS_REMAP.get(status.lower(), status)
-    platform = _platform_label(cell("platform"))
-    return [
-        cell("appname", "app name"),
-        cell("buy signal"),
-        cell("appstore url", "app store url"),
-        cell("contact") or cell("contact name"),
-        cell("contact email") or cell("target email"),
-        cell("rating count", "ratings"),
-        cell("review count"),
-        status,
-        platform,
-        cell("website", "developer website", "website url"),
-        cell("estimated mrr"),
-        cell("category"),
-        cell("last contacted") or cell("sent date"),
-    ]
+    values = {
+        "App Name": cell("app name", "appname"),
+        "Developer / Seller": cell("developer / seller", "developer", "seller name", "seller"),
+        "Category": cell("category"),
+        "Average Rating": _format_average(cell("average rating")),
+        "Rating Count": cell("rating count", "ratings"),
+        "Bayesian Score": _format_score(cell("bayesian score")),
+        "Estimated MRR": bucket_mrr_text(cell("estimated mrr")),
+        "App Store URL": cell("app store url", "appstore url"),
+        "Buy Signal": cell("buy signal"),
+        "Contact": cell("contact") or cell("contact name"),
+        "Contact Email": cell("contact email") or cell("target email"),
+        "Review count": cell("review count"),
+        "Status": status,
+        "Platform": _platform_label(cell("platform")),
+        "Website": cell("website", "developer website", "website url"),
+        "Last contacted": cell("last contacted") or cell("sent date"),
+    }
+    return [values[column] for column in CRM_COLUMNS]
 
 
 def migrate_sheet_values(values: list[list], header_index: int) -> list[list[str]]:
@@ -424,13 +449,49 @@ def _norm_header(header) -> str:
 
 
 def write_export_csv(leads, path: Path) -> Path:
+    from modules.scoring import quality_filter_reason
+
     path.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for lead in leads:
+        if quality_filter_reason(lead):
+            continue
+        rows.append(lead_to_export_row(lead))
+    rows.sort(key=_export_sort_key)
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(EXPORT_COLUMNS), extrasaction="ignore")
         writer.writeheader()
-        for lead in leads:
-            writer.writerow(lead_to_export_row(lead))
+        for row in rows:
+            writer.writerow(row)
     return path
+
+
+def _export_sort_key(row: dict) -> tuple:
+    raw = row.get("Bayesian Score")
+    try:
+        score = float(raw)
+    except (TypeError, ValueError):
+        return (1, 0.0, row.get("App Name") or "")
+    return (0, -score, row.get("App Name") or "")
+
+
+def _format_average(value) -> str:
+    if value is None or str(value).strip() == "":
+        return ""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return str(value).strip()
+    return f"{number:.2f}".rstrip("0").rstrip(".")
+
+
+def _format_score(value) -> str:
+    if value is None or str(value).strip() == "":
+        return ""
+    try:
+        return f"{float(value):.2f}"
+    except (TypeError, ValueError):
+        return str(value).strip()
 
 
 def deals_export_path(directory: Path | None = None, now: datetime | None = None) -> Path:
@@ -454,6 +515,10 @@ def _export_source(item) -> dict:
     data = {}
     for name in (
         "app_name",
+        "developer_name",
+        "seller_name",
+        "average_rating",
+        "bayesian_score",
         "estimated_mrr",
         "rating_count",
         "review_count",

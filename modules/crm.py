@@ -15,6 +15,8 @@ from modules.labels import TEAM_LABELS
 from modules.models import Lead
 from modules.outreach import render_template
 from modules.discovery import buy_signal
+from modules.enricher import bucket_mrr_text
+from modules.scoring import bayesian_score, quality_filter_reason
 from modules.sheets_crm import (
     CRM_COLUMNS,
     apply_crm_layout,
@@ -106,6 +108,10 @@ def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status
         "App Name": lead.app_name,
         "Appname": lead.app_name,
         "Developer": lead.developer_name,
+        "Developer / Seller": (lead.seller_name or lead.developer_name or "").strip(),
+        "Average Rating": _rating_text(lead.average_rating),
+        "Bayesian Score": _score_text(lead),
+        "Rating Count": "" if lead.rating_count is None else lead.rating_count,
         "Target Email": primary.address if primary else "",
         "Contact Email": primary.address if primary else "",
         "Contact Name": lead.contact_name,
@@ -122,7 +128,7 @@ def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status
         "Sent Date": "",
         "Lead Score": "" if lead.score_normalized is None else lead.score_normalized,
         "Buy Signal": lead.buy_signal or buy_signal(lead),
-        "Estimated MRR": lead.estimated_mrr or "",
+        "Estimated MRR": bucket_mrr_text(lead.estimated_mrr or ""),
         "Email Source": primary.source_url if primary else "",
         "Email Type": _email_type_label(primary.email_type) if primary else "",
         "Platform": "iOS" if lead.platform == "ios" else "Android" if lead.platform == "android" else lead.platform,
@@ -137,6 +143,34 @@ def row_for_lead(lead: Lead, headers: list[str], subject: str, body: str, status
         "Notes": notes,
     }
     return [safe_cell(values.get(header, "")) for header in headers]
+
+
+def _rating_text(value) -> str:
+    if value is None or value == "":
+        return ""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    return f"{number:.2f}".rstrip("0").rstrip(".")
+
+
+def _score_text(lead: Lead) -> str:
+    score = lead.bayesian_score
+    if score is None:
+        score = bayesian_score(lead.average_rating, lead.rating_count)
+    if score is None:
+        return ""
+    return f"{float(score):.2f}"
+
+
+def _lead_sort_key(lead: Lead) -> tuple:
+    raw = _score_text(lead)
+    try:
+        score = float(raw)
+    except (TypeError, ValueError):
+        return (1, 0.0, lead.app_name or "")
+    return (0, -score, lead.app_name or "")
 
 
 def _contact_cell(lead: Lead) -> str:
@@ -226,7 +260,7 @@ class GoogleSheetCRM:
         if header_index is None:
             if any(any(str(cell).strip() for cell in row) for row in values):
                 raise CRMError(
-                    f"Worksheet {worksheet.title!r} has data but no Appname and Appstore URL headers. "
+                    f"Worksheet {worksheet.title!r} has data but no App Name and App Store URL headers. "
                     "The sheet was not changed."
                 )
             try:
@@ -246,7 +280,7 @@ class GoogleSheetCRM:
             _write_migrated(worksheet, header_index + 1, grid, width)
         except Exception as exc:
             raise CRMError(f"Could not migrate the CRM columns: {exc}") from exc
-        LOGGER.info("Migrated CRM headers to the 13-column schema.")
+        LOGGER.info("Migrated CRM headers to the current schema.")
         return cls(spreadsheet, worksheet, header_index + 1, list(CRM_COLUMNS), migrated=True)
 
     def load_rows(self) -> tuple[DedupIndex, int, list[dict]]:
@@ -272,7 +306,9 @@ class GoogleSheetCRM:
         index, _count, _records = self.load_rows()
         rows = []
         skipped = 0
-        for lead in leads:
+        ordered = [lead for lead in leads if not quality_filter_reason(lead)]
+        ordered.sort(key=_lead_sort_key)
+        for lead in ordered:
             if index.contains_lead(lead):
                 skipped += 1
                 LOGGER.info("Skipped duplicate %s", lead.dedup_id())
@@ -293,6 +329,9 @@ class GoogleSheetCRM:
     def append_one(self, lead: Lead, template: dict | None, suppressed: set[str]) -> int | None:
         """Append one qualified lead. Return its row number, or None when it is already present."""
         index, _count, _records = self.load_rows()
+        if quality_filter_reason(lead):
+            LOGGER.info("Skipped %s before append", lead.dedup_id())
+            return None
         if index.contains_lead(lead):
             LOGGER.info("Skipped duplicate %s", lead.dedup_id())
             return None
@@ -308,7 +347,7 @@ class GoogleSheetCRM:
 
     def update_estimated_mrr(self, row_number: int, expected_url: str, value: str) -> None:
         """Write one non-empty estimate. Empty and failed lookups must not call this."""
-        text = (value or "").strip()
+        text = bucket_mrr_text((value or "").strip())
         if not text:
             LOGGER.info("Skipped empty MRR write for row %s.", row_number)
             return

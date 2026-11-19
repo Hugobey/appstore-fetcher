@@ -73,12 +73,28 @@ def synonym_keywords(keywords: list[str]) -> list[str]:
 
 
 def keyword_plan(targeting: dict, settings: dict, limit: int | None = None) -> list[str]:
-    """Category names in wizard order. Keyword maps and custom keywords are not searched."""
+    """Category names in wizard order. Keyword maps and custom keywords are not the chart list."""
     from modules.category_feed import category_plan
 
     if limit is None:
         limit = int(settings["apify"]["max_searches_per_run"])
     return category_plan(targeting, settings, limit=limit)
+
+
+def category_phrases(targeting: dict, settings: dict) -> list[str]:
+    """Phrases for the selected genres. Used only after the charts miss the target."""
+    mapping = settings.get("category_keywords") or {}
+    phrases: list[str] = []
+    seen: set[str] = set()
+    for category in keyword_plan(targeting, settings, limit=10_000):
+        for raw in mapping.get(category) or []:
+            text = str(raw).strip()
+            key = text.casefold()
+            if not text or key in seen:
+                continue
+            seen.add(key)
+            phrases.append(text)
+    return phrases
 
 
 def search_jobs(targeting: dict, settings: dict) -> list[tuple[str, str]]:
@@ -292,6 +308,8 @@ def _normalize_ios(item: dict, keyword: str) -> Lead | None:
         app_store_id=app_id,
         app_name=str(_first(item, "trackName", "trackCensoredName", "name") or "").strip(),
         developer_name=str(_first(item, "artistName", "sellerName", "developer") or "").strip(),
+        seller_name=str(_first(item, "sellerName") or "").strip(),
+        seller_app_count=_int(_first(item, "sellerAppCount", "artistAppCount")),
         app_store_url=canonical_url(str(url), "ios", app_id),
         developer_website="",
         description=str(description).strip(),
@@ -348,6 +366,8 @@ def _normalize_android(item: dict, keyword: str) -> Lead | None:
         app_store_id=app_id,
         app_name=str(_first(item, "title", "name") or "").strip(),
         developer_name=str(_first(item, "developer", "developerLegalName", "artistName") or "").strip(),
+        seller_name=str(_first(item, "developerLegalName", "sellerName") or "").strip(),
+        seller_app_count=_int(_first(item, "sellerAppCount", "artistAppCount")),
         app_store_url=canonical_url(str(url), "android", app_id),
         developer_website="",
         description=str(description).strip(),
@@ -414,6 +434,10 @@ def apply_itunes_record(lead: Lead, record: dict) -> None:
         lead.app_store_url = canonical_url(record.get("trackViewUrl"), "ios", lead.app_store_id)
     if not lead.developer_name:
         lead.developer_name = str(record.get("artistName") or record.get("sellerName") or "").strip()
+    if not lead.seller_name:
+        lead.seller_name = str(record.get("sellerName") or "").strip()
+    if lead.seller_app_count is None:
+        lead.seller_app_count = _int(record.get("sellerAppCount") or record.get("artistAppCount"))
 
 
 def fill_from_itunes(leads: list[Lead], settings: dict, fetcher=None) -> None:

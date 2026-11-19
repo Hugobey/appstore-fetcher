@@ -19,6 +19,8 @@ class Lead:
     app_store_id: str
     app_name: str = ""
     developer_name: str = ""
+    seller_name: str = ""
+    seller_app_count: int | None = None
     app_store_url: str = ""
     developer_website: str = ""
     support_url: str = ""
@@ -55,6 +57,7 @@ class Lead:
     current_version_release_date: str | None = None
     recent_ratings_30d: int | None = None
     buy_signal: str = ""
+    bayesian_score: float | None = None
     source: dict = field(default_factory=dict)
 
     def dedup_id(self) -> str:

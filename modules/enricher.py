@@ -370,6 +370,23 @@ CATEGORY_BENCHMARKS = {
 NO_IAP_LABEL = "N/A (No IAP)"
 VELOCITY_SUFFIX = "Velocity Est."
 GROSS_SUFFIX = "Gross Sales Est."
+MRR_UNDER_5K = "< $5k MRR"
+MRR_5K_10K = "$5k - $10k MRR"
+MRR_10K_50K = "$10k - $50k MRR"
+MRR_50K_100K = "$50k - $100k MRR"
+MRR_100K_500K = "$100k - $500k MRR"
+MRR_OVER_500K = "> $500k MRR"
+_MRR_BUCKETS = (
+    MRR_UNDER_5K,
+    MRR_5K_10K,
+    MRR_10K_50K,
+    MRR_50K_100K,
+    MRR_100K_500K,
+    MRR_OVER_500K,
+)
+_UNDER_FIVE = re.compile(r"^<\s*\$?\s*5\s*k\b", re.IGNORECASE)
+_OVER_FIVE_HUNDRED = re.compile(r"^>\s*\$?\s*500\s*k\b", re.IGNORECASE)
+_MONEY_AMOUNT = re.compile(r"\$\s*([0-9][0-9,]*(?:\.[0-9]+)?)\s*([kmb])?", re.IGNORECASE)
 
 
 def benchmark_for(category: str | None) -> dict:
@@ -418,16 +435,57 @@ def cohort_mrr(monthly_new: float, months: float, benchmark: dict) -> int:
     return int(raw)
 
 
+def bucket_mrr_amount(amount: float) -> str:
+    """Map a dollar figure onto a conservative public range."""
+    try:
+        value = float(amount)
+    except (TypeError, ValueError):
+        return ""
+    if value < 5_000:
+        return MRR_UNDER_5K
+    if value < 10_000:
+        return MRR_5K_10K
+    if value < 50_000:
+        return MRR_10K_50K
+    if value < 100_000:
+        return MRR_50K_100K
+    if value < 500_000:
+        return MRR_100K_500K
+    return MRR_OVER_500K
+
+
+def bucket_mrr_text(value: str | None) -> str:
+    """Turn an exact estimate into a range. Blank and N/A stay as they are."""
+    raw = (value or "").strip()
+    if not raw or raw.upper().startswith("N/A"):
+        return raw
+    if raw in _MRR_BUCKETS:
+        return raw
+    if _UNDER_FIVE.match(raw):
+        return MRR_UNDER_5K
+    if _OVER_FIVE_HUNDRED.match(raw):
+        return MRR_OVER_500K
+    match = _MONEY_AMOUNT.search(raw)
+    if not match:
+        return raw
+    try:
+        number = float(match.group(1).replace(",", ""))
+    except (TypeError, ValueError):
+        return raw
+    suffix = (match.group(2) or "").lower()
+    if suffix == "k":
+        number *= 1_000
+    elif suffix == "m":
+        number *= 1_000_000
+    elif suffix == "b":
+        number *= 1_000_000_000
+    return bucket_mrr_amount(number)
+
+
 def format_monthly(amount: int, suffix: str) -> str:
-    amount = int(amount)
-    if amount >= 1000:
-        if amount % 1000 == 0:
-            text = f"${amount // 1000}k"
-        else:
-            text = f"${amount / 1000:.1f}k"
-    else:
-        text = f"${amount}"
-    return f"~ {text}/mo ({suffix})"
+    """Public revenue copy is a range. `suffix` is kept for callers that still pass one."""
+    del suffix
+    return bucket_mrr_amount(int(amount))
 
 
 def estimate_velocity_mrr(category, monthly_new: float, months: float) -> str:

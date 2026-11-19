@@ -248,14 +248,14 @@ class DemoTests(unittest.TestCase):
         leads = load_demo_leads()
         self.assertEqual(len(leads), 10)
         self.assertEqual(list(leads[0]), list(EXPORT_COLUMNS))
-        self.assertEqual(leads[0]["Appname"], "Tideform")
+        self.assertEqual(leads[0]["App Name"], "Tideform")
         fitness = load_demo_leads(categories=["Health & Fitness"])
-        self.assertEqual([row["Appname"] for row in fitness], ["Tideform", "Kindred Walks", "Lumen Habits"])
+        self.assertEqual([row["App Name"] for row in fitness], ["Tideform", "Kindred Walks", "Lumen Habits"])
         self.assertTrue(all(row["Category"] == "Health & Fitness" for row in fitness))
         self.assertEqual(fitness[0]["Buy Signal"], "🚀 Launched Paywall")
         self.assertEqual(fitness[1]["Buy Signal"], "🌱 Early Traction")
         self.assertEqual(fitness[2]["Buy Signal"], "📈 High-Velocity Indie")
-        self.assertTrue(all("Velocity Est." in row["Estimated MRR"] for row in fitness))
+        self.assertTrue(all(row["Estimated MRR"] == "< $5k MRR" for row in fitness))
         delays = []
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "deals.csv"
@@ -274,9 +274,9 @@ class DemoTests(unittest.TestCase):
         self.assertEqual(rows[0], list(EXPORT_COLUMNS))
         self.assertEqual(len(rows), 11)
         self.assertEqual(rows[1][0], "Tideform")
-        self.assertEqual(rows[1][1], "🚀 Launched Paywall")
-        self.assertEqual(rows[1][4], "maya@tideform.app")
-        self.assertIn("Velocity Est.", rows[1][10])
+        self.assertEqual(rows[1][8], "🚀 Launched Paywall")
+        self.assertEqual(rows[1][10], "maya@tideform.app")
+        self.assertEqual(rows[1][6], "< $5k MRR")
         self.assertEqual(board.saved, 10)
         self.assertTrue(all(phase["state"] == "complete" for phase in board.phases.values()))
 
@@ -298,8 +298,8 @@ class DemoTests(unittest.TestCase):
                 rows = list(csv.reader(handle))
         self.assertEqual(rows[0], list(EXPORT_COLUMNS))
         self.assertEqual([row[0] for row in rows[1:]], ["Tideform", "Kindred Walks", "Lumen Habits"])
-        self.assertTrue(all(row[11] == "Health & Fitness" for row in rows[1:]))
-        self.assertEqual(rows[1][1], "🚀 Launched Paywall")
+        self.assertTrue(all(row[2] == "Health & Fitness" for row in rows[1:]))
+        self.assertEqual(rows[1][8], "🚀 Launched Paywall")
 
     def test_aliases_land_on_the_nine_export_columns(self):
         row = lead_to_export_row(
@@ -318,15 +318,15 @@ class DemoTests(unittest.TestCase):
             }
         )
         self.assertEqual(list(row), list(EXPORT_COLUMNS))
-        self.assertEqual(row["Appname"], "Tideform")
+        self.assertEqual(row["App Name"], "Tideform")
         self.assertEqual(row["Buy Signal"], "")
         self.assertNotIn("74", row.values())
         self.assertEqual(row["Contact"], "Maya Ellison (Tideform)")
         self.assertEqual(row["Contact Email"], "maya@tideform.app")
         self.assertEqual(row["Category"], "Health & Fitness")
         self.assertEqual(row["Website"], "https://tideform.app")
-        self.assertEqual(row["Rating count"], "186")
-        self.assertEqual(row["Estimated MRR"], "<$5K")
+        self.assertEqual(row["Rating Count"], "186")
+        self.assertEqual(row["Estimated MRR"], "< $5k MRR")
         lead = Lead(
             platform="ios",
             app_store_id="6448101001",
@@ -366,7 +366,7 @@ class DemoTests(unittest.TestCase):
             )
             catalog = load_demo_catalog(path)
         self.assertEqual(list(catalog), ["Education"])
-        self.assertEqual(catalog["Education"][0]["Appname"], "Fieldnote")
+        self.assertEqual(catalog["Education"][0]["App Name"], "Fieldnote")
 
     def test_merge_keeps_cached_leads_and_caps_each_category(self):
         existing = {
@@ -382,9 +382,9 @@ class DemoTests(unittest.TestCase):
             ]
         }
         merged = merge_demo_catalog(existing, incoming, limit=1)
-        self.assertEqual([row["Appname"] for row in merged["Finance"]], ["Ledgerling"])
+        self.assertEqual([row["App Name"] for row in merged["Finance"]], ["Ledgerling"])
         wider = merge_demo_catalog(existing, incoming, limit=10)
-        self.assertEqual([row["Appname"] for row in wider["Finance"]], ["Ledgerling", "New"])
+        self.assertEqual([row["App Name"] for row in wider["Finance"]], ["Ledgerling", "New"])
 
     def test_hidden_flags_and_creator_commands(self):
         help_text = _parser().format_help()
@@ -409,7 +409,7 @@ class DemoTests(unittest.TestCase):
         self.assertEqual(checkout_url(), "https://yourdomain.com/checkout")
 
     def test_sheet_columns_stay_thirteen(self):
-        self.assertEqual(len(CRM_COLUMNS), 13)
+        self.assertEqual(len(CRM_COLUMNS), 16)
         self.assertEqual(list(EXPORT_COLUMNS), list(CRM_COLUMNS))
 
     def test_buy_opens_checkout_without_a_scrape(self):

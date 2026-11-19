@@ -21,7 +21,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 40
+      "review_count": 40,
+      "average_rating": 4.9,
+      "seller_name": "Tideform"
     },
     {
       "App Name": "Kindred Walks",
@@ -44,7 +46,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 12
+      "review_count": 12,
+      "average_rating": 4.8,
+      "seller_name": "Kindred"
     },
     {
       "App Name": "Lumen Habits",
@@ -67,7 +71,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 30
+      "review_count": 30,
+      "average_rating": 4.4,
+      "seller_name": "Lumen Studio"
     }
   ],
   "Productivity": [
@@ -92,7 +98,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 18
+      "review_count": 18,
+      "average_rating": 4.4,
+      "seller_name": "Northloop"
     },
     {
       "App Name": "Paperroute",
@@ -115,7 +123,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 9
+      "review_count": 9,
+      "average_rating": 4.4,
+      "seller_name": "Paperroute"
     },
     {
       "App Name": "Driftline Focus",
@@ -138,7 +148,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 22
+      "review_count": 22,
+      "average_rating": 4.4,
+      "seller_name": "Driftline"
     }
   ],
   "Finance": [
@@ -163,7 +175,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "startup",
-      "review_count": 14
+      "review_count": 14,
+      "average_rating": 4.4,
+      "seller_name": "Ledgerling"
     },
     {
       "App Name": "Pocketsmith Daily",
@@ -175,7 +189,7 @@
       "Last Contacted": "",
       "Lead Score": "64",
       "Estimated MRR": "",
-      "Ratings": "42",
+      "Ratings": "50",
       "Category": "Finance",
       "Platform": "iOS",
       "Developer Website": "https://pocketsmithdaily.app",
@@ -186,7 +200,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 4
+      "review_count": 4,
+      "average_rating": 4.4,
+      "seller_name": "Pocketsmith"
     }
   ],
   "Education": [
@@ -211,7 +227,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 7
+      "review_count": 7,
+      "average_rating": 4.4,
+      "seller_name": "Fieldnote"
     }
   ],
   "Lifestyle": [
@@ -225,7 +243,7 @@
       "Last Contacted": "",
       "Lead Score": "68",
       "Estimated MRR": "<$5K",
-      "Ratings": "33",
+      "Ratings": "50",
       "Category": "Lifestyle",
       "Platform": "iOS",
       "Developer Website": "https://sproutpantry.app",
@@ -236,7 +254,9 @@
       "has_iap": true,
       "price": 0,
       "developer_type": "solo",
-      "review_count": 3
+      "review_count": 3,
+      "average_rating": 4.4,
+      "seller_name": "Sprout Pantry"
     }
   ]
 }

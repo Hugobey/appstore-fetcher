@@ -77,14 +77,14 @@ def _tiles(revenue: str, *, revenue_attrs: str = "", value_class: str = "") -> s
 
 class MrrParseTests(unittest.TestCase):
     def test_third_container_keeps_amounts_at_or_above_10k(self):
-        self.assertEqual(parse_mrr(_tiles("$480K")), "$480k/mo")
-        self.assertEqual(parse_mrr(_tiles("$15k/mo")), "$15k/mo")
+        self.assertEqual(parse_mrr(_tiles("$480K")), "$100k - $500k MRR")
+        self.assertEqual(parse_mrr(_tiles("$15k/mo")), "$10k - $50k MRR")
 
     def test_under_5k_bucket_is_kept(self):
-        self.assertEqual(parse_mrr(_tiles("&lt;$5K")), "<$5K")
-        self.assertEqual(parse_mrr(_tiles("<$5K")), "<$5K")
+        self.assertEqual(parse_mrr(_tiles("&lt;$5K")), "< $5k MRR")
+        self.assertEqual(parse_mrr(_tiles("<$5K")), "< $5k MRR")
         display, numeric = read_mrr(_tiles("<$5k"))
-        self.assertEqual(display, "<$5K")
+        self.assertEqual(display, "< $5k MRR")
         self.assertIsNone(numeric)
 
     def test_blurred_placeholder_is_not_revenue(self):
@@ -101,12 +101,12 @@ class MrrParseTests(unittest.TestCase):
 
     def test_null_and_small_revenue_stay_blank(self):
         low = _tiles("$4K")
-        self.assertEqual(parse_mrr(low), "")
+        self.assertEqual(parse_mrr(low), "< $5k MRR")
         self.assertEqual(parse_mrr("<p>$9k/mo</p>"), "")
         self.assertEqual(parse_mrr(""), "")
         self.assertEqual(parse_mrr("<html></html>"), "")
         display, numeric = read_mrr(low)
-        self.assertEqual(display, "")
+        self.assertEqual(display, "< $5k MRR")
         self.assertEqual(numeric, 4000)
 
 
@@ -164,7 +164,7 @@ class MrrFetchTests(unittest.TestCase):
         self.assertEqual(state["calls"], 5)
         self.assertEqual(state["max"], 1)
         self.assertEqual(pauses, [1, 1, 1, 1])
-        self.assertTrue(all(lead.estimated_mrr == "$22k/mo" for lead in leads[:5]))
+        self.assertTrue(all(lead.estimated_mrr == "$10k - $50k MRR" for lead in leads[:5]))
         self.assertTrue(all(lead.mrr_numeric == 22000 for lead in leads[:5]))
         self.assertEqual(leads[-1].estimated_mrr, "")
         self.assertIsNone(leads[-1].mrr_numeric)
@@ -242,7 +242,7 @@ class MrrFetchTests(unittest.TestCase):
               """ + _tiles("$15,000") + """
             </body></html>
         """
-        self.assertEqual(fetch_mrr(requested, getter=matching(owned)), "$15k/mo")
+        self.assertEqual(fetch_mrr(requested, getter=matching(owned)), "$10k - $50k MRR")
 
     def test_workers_do_not_share_a_parsed_figure(self):
         leads = [
@@ -278,7 +278,7 @@ class MrrFetchTests(unittest.TestCase):
             return SimpleNamespace(status_code=200, text=pages[key], url=url)
 
         enrich_estimated_mrr(leads, demo=False, getter=getter, max_workers=2)
-        self.assertEqual(leads[0].estimated_mrr, "$15k/mo")
+        self.assertEqual(leads[0].estimated_mrr, "$10k - $50k MRR")
         self.assertEqual(leads[0].mrr_numeric, 15000)
         self.assertEqual(leads[1].estimated_mrr, "")
         self.assertIsNone(leads[1].mrr_numeric)
@@ -301,11 +301,14 @@ class SheetLayoutTests(unittest.TestCase):
         self.assertEqual(list(CRM_COLUMNS), BLANK_HEADERS)
         self.assertNotIn("Generated Body", CRM_COLUMNS)
         self.assertNotIn("Email Subject", CRM_COLUMNS)
-        self.assertEqual(CRM_COLUMNS[7], "Status")
-        self.assertEqual(len(CRM_COLUMNS), 13)
-        self.assertEqual(CRM_COLUMNS[3], "Contact")
-        self.assertEqual(CRM_COLUMNS[0], "Appname")
-        self.assertEqual(CRM_COLUMNS[1], "Buy Signal")
+        self.assertEqual(CRM_COLUMNS[12], "Status")
+        self.assertEqual(len(CRM_COLUMNS), 16)
+        self.assertEqual(CRM_COLUMNS[9], "Contact")
+        self.assertEqual(CRM_COLUMNS[0], "App Name")
+        self.assertEqual(CRM_COLUMNS[6], "Estimated MRR")
+        self.assertEqual(CRM_COLUMNS[7], "App Store URL")
+        self.assertEqual(CRM_COLUMNS[5], "Bayesian Score")
+        self.assertEqual(CRM_COLUMNS[8], "Buy Signal")
         for excluded in (
             "Generated Body",
             "Email Subject",
@@ -335,7 +338,7 @@ class SheetLayoutTests(unittest.TestCase):
         self.assertEqual(row[CRM_COLUMNS.index("Status")], "To Contact")
         self.assertEqual(row[CRM_COLUMNS.index("Last contacted")], "")
         self.assertEqual(row[CRM_COLUMNS.index("Buy Signal")], "")
-        self.assertEqual(row[CRM_COLUMNS.index("Estimated MRR")], "$15k/mo")
+        self.assertEqual(row[CRM_COLUMNS.index("Estimated MRR")], "$10k - $50k MRR")
         self.assertEqual(row[CRM_COLUMNS.index("Contact Email")], "jane@quiet.example")
 
     def test_batch_update_payload_formats_the_canonical_sheet(self):
@@ -348,8 +351,8 @@ class SheetLayoutTests(unittest.TestCase):
         validation = next(item["setDataValidation"] for item in requests if "setDataValidation" in item)
         self.assertEqual(validation["range"]["startRowIndex"], 1)
         self.assertEqual(validation["range"]["endRowIndex"], 1000)
-        self.assertEqual(validation["range"]["startColumnIndex"], 7)
-        self.assertEqual(validation["range"]["endColumnIndex"], 8)
+        self.assertEqual(validation["range"]["startColumnIndex"], 12)
+        self.assertEqual(validation["range"]["endColumnIndex"], 13)
         self.assertEqual(validation["rule"]["condition"]["type"], "ONE_OF_LIST")
         self.assertTrue(validation["rule"]["showCustomUi"])
         self.assertFalse(validation["rule"]["strict"])
@@ -362,22 +365,22 @@ class SheetLayoutTests(unittest.TestCase):
             if not added:
                 continue
             span = added["rule"]["ranges"][0]
-            self.assertEqual((span["startColumnIndex"], span["endColumnIndex"]), (0, 13))
+            self.assertEqual((span["startColumnIndex"], span["endColumnIndex"]), (0, 16))
             self.assertEqual((span["startRowIndex"], span["endRowIndex"]), (1, 1000))
             formula = added["rule"]["booleanRule"]["condition"]["values"][0]["userEnteredValue"]
             formulas[formula] = added["rule"]["booleanRule"]["format"]
-        self.assertEqual(formulas['=$H2="To Contact"']["backgroundColor"], rgb("#F8F9FA"))
-        self.assertNotIn("textFormat", formulas['=$H2="To Contact"'])
-        sent = formulas['=$H2="Sent"']
+        self.assertEqual(formulas['=$M2="To Contact"']["backgroundColor"], rgb("#F8F9FA"))
+        self.assertNotIn("textFormat", formulas['=$M2="To Contact"'])
+        sent = formulas['=$M2="Sent"']
         self.assertEqual(sent["backgroundColor"], rgb("#E8F0FE"))
         self.assertEqual(sent["textFormat"]["foregroundColor"], rgb("#1967D2"))
-        self.assertEqual(formulas['=$H2="Follow-Up"']["backgroundColor"], rgb("#E8F0FE"))
-        self.assertEqual(formulas['=$H2="Replied"']["backgroundColor"], rgb("#FEF7E0"))
-        self.assertEqual(formulas['=$H2="Replied"']["textFormat"]["foregroundColor"], rgb("#B06000"))
-        booked = formulas['=$H2="Booked"']
+        self.assertEqual(formulas['=$M2="Follow-Up"']["backgroundColor"], rgb("#E8F0FE"))
+        self.assertEqual(formulas['=$M2="Replied"']["backgroundColor"], rgb("#FEF7E0"))
+        self.assertEqual(formulas['=$M2="Replied"']["textFormat"]["foregroundColor"], rgb("#B06000"))
+        booked = formulas['=$M2="Booked"']
         self.assertEqual(booked["backgroundColor"], rgb("#E6F4EA"))
         self.assertEqual(booked["textFormat"]["foregroundColor"], rgb("#137333"))
-        passed = formulas['=$H2="Not Interested"']
+        passed = formulas['=$M2="Not Interested"']
         self.assertEqual(passed["backgroundColor"], rgb("#FCE8E6"))
         self.assertEqual(passed["textFormat"]["foregroundColor"], rgb("#80868B"))
         self.assertTrue(passed["textFormat"]["strikethrough"])
@@ -395,15 +398,15 @@ class SheetLayoutTests(unittest.TestCase):
         basic = next(item["setBasicFilter"] for item in requests if "setBasicFilter" in item)
         self.assertEqual(basic["filter"]["range"]["startRowIndex"], 0)
         self.assertEqual(basic["filter"]["range"]["endRowIndex"], 1000)
-        self.assertEqual(basic["filter"]["range"]["endColumnIndex"], 13)
+        self.assertEqual(basic["filter"]["range"]["endColumnIndex"], 16)
         widths = {
             item["updateDimensionProperties"]["range"]["startIndex"]: item["updateDimensionProperties"]["properties"]["pixelSize"]
             for item in requests
             if "updateDimensionProperties" in item
         }
-        self.assertGreater(widths[CRM_COLUMNS.index("Appname")], widths[CRM_COLUMNS.index("Status")])
-        self.assertGreater(widths[CRM_COLUMNS.index("Contact")], widths[CRM_COLUMNS.index("Rating count")])
-        self.assertGreater(widths[CRM_COLUMNS.index("Appstore URL")], widths[CRM_COLUMNS.index("Buy Signal")])
+        self.assertGreater(widths[CRM_COLUMNS.index("App Name")], widths[CRM_COLUMNS.index("Status")])
+        self.assertGreater(widths[CRM_COLUMNS.index("Contact")], widths[CRM_COLUMNS.index("Rating Count")])
+        self.assertGreater(widths[CRM_COLUMNS.index("App Store URL")], widths[CRM_COLUMNS.index("Buy Signal")])
         self.assertGreater(widths[CRM_COLUMNS.index("Contact Email")], widths[CRM_COLUMNS.index("Estimated MRR")])
 
     def test_existing_status_column_keeps_its_letter(self):

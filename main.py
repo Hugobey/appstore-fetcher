@@ -775,7 +775,7 @@ def check_crm(settings: dict) -> int:
     print(f"Existing leads: {count}.")
     print(f"Columns: {', '.join(crm.headers)}")
     if getattr(crm, "migrated", False):
-        print("CRM layout applied. Existing rows were mapped into the 13-column schema.")
+        print("CRM layout applied. Existing rows were mapped into the current schema.")
     else:
         print("CRM layout applied. Existing lead rows were not changed.")
     return 0
@@ -850,7 +850,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--demo",
         action="store_true",
-        help="Play cached leads for one category and write a 13-column CSV. No network calls.",
+        help="Play cached leads for one category and write a CSV. No network calls.",
     )
     parser.add_argument(
         "--buy",
@@ -870,7 +870,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--format-sheet",
         action="store_true",
-        help="Apply the 13-column CRM schema, status dropdown, and row colors.",
+        help="Apply the CRM schema, status dropdown, and row colors.",
     )
     commands = parser.add_subparsers(dest="command")
     commands.add_parser("check", help="Connect to the CRM and print the lead count.")

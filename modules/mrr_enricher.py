@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
-from modules.enricher import NO_IAP_LABEL, offline_revenue_display, tracker_decision
+from modules.enricher import NO_IAP_LABEL, bucket_mrr_amount, offline_revenue_display, tracker_decision
 from modules.models import Lead
 
 TRACKER_ROOT = "https://www.appstoretracker.com/app"
@@ -46,7 +46,7 @@ _MONEY = re.compile(
     r"\$\s*(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*([kKmM])?",
 )
 # Sensor Tower's public bucket. The page prints this instead of a dollar amount.
-_UNDER_5K = re.compile(r"^<\s*\$\s*5\s*k(?:\s*/\s*mo(?:nth)?)?$", re.IGNORECASE)
+_UNDER_5K = re.compile(r"^<\s*\$\s*5\s*k(?:\s*/\s*mo(?:nth)?)?(?:\s+mrr)?$", re.IGNORECASE)
 _MONTHLY = re.compile(r"/\s*mo(?:nth)?|\bmonth", re.IGNORECASE)
 _LABEL = re.compile(r"^(?:estimated\s+)?(?:monthly\s+)?(?:mrr|revenue)$", re.IGNORECASE)
 _TITLE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
@@ -732,7 +732,7 @@ def _revenue_tile(node) -> tuple[str, int | None]:
     cells = [item.get_text(" ", strip=True) for item in node.find_all(["dd", "td"])]
     primary = cells[0] if cells else ""
     if _UNDER_5K.match(primary):
-        return "<$5K", None
+        return "< $5k MRR", None
     if _is_empty_marker(primary):
         return "", None
     amounts = list(_MONEY.finditer(primary))
@@ -819,9 +819,7 @@ def _pack(amount: float) -> tuple[str, int | None]:
     numeric = int(round(amount))
     if numeric <= 0:
         return "", None
-    if numeric < MRR_FLOOR_USD:
-        return "", numeric
-    return format_mrr(numeric), numeric
+    return bucket_mrr_amount(numeric), numeric
 
 
 def _is_empty_marker(text: str) -> bool:

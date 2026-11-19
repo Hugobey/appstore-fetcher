@@ -95,7 +95,7 @@ def merge_demo_catalog(existing: dict, incoming: dict, limit: int = 10) -> dict:
             row["Category"] = str(name)
             if not row["Contact"] or not row["Contact Email"]:
                 continue
-            key = row["Appstore URL"].strip().lower() or row["Contact Email"].strip().lower()
+            key = (row.get("App Store URL") or row.get("Appstore URL") or "").strip().lower() or row["Contact Email"].strip().lower()
             if not key or key in seen:
                 continue
             seen.add(key)
@@ -119,7 +119,7 @@ def run_static_demo(
     dashboard: AgentDashboard | None = None,
     leads: list[dict] | None = None,
 ) -> Path:
-    """Stream bundled leads through the agent stepper and write the 13-column CSV.
+    """Stream bundled leads through the agent stepper and write the CRM CSV.
 
     `duration` is the whole replay. Nothing in this function opens a socket.
     """

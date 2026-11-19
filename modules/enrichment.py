@@ -40,6 +40,11 @@ CRAWL_WORKERS = 12
 PAGE_CAP = 3
 CONNECT_TIMEOUT = 3.0
 READ_TIMEOUT = 5.0
+_BROWSER_UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/128.0.0.0 Safari/537.36"
+)
 LINK_HINTS = ("contact", "privacy", "terms", "imprint", "legal", "about", "support")
 JUNK_DOMAINS = {
     "example.com",
@@ -479,8 +484,27 @@ def _crawl_origin(
     return fetched_any, blocked_pages, errors, contact_page, contact_name
 
 
+def attach_listing_emails(lead: Lead) -> None:
+    """Keep a public address already printed on the store listing. Do not invent one."""
+    parts = [lead.description or ""]
+    source = lead.source if isinstance(lead.source, dict) else {}
+    notes = source.get("releaseNotes") or source.get("release_notes") or ""
+    parts.append(str(notes))
+    blob = "\n".join(part for part in parts if part)
+    if "@" not in blob and "[at]" not in blob.lower() and "(at)" not in blob.lower():
+        return
+    known = {item.address.lower() for item in lead.emails}
+    for address in extract_emails(blob):
+        if address in known:
+            continue
+        known.add(address)
+        email_type, evidence = classify_email(address, blob, lead.developer_name, lead.developer_type or "unknown")
+        lead.emails.append(EmailFound(address, email_type, "App Store listing", evidence))
+
+
 def enrich_lead(lead: Lead, settings: dict, *, fetcher=None, sleep=time.sleep, public_check=is_public_url) -> Lead:
     """Crawl a few public pages on the seller site and, when needed, the support site."""
+    attach_listing_emails(lead)
     config = settings.get("enrichment") or {}
     user_agent = config.get("user_agent") or "AppProspectingCLI/1.0"
     website = normalize_website(lead.developer_website)
@@ -578,6 +602,13 @@ def _finalize_contacts(lead: Lead) -> None:
         lead.contact_page_url = primary.source_url
 
 
+def _prefer_retry(status: int, body: str | None, final: str, retried: tuple[int, str | None, str]) -> tuple[int, str | None, str]:
+    """Use a second response when the first one was blocked and the retry was not."""
+    if status in {401, 403} and retried[0] not in {401, 403}:
+        return retried
+    return status, body, final
+
+
 def _build_fetcher(config: dict):
     session = requests.Session()
     # Connect 3s and read 5s so one stalled server cannot hold a crawl worker.
@@ -585,7 +616,7 @@ def _build_fetcher(config: dict):
     max_bytes = int(config.get("max_bytes") or 1_000_000)
     user_agent = config.get("user_agent") or "AppProspectingCLI/1.0"
 
-    def fetch(url: str) -> tuple[int, str | None, str]:
+    def once(url: str, agent: str) -> tuple[int, str | None, str]:
         current = url
         for _hop in range(5):
             if _is_heavy_url(current):
@@ -597,7 +628,7 @@ def _build_fetcher(config: dict):
                 timeout=timeout,
                 allow_redirects=False,
                 stream=True,
-                headers={"User-Agent": user_agent, "Accept": "text/html,application/xhtml+xml;q=0.9,text/plain;q=0.8"},
+                headers={"User-Agent": agent, "Accept": "text/html,application/xhtml+xml;q=0.9,text/plain;q=0.8"},
             )
             if response.status_code in {301, 302, 303, 307, 308}:
                 location = response.headers.get("Location")
@@ -621,5 +652,11 @@ def _build_fetcher(config: dict):
                 text = raw[:max_bytes].decode(response.encoding or "utf-8", errors="replace")
             return response.status_code, text, current
         raise SiteBlocked(f"{url} redirected too many times")
+
+    def fetch(url: str) -> tuple[int, str | None, str]:
+        status, body, final = once(url, user_agent)
+        if status in {401, 403} and user_agent != _BROWSER_UA:
+            return _prefer_retry(status, body, final, once(url, _BROWSER_UA))
+        return status, body, final
 
     return fetch

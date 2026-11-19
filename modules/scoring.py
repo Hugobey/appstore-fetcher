@@ -420,6 +420,97 @@ def _looks_like_person(name: str) -> bool:
     return True
 
 
+# Bayesian prior. m is the vote threshold; C is the category baseline.
+BAYESIAN_PRIOR_VOTES = 100
+BAYESIAN_PRIOR_MEAN = 4.2
+MIN_AVERAGE_RATING = 3.8
+MIN_RATING_COUNT = 50
+PORTFOLIO_CAP = 15
+_CORPORATE_TOKENS = {
+    "plc",
+    "sa",
+    "se",
+    "ag",
+    "nv",
+    "group",
+    "holdings",
+    "bancorp",
+    "insurance",
+    "assurance",
+    "mutual",
+    "telecom",
+    "airlines",
+    "airways",
+    "government",
+    "university",
+}
+_SPA = re.compile(r"\bs\.?\s*p\.?\s*a\.?\b", re.IGNORECASE)
+
+
+def bayesian_score(average, votes, prior_votes: int = BAYESIAN_PRIOR_VOTES, prior_mean: float = BAYESIAN_PRIOR_MEAN):
+    """Weighted rating. Missing stars or volume stay unknown. Result is rounded to 2 decimals."""
+    rating = _as_float(average)
+    volume = _as_float(votes)
+    if rating is None or volume is None or volume < 0:
+        return None
+    weight = volume + float(prior_votes)
+    if weight <= 0:
+        return None
+    score = (volume / weight) * rating + (float(prior_votes) / weight) * float(prior_mean)
+    return round(score, 2)
+
+
+def annotate_portfolio(leads: list[Lead]) -> None:
+    """Raise each seller's app count to the number of apps seen in this batch."""
+    counts: dict[str, int] = {}
+    for lead in leads:
+        key = _seller_key(lead)
+        if key:
+            counts[key] = counts.get(key, 0) + 1
+    for lead in leads:
+        key = _seller_key(lead)
+        observed = counts.get(key, 0)
+        current = lead.seller_app_count or 0
+        combined = max(int(current), observed)
+        lead.seller_app_count = combined or None
+
+
+def quality_filter_reason(lead) -> str | None:
+    """Corporate, portfolio, star, volume, and IAP gates. Unknown fields do not exclude."""
+    seller = _first_text(lead, "seller_name", "sellerName", "developer_name", "Developer / Seller", "Developer")
+    corporate = corporate_reason(seller)
+    if corporate:
+        return corporate
+    category = _first_text(lead, "category", "Category")
+    portfolio = _as_int(_pick(lead, "seller_app_count", "sellerAppCount"))
+    if portfolio is not None and portfolio > PORTFOLIO_CAP and not _is_games(category):
+        return f"publisher has {portfolio} apps, above the portfolio cap of {PORTFOLIO_CAP}"
+    average = _as_float(_pick(lead, "average_rating", "Average Rating", "averageUserRating"))
+    if average is not None and average < MIN_AVERAGE_RATING:
+        shown = f"{average:.2f}".rstrip("0").rstrip(".")
+        return f"average rating {shown} is below {MIN_AVERAGE_RATING}"
+    ratings = _as_int(_pick(lead, "rating_count", "Rating Count", "Rating count", "Ratings"))
+    if ratings is not None and ratings < MIN_RATING_COUNT:
+        return f"{ratings} ratings is below the {MIN_RATING_COUNT} rating floor"
+    has_iap = _as_bool(_pick(lead, "has_iap", "hasInAppPurchases"))
+    if has_iap is False:
+        return "no in-app purchases"
+    return None
+
+
+def corporate_reason(name: str) -> str | None:
+    """Legal suffixes and enterprise keywords. Inc., LLC, Ltd, SAS, and GmbH stay."""
+    text = name or ""
+    if not text.strip():
+        return None
+    if _SPA.search(text):
+        return f"{text.strip()} matches a legacy corporation"
+    tokens = set(re.findall(r"[a-z0-9]+", text.casefold().replace(".", "")))
+    if tokens & _CORPORATE_TOKENS:
+        return f"{text.strip()} matches a legacy corporation"
+    return None
+
+
 def hard_filter_reason(lead: Lead, targeting: dict, today: date | None = None) -> str | None:
     """Return why a lead is excluded, or None when it survives. Missing data does not exclude."""
     current = today or utc_today()
@@ -429,6 +520,9 @@ def hard_filter_reason(lead: Lead, targeting: dict, today: date | None = None) -
     floor = targeting.get("min_ratings")
     if floor not in (None, "", "any") and lead.rating_count is not None and lead.rating_count < int(floor):
         return f"{lead.rating_count} ratings is below the minimum of {floor}"
+    quality = quality_filter_reason(lead)
+    if quality:
+        return quality
     pricing = targeting.get("pricing_model")
     if pricing == "freemium":
         if lead.price is not None and lead.price > 0:
@@ -481,3 +575,83 @@ def _developer_filter_reason(kind: str, target) -> str | None:
     found = TEAM_LABELS.get(kind, kind)
     wanted = " or ".join(label_for(DEVELOPER_TYPES, item) for item in selected)
     return f"ICP looks like {found}, not {wanted}"
+
+
+def _seller_key(lead: Lead) -> str:
+    return _text(_pick(lead, "seller_name", "developer_name")).casefold()
+
+
+def _is_games(category: str) -> bool:
+    text = (category or "").strip().casefold()
+    return text == "games" or text.startswith("games ")
+
+
+def _pick(lead, *names):
+    if isinstance(lead, dict):
+        for name in names:
+            if name in lead:
+                return lead[name]
+        folded = {str(key).strip().casefold(): key for key in lead}
+        for name in names:
+            key = folded.get(name.casefold())
+            if key is not None:
+                return lead[key]
+        return None
+    for name in names:
+        if hasattr(lead, name):
+            return getattr(lead, name)
+    return None
+
+
+def _first_text(lead, *names) -> str:
+    if isinstance(lead, dict):
+        folded = {str(key).strip().casefold(): key for key in lead}
+        for name in names:
+            key = name if name in lead else folded.get(name.casefold())
+            if key is None:
+                continue
+            text = _text(lead.get(key))
+            if text:
+                return text
+        return ""
+    for name in names:
+        if not hasattr(lead, name):
+            continue
+        text = _text(getattr(lead, name))
+        if text:
+            return text
+    return ""
+
+
+def _text(value) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def _as_float(value):
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _as_int(value):
+    number = _as_float(value)
+    if number is None:
+        return None
+    return int(number)
+
+
+def _as_bool(value):
+    if isinstance(value, bool) or value is None:
+        return value
+    if isinstance(value, str):
+        folded = value.strip().casefold()
+        if folded in {"true", "1", "yes"}:
+            return True
+        if folded in {"false", "0", "no"}:
+            return False
+    return None

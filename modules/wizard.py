@@ -722,7 +722,8 @@ def search_summary(state: dict, settings: dict) -> list[tuple[str, str]]:
         ),
         (
             "Discovery:",
-            f"{charts} App Store category charts across {len(fronts)} storefront(s), no keywords",
+            f"{charts} App Store category charts across {len(fronts)} storefront(s). "
+            "A short list also searches the category phrases",
         ),
         ("Apify estimate:", "$0.00 (public category RSS and iTunes Lookup)"),
     ]

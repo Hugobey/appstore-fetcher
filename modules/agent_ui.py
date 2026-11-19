@@ -46,12 +46,20 @@ def is_high_mrr(value: str | None) -> bool:
     # `<$5K` is the public under-floor bucket, not a $10k+ estimate.
     if re.match(r"^<\s*\$\s*5\s*k", text, re.IGNORECASE):
         return False
+    if re.match(r"^\$5k\s*-\s*\$10k", text, re.IGNORECASE):
+        return False
     return True
 
 
 _BOTTLENECKS = {
     "update_window": "update window",
     "ratings_above_cap": "ratings cap",
+    "ratings_below_min": "below the minimum rating",
+    "rating_floor": "50 rating floor",
+    "low_rating": "star rating",
+    "pricing": "pricing filter",
+    "corporate": "legacy corporation",
+    "portfolio": "portfolio cap",
     "no_website": "no developer website",
     "no_email_found": "no public email",
     "email_filtered_out": "filtered contact addresses",

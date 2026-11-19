@@ -9,9 +9,11 @@ from modules.config import load_scoring, load_settings
 from modules.models import EmailFound, Lead
 from modules.scoring import (
     apply_score,
+    bayesian_score,
     classify_developer,
     hard_filter_reason,
     qualification_failure,
+    quality_filter_reason,
     score_lead,
 )
 
@@ -34,6 +36,8 @@ class ScoringTests(unittest.TestCase):
             release_date=released,
             last_update=updated,
             rating_count=kwargs.pop("rating_count", 8),
+            average_rating=kwargs.pop("average_rating", None),
+            category=kwargs.pop("category", ""),
             price=kwargs.pop("price", 0),
             has_iap=kwargs.pop("has_iap", False),
             enrichment_status=kwargs.pop("enrichment_status", "ok"),
@@ -108,14 +112,22 @@ class ScoringTests(unittest.TestCase):
         }
         too_many = self._lead(rating_count=31)
         self.assertIn("ratings", hard_filter_reason(too_many, targeting, self.today))
-        reviews_only = self._lead(rating_count=None)
+        reviews_only = self._lead(rating_count=None, has_iap=None)
         reviews_only.rating_count = None
         reviews_only.review_count = 5000
         self.assertIsNone(hard_filter_reason(reviews_only, targeting, self.today))
-        company = self._lead(developer_name="Acme Apps LLC", description="Task app")
+        company = self._lead(
+            developer_name="Acme Apps LLC",
+            description="Task app",
+            rating_count=60,
+            has_iap=True,
+            average_rating=4.6,
+        )
         company.developer_type = classify_developer(company, self.settings)
-        self.assertIn("Startups", hard_filter_reason(company, targeting, self.today))
-        unknown = self._lead(developer_name="Notion", description="")
+        company_targeting = dict(targeting, max_ratings="any")
+        self.assertIn("Startups", hard_filter_reason(company, company_targeting, self.today))
+        unknown = self._lead(developer_name="Notion", description="", rating_count=None, has_iap=None)
+        unknown.rating_count = None
         unknown.developer_type = classify_developer(unknown, self.settings)
         self.assertEqual(unknown.developer_type, "unknown")
         self.assertIsNone(hard_filter_reason(unknown, targeting, self.today))
@@ -130,9 +142,9 @@ class ScoringTests(unittest.TestCase):
         }
         low = self._lead(rating_count=12)
         self.assertIn("below the minimum", hard_filter_reason(low, targeting, self.today))
-        missing = self._lead(rating_count=None)
+        missing = self._lead(rating_count=None, has_iap=None)
         self.assertIsNone(hard_filter_reason(missing, targeting, self.today))
-        enough = self._lead(rating_count=50)
+        enough = self._lead(rating_count=50, has_iap=True, average_rating=4.2)
         self.assertIsNone(hard_filter_reason(enough, targeting, self.today))
 
     def test_traction_assigns_the_four_icps(self):
@@ -187,7 +199,13 @@ class ScoringTests(unittest.TestCase):
         self.assertEqual(classify_developer(popular, self.settings), "large")
 
     def test_scaleup_score_uses_installs_and_an_open_rating_cap(self):
-        lead = self._lead(rating_count=8000, developer_name="Jane Doe", description="A focus timer.")
+        lead = self._lead(
+            rating_count=8000,
+            developer_name="Jane Doe",
+            description="A focus timer.",
+            has_iap=True,
+            average_rating=4.5,
+        )
         lead.install_count = 250_000
         lead.developer_type = classify_developer(lead, self.settings)
         self.assertEqual(lead.developer_type, "scaleup")
@@ -208,6 +226,37 @@ class ScoringTests(unittest.TestCase):
         apply_score(lead, self.scoring, self.today)
         self.assertEqual(lead.score_normalized, 100)
         self.assertTrue(lead.score_breakdown)
+
+    def test_bayesian_score_pulls_sparse_apps_toward_the_baseline(self):
+        self.assertEqual(bayesian_score(4.6, 100), 4.4)
+        self.assertEqual(bayesian_score(5.0, 300), 4.8)
+        self.assertIsNone(bayesian_score(None, 200))
+        self.assertIsNone(bayesian_score(4.8, None))
+
+    def test_quality_filter_drops_corporations_portfolios_and_weak_apps(self):
+        indie = self._lead(rating_count=80, has_iap=True, average_rating=4.6, developer_name="Jane Doe")
+        targeting = {"max_ratings": "any", "max_app_age": "any", "last_update": "any", "developer_type": "solo"}
+        self.assertIsNone(hard_filter_reason(indie, targeting, self.today))
+        bank = self._lead(rating_count=800, has_iap=True, average_rating=4.4, developer_name="AXA France SA")
+        self.assertIn("legacy corporation", quality_filter_reason(bank))
+        self.assertIsNone(quality_filter_reason(self._lead(developer_name="Northwind GmbH", rating_count=80, has_iap=True, average_rating=4.5)))
+        self.assertIsNone(quality_filter_reason(self._lead(developer_name="Acme SAS", rating_count=80, has_iap=True, average_rating=4.5)))
+        self.assertIn("legacy corporation", quality_filter_reason(self._lead(developer_name="Helvetia Insurance Ltd", rating_count=80, has_iap=True, average_rating=4.5)))
+        portfolio = self._lead(rating_count=80, has_iap=True, average_rating=4.6, developer_name="Regional Tools")
+        portfolio.seller_app_count = 16
+        self.assertIn("portfolio cap", quality_filter_reason(portfolio))
+        games = self._lead(rating_count=80, has_iap=True, average_rating=4.6, developer_name="Regional Tools")
+        games.category = "Games"
+        games.seller_app_count = 16
+        self.assertIsNone(quality_filter_reason(games))
+        weak = self._lead(rating_count=80, has_iap=True, average_rating=3.2)
+        self.assertIn("3.2", quality_filter_reason(weak))
+        thin = self._lead(rating_count=40, has_iap=True, average_rating=4.8)
+        self.assertIn("50 rating floor", quality_filter_reason(thin))
+        free = self._lead(rating_count=80, has_iap=False, average_rating=4.8)
+        self.assertIn("no in-app purchases", quality_filter_reason(free))
+        unknown_iap = self._lead(rating_count=80, has_iap=None, average_rating=4.8)
+        self.assertIsNone(quality_filter_reason(unknown_iap))
 
 
 if __name__ == "__main__":

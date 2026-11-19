@@ -22,13 +22,22 @@ from modules.scraper import (
     ENGLISH_STOREFRONTS,
     ApifyInterrupted,
     discovery_jobs,
+    category_phrases,
     fill_from_itunes,
     keyword_plan,
     normalize_app,
     storefronts_for,
     synonym_keywords,
 )
-from modules.scoring import apply_score, classify_developer, hard_filter_reason, qualification_failure, selected_developer_types
+from modules.scoring import (
+    annotate_portfolio,
+    apply_score,
+    bayesian_score,
+    classify_developer,
+    hard_filter_reason,
+    qualification_failure,
+    selected_developer_types,
+)
 
 
 @dataclass
@@ -60,6 +69,12 @@ def empty_stats() -> dict:
             "icp_mismatch": 0,
             "mrr_exceeded": 0,
             "ratings_above_cap": 0,
+            "ratings_below_min": 0,
+            "rating_floor": 0,
+            "low_rating": 0,
+            "pricing": 0,
+            "corporate": 0,
+            "portfolio": 0,
             "update_window": 0,
         },
     }
@@ -124,6 +139,23 @@ def _count_rejection(stats: dict, reason: str) -> None:
         key = "icp_mismatch"
     elif "ratings is above" in text:
         key = "ratings_above_cap"
+    elif "rating floor" in text:
+        key = "rating_floor"
+    elif "below the minimum" in text:
+        key = "ratings_below_min"
+    elif "average rating" in text and "below" in text:
+        key = "low_rating"
+    elif (
+        "freemium" in text
+        or "upfront-paid" in text
+        or "ad-supported" in text
+        or text == "no in-app purchases"
+    ):
+        key = "pricing"
+    elif "legacy corporation" in text:
+        key = "corporate"
+    elif "portfolio cap" in text:
+        key = "portfolio"
     elif text.startswith("updated ") and "window" in text:
         key = "update_window"
     elif text.startswith("Estimated MRR"):
@@ -444,10 +476,13 @@ def discover(
             deferred_ratings.clear()
             _replay(pending, active)
         if network_ok and len(qualified) < target:
-            base_words = used_keywords or keyword_plan(targeting, settings)
-            synonyms = synonym_keywords(base_words)
-            fronts = list(searched_fronts) or storefronts_for(country)
-            _search_relax(synonyms, fronts, active, RELAX_SEARCH_BUDGET)
+            phrases = category_phrases(targeting, settings)
+            if not phrases:
+                base_words = used_keywords or keyword_plan(targeting, settings)
+                phrases = synonym_keywords(base_words)
+            fronts = storefronts_for(country)[:1] or [country]
+            # Chart widening may already have spent RELAX_PASS_BUDGET. Phrases get their own room.
+            _search_relax(phrases, fronts, active, RELAX_PASS_BUDGET + RELAX_SEARCH_BUDGET)
 
     def _finish() -> None:
         _flush_deferred()
@@ -724,6 +759,7 @@ def _consume(
         _emit("app_discovered", lead=lead, app_name=lead.app_name, category=keyword)
     candidates: list[Lead] = []
     filtered = 0
+    annotate_portfolio(fresh)
     for lead in fresh:
         lead.developer_type = classify_developer(lead, settings)
         reclassify_store_emails(lead)
@@ -937,6 +973,7 @@ def _score_prepared_lead(
         return
     stats["qualified"] += 1
     lead.buy_signal = buy_signal(lead, today)
+    lead.bayesian_score = bayesian_score(lead.average_rating, lead.rating_count)
     qualified.append(lead)
     if dashboard is not None:
         dashboard.set_qualified(len(qualified))

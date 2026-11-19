@@ -9,6 +9,7 @@ import threading
 import time
 
 from modules.enrichment import (
+    _prefer_retry,
     classify_email,
     crawl_leads,
     decode_cloudflare_email,
@@ -286,6 +287,30 @@ class EnrichmentTests(unittest.TestCase):
         enrich_lead(lead, settings, fetcher=fetch, sleep=lambda _s: None, public_check=lambda _url: True)
         self.assertEqual(lead.enrichment_status, "ok")
         self.assertEqual(lead.primary_email.address, "contact@indie.example")
+
+    def test_a_store_listing_email_is_kept_when_there_is_no_site(self):
+        lead = Lead(
+            platform="ios",
+            app_store_id="77",
+            app_name="Cardi",
+            developer_name="Ada Lovelace",
+            description="Questions: hello@cardi.example",
+            developer_type="solo",
+        )
+
+        def explode(url):
+            raise AssertionError(url)
+
+        enrich_lead(lead, load_settings(), fetcher=explode, sleep=lambda _s: None, public_check=lambda _url: True)
+        self.assertEqual(lead.primary_email.address, "hello@cardi.example")
+        self.assertEqual(lead.enrichment_status, "ok")
+        self.assertEqual(lead.emails[0].source_url, "App Store listing")
+
+    def test_a_blocked_response_keeps_the_unblocked_retry(self):
+        kept = _prefer_retry(403, None, "https://headway.co", (200, "<p>hi@headway.example</p>", "https://headway.co"))
+        self.assertEqual(kept[0], 200)
+        still_blocked = _prefer_retry(403, None, "https://headway.co", (403, None, "https://headway.co"))
+        self.assertEqual(still_blocked[0], 403)
 
     def test_parallel_crawl_overlaps(self):
         state = {"current": 0, "max": 0}

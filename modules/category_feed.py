@@ -1,13 +1,15 @@
 """App Store category discovery. Charts come from public genre RSS, then iTunes Lookup.
 
-There is no keyword search. A selected category maps to Apple's genre id. Page 1 is
-the top free chart and any later page is the top paid chart for that same genre.
+A selected category maps to Apple's genre id. Page 1 is the top free chart and any
+later page is the top paid chart for that same genre. A phrase that is not a genre
+name is a public iTunes search on the same host, used after the charts miss the target.
 """
 
 from __future__ import annotations
 
 import logging
 from collections.abc import Callable
+from urllib.parse import quote_plus
 
 from modules.errors import ApifyError
 
@@ -78,6 +80,13 @@ def lookup_url(country: str, app_ids: list[str]) -> str:
     return f"https://itunes.apple.com/lookup?id={joined}&country={front}&entity=software"
 
 
+def search_url(country: str, term: str, limit: int = 200) -> str:
+    """Public search on the same host as Lookup. Charts stay on the RSS path."""
+    front = (country or "us").strip().lower()
+    query = quote_plus(term.strip())
+    return f"https://itunes.apple.com/search?term={query}&country={front}&entity=software&limit={int(limit)}"
+
+
 def entry_ids(payload: dict) -> list[str]:
     """Numeric ids from a category RSS feed, in chart order."""
     feed = payload.get("feed") if isinstance(payload, dict) else None
@@ -112,6 +121,12 @@ def lookup_records(payload: dict) -> list[dict]:
     return apps
 
 
+def fetch_search_apps(term: str, country: str, getter: Callable[[str], dict], limit: int = 200) -> list[dict]:
+    """Software rows from one public search. Artist rows are skipped."""
+    payload = getter(search_url(country, term, limit))
+    return lookup_records(payload if isinstance(payload, dict) else {})
+
+
 def fetch_genre_apps(category: str, country: str, chart: str, getter: Callable[[str], dict]) -> list[dict]:
     """RSS ids, then one Lookup call per batch so sellerUrl and supportUrl are present."""
     genre_id = GENRE_IDS.get(category)
@@ -136,15 +151,22 @@ def fetch_genre_apps(category: str, country: str, chart: str, getter: Callable[[
 def category_searcher(settings: dict, getter: Callable[[str], dict] | None = None):
     """`(platform, category, country, page)` searcher backed by genre RSS.
 
-    Page 1 is top free. Any later page is top paid. Android has no genre RSS here.
-    Results are cached with the existing search cache. Empty feeds are not cached.
+    Page 1 is top free. Any later page is top paid. A phrase that is not a genre
+    name uses public iTunes search. Android has no genre RSS here. Results are
+    cached with the existing search cache. Empty feeds are not cached.
     """
 
     def search(platform: str, category: str, country: str, page: int = 1):
-        if platform != "ios" or category not in GENRE_IDS:
+        term = str(category or "").strip()
+        if platform != "ios" or not term:
             return [], {"cached": False, "usage_usd": 0}
-        chart = chart_for_page(page)
-        cache_key = f"{category}|{chart}"
+        searching = term not in GENRE_IDS
+        if searching:
+            chart = ""
+            cache_key = f"search|{term}"
+        else:
+            chart = chart_for_page(page)
+            cache_key = f"{term}|{chart}"
         if getter is None:
             from modules.scraper import read_cache, write_cache
 
@@ -152,11 +174,16 @@ def category_searcher(settings: dict, getter: Callable[[str], dict] | None = Non
             if cached is not None:
                 return cached, {"cached": True, "usage_usd": 0}
         try:
-            items = fetch_genre_apps(category, country, chart, getter or _json_get)
+            fetch = getter or _json_get
+            if searching:
+                items = fetch_search_apps(term, country, fetch)
+            else:
+                items = fetch_genre_apps(term, country, chart, fetch)
         except ApifyError:
             raise
         except Exception as exc:
-            raise ApifyError(f"Category feed for {category} ({country}) failed: {exc}") from exc
+            kind = "search" if searching else "feed"
+            raise ApifyError(f"Category {kind} for {term} ({country}) failed: {exc}") from exc
         if getter is None and items:
             from modules.scraper import write_cache
 

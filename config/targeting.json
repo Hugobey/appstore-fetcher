@@ -21,12 +21,14 @@
   "max_app_age": "any",
   "last_update": "180d",
   "min_score": 50,
-  "target_prospects": 20,
+  "target_prospects": 50,
   "max_mrr": null,
   "country": "us",
   "template_id": "intro",
-  "saved_at": "2026-11-16T11:39:04+00:00",
+  "saved_at": "2026-11-19T10:04:29+00:00",
   "user_profile": "other",
   "consider_mrr": true,
-  "min_ratings": 10
+  "min_ratings": 10,
+  "pricing_model": "freemium",
+  "revenue_mode": "tracker"
 }
