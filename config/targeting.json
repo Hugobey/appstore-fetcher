@@ -8,16 +8,16 @@
   ],
   "platforms": "ios",
   "categories": [
+    "Finance",
     "Health & Fitness",
     "Productivity",
-    "Lifestyle",
-    "Finance",
     "Education",
+    "Lifestyle",
     "Utilities",
     "Entertainment"
   ],
   "custom_keywords": [],
-  "max_ratings": 250,
+  "max_ratings": 500,
   "max_app_age": "any",
   "last_update": "180d",
   "min_score": 50,
@@ -25,10 +25,15 @@
   "max_mrr": null,
   "country": "us",
   "template_id": "intro",
-  "saved_at": "2026-11-19T10:04:29+00:00",
-  "user_profile": "other",
+  "saved_at": "2026-11-19T17:30:59+00:00",
+  "user_profile": "indie_founder",
   "consider_mrr": true,
-  "min_ratings": 10,
+  "min_ratings": 30,
   "pricing_model": "freemium",
-  "revenue_mode": "tracker"
+  "revenue_mode": "tracker",
+  "mrr_ranges": [
+    "$5k - $10k MRR",
+    "$10k - $50k MRR",
+    "$50k - $100k MRR"
+  ]
 }

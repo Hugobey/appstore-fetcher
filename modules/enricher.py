@@ -8,6 +8,7 @@ App Store Tracker pipeline instead of this client.
 
 from __future__ import annotations
 
+import math
 import os
 import re
 from pathlib import Path
@@ -43,6 +44,7 @@ _TARGETING_FIELDS = (
     "template_id",
     "pricing_model",
     "revenue_mode",
+    "mrr_ranges",
 )
 _APP_ID = re.compile(r"id(\d+)", re.IGNORECASE)
 
@@ -480,6 +482,78 @@ def bucket_mrr_text(value: str | None) -> str:
     elif suffix == "b":
         number *= 1_000_000_000
     return bucket_mrr_amount(number)
+
+
+def normalize_mrr_ranges(value) -> list[str]:
+    """Known MRR buckets, in display order.
+
+    An empty selection and a selection of every bucket are both unfiltered.
+    """
+    if value is None or value == "":
+        return []
+    if isinstance(value, str):
+        items = [part.strip() for part in value.split(",")]
+    elif isinstance(value, (list, tuple, set)):
+        items = list(value)
+    else:
+        return []
+    chosen = set()
+    for item in items:
+        text = str(item).strip()
+        if text in _MRR_BUCKETS:
+            chosen.add(text)
+    if len(chosen) >= len(_MRR_BUCKETS):
+        return []
+    return [bucket for bucket in _MRR_BUCKETS if bucket in chosen]
+
+
+def hunt_target(target: int, ranges) -> int:
+    """How many email-verified leads to collect before an MRR-range filter.
+
+    Unfiltered runs stay at `target`. A real bracket oversamples by 2.5x so the
+    requested count can still be met after leads outside the bracket are dropped.
+    """
+    try:
+        count = int(target or 0)
+    except (TypeError, ValueError):
+        return 0
+    if count <= 0 or not normalize_mrr_ranges(ranges):
+        return count
+    return max(count, math.ceil(count * 2.5))
+
+
+def lead_mrr_bucket(lead) -> str:
+    """Public MRR bucket for a lead or an export row. Blank and N/A do not match."""
+    if isinstance(lead, dict):
+        display = str(lead.get("Estimated MRR") or lead.get("estimated_mrr") or "")
+        numeric = lead.get("mrr_numeric")
+    else:
+        display = str(getattr(lead, "estimated_mrr", "") or "")
+        numeric = getattr(lead, "mrr_numeric", None)
+    raw = display.strip()
+    if raw.upper().startswith("N/A"):
+        return ""
+    bucket = bucket_mrr_text(raw)
+    if bucket in _MRR_BUCKETS:
+        return bucket
+    if numeric not in (None, ""):
+        try:
+            return bucket_mrr_amount(float(numeric))
+        except (TypeError, ValueError):
+            return ""
+    return ""
+
+
+def filter_by_mrr_ranges(leads, ranges) -> list:
+    """Keep leads whose calculated MRR falls in any selected bucket.
+
+    None, an empty selection, and every bucket selected all return the leads unchanged.
+    """
+    selected = normalize_mrr_ranges(ranges)
+    rows = list(leads or [])
+    if not selected:
+        return rows
+    return [lead for lead in rows if lead_mrr_bucket(lead) in selected]
 
 
 def format_monthly(amount: int, suffix: str) -> str:

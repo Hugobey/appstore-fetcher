@@ -17,6 +17,7 @@ from modules.discovery import buy_signal
 from modules.enrichment import classify_email, crawl_leads
 from modules.errors import ApifyError
 from modules.models import Lead
+from modules.enricher import filter_by_mrr_ranges, normalize_mrr_ranges
 from modules.mrr_enricher import MrrOutcome, apply_mrr_outcome, tracker_url_for_lead
 from modules.scraper import (
     ENGLISH_STOREFRONTS,
@@ -1037,12 +1038,15 @@ def analyze_saved(
     pause=None,
     enabled: bool = True,
     revenue_mode: str | None = None,
+    mrr_ranges=None,
 ) -> list[Lead]:
     """Enrich revenue for leads this run already saved.
 
     This never calls a searcher and never changes how many leads scouting saved.
     One request per lead. A failure is logged and the next lead still runs.
     `enabled=False` skips App Store Tracker and keeps the saved leads.
+    When `mrr_ranges` names a subset of the public buckets, the returned list
+    keeps leads inside any of those buckets. The store still has every saved lead.
     """
     voice = narrator or Narrator()
     leads = list(store.load())
@@ -1140,6 +1144,9 @@ def analyze_saved(
         dashboard.set_analyst(f"Analysis complete [{total}/{total}]")
     if run_log is not None:
         run_log.event("ANALYZING", "analysis_completed", total=total, **counts)
+    selected = normalize_mrr_ranges(mrr_ranges)
+    if selected:
+        leads = filter_by_mrr_ranges(leads, selected)
     return leads
 
 

@@ -12,6 +12,7 @@ from modules.agent_ui import AgentDashboard, is_high_mrr
 from modules.config import project_path, save_json
 from modules.errors import ConfigError
 from modules.prompts import QuestionaryPrompter
+from modules.enricher import filter_by_mrr_ranges, normalize_mrr_ranges
 from modules.sheets_crm import SHEETS_IMPORT_TIP, deals_export_path, lead_to_export_row, write_export_csv
 
 
@@ -49,6 +50,21 @@ def load_demo_catalog(path: Path | None = None) -> dict[str, list[dict]]:
     if not grouped:
         raise ConfigError(f"{path.name} needs leads keyed by category.")
     return grouped
+
+
+def demo_mrr_ranges() -> list[str]:
+    """`PROSPECTING_DEMO_MRR` is a comma-separated bucket list. Blank means no filter."""
+    raw = os.environ.get("PROSPECTING_DEMO_MRR", "").strip()
+    if not raw:
+        return []
+    return normalize_mrr_ranges([part.strip() for part in raw.split(",") if part.strip()])
+
+
+def apply_demo_mrr_filter(leads: list[dict]) -> list[dict]:
+    ranges = demo_mrr_ranges()
+    if not ranges:
+        return list(leads)
+    return filter_by_mrr_ranges(leads, ranges)
 
 
 def load_demo_leads(path: Path | None = None, categories: list[str] | None = None) -> list[dict]:
@@ -123,7 +139,7 @@ def run_static_demo(
 
     `duration` is the whole replay. Nothing in this function opens a socket.
     """
-    leads = list(leads) if leads is not None else load_demo_leads()
+    leads = apply_demo_mrr_filter(list(leads) if leads is not None else load_demo_leads())
     total = len(leads)
     board = dashboard or AgentDashboard(total, demo=True)
     board.target = total

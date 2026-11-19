@@ -20,12 +20,7 @@ from modules.labels import (
     label_for,
 )
 
-# Investor runs skip the rating-count menu and keep a wide, recent net.
-HIGH_VELOCITY_DEFAULTS = {
-    "max_ratings": "any",
-    "last_update": "90d",
-}
-MRR_DEFAULT_YES = {"angel_vc"}
+from modules.enricher import _MRR_BUCKETS, normalize_mrr_ranges
 from modules.preview import print_configuration
 from modules.prompts import BACK
 
@@ -86,18 +81,24 @@ def _walk(prompter, state: dict, allow_back: bool, start: int = 0, internal: boo
 
 
 def _steps(state: dict | None = None, internal: bool = False):
-    """Profile, pricing, one category, then MRR only when the pricing model has it.
+    """Profile, pricing, categories, then MRR only when the pricing model has it.
 
-    Agency runs add the rating floor and ceiling after that. Angel runs do not.
+    ICP comes next because the rating caps depend on it. The rating floor,
+    rating ceiling, app age, and last update follow for every profile.
     `internal` keeps the same questions; the sheet sync is decided by the caller.
     """
     del internal
     state = state or {}
     steps = [_ask_profile, _ask_pricing, _ask_category]
     if _pricing_asks_mrr(state):
-        steps.append(_ask_consider_mrr)
-    if state.get("user_profile") == "growth_agency":
-        steps.extend([_ask_min_ratings, _ask_ratings])
+        steps.append(_ask_mrr_ranges)
+    steps.extend([
+        _ask_developer,
+        _ask_min_ratings,
+        _ask_ratings,
+        _ask_age,
+        _ask_update,
+    ])
     return steps
 
 
@@ -129,22 +130,23 @@ def _confirm_loop(prompter, state, settings, templates, crm_summary, internal: b
 
 
 def _edit_one(prompter, state, templates, internal: bool = False) -> dict | None:
-    del internal
+    del internal, templates
     options = [
         ("Your profile", "profile"),
         ("App pricing", "pricing"),
         ("Category", "category"),
     ]
     if _pricing_asks_mrr(state):
-        options.append(("Estimated revenue", "consider_mrr"))
-    if state.get("user_profile") == "growth_agency":
-        options.append(("Minimum ratings", "min_ratings"))
-        options.append(("Maximum ratings", "ratings"))
+        options.append(("MRR Ranges", "mrr_ranges"))
     options.extend(
         [
+            ("ICP", "developer"),
+            ("Minimum ratings", "min_ratings"),
+            ("Maximum ratings", "ratings"),
+            ("Maximum app age", "age"),
+            ("Last update", "update"),
             ("Target prospects", "volume"),
             ("Storefront country", "country"),
-            ("Email template", "template"),
             ("Back to the summary", "back"),
         ]
     )
@@ -155,12 +157,14 @@ def _edit_one(prompter, state, templates, internal: bool = False) -> dict | None
         "profile": lambda: _ask_profile(prompter, state, allow_back=False),
         "pricing": lambda: _ask_pricing(prompter, state, allow_back=False),
         "category": lambda: _ask_category(prompter, state, allow_back=False),
-        "consider_mrr": lambda: _ask_consider_mrr(prompter, state, allow_back=False),
+        "mrr_ranges": lambda: _ask_mrr_ranges(prompter, state, allow_back=False),
+        "developer": lambda: _ask_developer(prompter, state, allow_back=False),
         "ratings": lambda: _ask_ratings(prompter, state, allow_back=False),
         "min_ratings": lambda: _ask_min_ratings(prompter, state, allow_back=False),
+        "age": lambda: _ask_age(prompter, state, allow_back=False),
+        "update": lambda: _ask_update(prompter, state, allow_back=False),
         "volume": lambda: _ask_volume(prompter, state, allow_back=False),
         "country": lambda: _ask_country(prompter, state),
-        "template": lambda: _ask_template(prompter, state, templates),
     }
     result = dispatch[choice]()
     if result is None or result == BACK:
@@ -201,7 +205,7 @@ def _ask_missing_onboarding(prompter, state: dict) -> dict | None:
             return None
         current.update(pricing)
     if _pricing_asks_mrr(current) and "consider_mrr" not in current:
-        choice = _ask_consider_mrr(prompter, current, allow_back=False)
+        choice = _ask_mrr_ranges(prompter, current, allow_back=False)
         if choice is None or choice == BACK:
             return None
         current.update(choice)
@@ -233,6 +237,7 @@ def _ask_pricing(prompter, state, allow_back=False):
             "consider_mrr": False,
             "revenue_mode": "gross_sales",
             "max_mrr": None,
+            "mrr_ranges": [],
         }
     if answer == "ad_supported":
         return {
@@ -240,48 +245,55 @@ def _ask_pricing(prompter, state, allow_back=False):
             "consider_mrr": False,
             "revenue_mode": "no_iap",
             "max_mrr": None,
+            "mrr_ranges": [],
         }
     return {"pricing_model": answer}
 
 
 def _ask_category(prompter, state, allow_back=False):
-    current = None
-    for name in state.get("categories") or []:
-        if name in ONBOARDING_CATEGORIES:
-            current = name
-            break
-    answer = prompter.select(
+    """Checkbox of the onboarding categories. Nothing selected means no filter."""
+    del allow_back
+    current = [name for name in (state.get("categories") or []) if name in ONBOARDING_CATEGORIES]
+    answer = prompter.checkbox(
         "📁 Select Target Category",
-        _with_back([(name, name) for name in ONBOARDING_CATEGORIES], allow_back),
-        default=current or ONBOARDING_CATEGORIES[0],
+        [(name, name) for name in ONBOARDING_CATEGORIES],
+        default=current,
     )
     if answer is None or answer == BACK:
         return answer
-    return {"categories": [answer], "custom_keywords": []}
+    if isinstance(answer, str):
+        answer = [answer]
+    picked = {item for item in answer if item and item != BACK}
+    selected = [name for name in ONBOARDING_CATEGORIES if name in picked]
+    if not selected:
+        return {"categories": [], "custom_keywords": []}
+    extras = [
+        name
+        for name in (state.get("categories") or [])
+        if name not in ONBOARDING_CATEGORIES and name in CATEGORIES
+    ]
+    return {"categories": selected + extras, "custom_keywords": []}
 
 
-def _ask_consider_mrr(prompter, state, allow_back=False):
-    profile = state.get("user_profile") or "other"
-    default = "yes" if profile in MRR_DEFAULT_YES else "no"
-    answer = prompter.select(
-        "💰 Consider Estimated Revenue / MRR?",
-        _with_back(
-            [
-                ("Yes (Filter & enrich with AppStoreTracker / Velocity models)", "yes"),
-                ("No (Skip revenue enrichment for faster lead extraction)", "no"),
-            ],
-            allow_back,
-        ),
-        default=default,
+def _ask_mrr_ranges(prompter, state, allow_back=False):
+    """Checkbox of the public MRR buckets. None or all selected means no filter."""
+    del allow_back
+    current = normalize_mrr_ranges(state.get("mrr_ranges"))
+    answer = prompter.checkbox(
+        "💰 MRR Ranges",
+        [(name, name) for name in _MRR_BUCKETS],
+        default=current,
     )
     if answer is None or answer == BACK:
         return answer
-    if answer == "yes":
-        payload = {"consider_mrr": True, "revenue_mode": "tracker", "max_mrr": None}
-        if profile == "angel_vc":
-            payload.update(HIGH_VELOCITY_DEFAULTS)
-        return payload
-    return {"consider_mrr": False, "revenue_mode": "skip", "max_mrr": None}
+    if isinstance(answer, str):
+        answer = [answer]
+    return {
+        "mrr_ranges": normalize_mrr_ranges(answer),
+        "consider_mrr": True,
+        "revenue_mode": "tracker",
+        "max_mrr": None,
+    }
 
 
 def _icp_choices() -> list[tuple[str, str]]:
@@ -520,25 +532,6 @@ def _ask_update(prompter, state, allow_back=False):
     return {"last_update": answer}
 
 
-def _ask_score(prompter, state, allow_back=False):
-    current = state.get("min_score")
-    choices = [("40", 40), ("50", 50), ("60", 60), ("70", 70), ("Custom value", "custom")]
-    default = current if current in {40, 50, 60, 70} else "custom"
-    answer = prompter.select(
-        "⚡ What minimum lead score should be imported?",
-        _with_back(choices, allow_back),
-        default=default,
-    )
-    if answer is None or answer == BACK:
-        return answer
-    if answer == "custom":
-        value = _ask_int(prompter, "Minimum score", current if current is not None else 50, minimum=0, maximum=100)
-        if value is None:
-            return None
-        return {"min_score": value}
-    return {"min_score": answer}
-
-
 def _ask_volume(prompter, state, allow_back=False):
     current = state.get("target_prospects")
     choices = _with_recommended(
@@ -637,18 +630,6 @@ def _ask_country(prompter, state):
         print("Enter a 2-letter country code, such as us.")
 
 
-def _ask_template(prompter, state, templates):
-    choices = [(item["name"], item["id"]) for item in templates]
-    answer = prompter.select(
-        "✉️ Which email template should new leads use?",
-        choices,
-        default=state.get("template_id"),
-    )
-    if answer is None:
-        return None
-    return {"template_id": answer}
-
-
 def _ask_int(prompter, label: str, default: int, minimum: int, maximum: int) -> int | None:
     while True:
         raw = prompter.text(f"{label} ({minimum}–{maximum})", default=str(default))
@@ -675,25 +656,25 @@ def describe(state: dict) -> list[tuple[str, str]]:
     if state.get("user_profile") == "indie_founder":
         profile = "Indie App Founder / Other"
     pricing = label_for(PRICING_MODELS, state.get("pricing_model") or "")
-    mode = state.get("revenue_mode")
-    if not mode:
-        mode = "tracker" if state.get("consider_mrr") else "skip"
-    revenue = {
-        "tracker": "Fetch and filter",
-        "gross_sales": "Gross sales velocity",
-        "no_iap": "No IAP",
-        "skip": "Off — skip App Store Tracker",
-    }.get(mode, mode)
+    selected_ranges = normalize_mrr_ranges(state.get("mrr_ranges"))
+    if state.get("pricing_model") == "upfront" or state.get("revenue_mode") == "gross_sales":
+        ranges_label = "Not applied (upfront paid)"
+    elif state.get("pricing_model") == "ad_supported" or state.get("revenue_mode") == "no_iap":
+        ranges_label = "N/A (No IAP)"
+    elif not selected_ranges:
+        ranges_label = "Any"
+    else:
+        ranges_label = ", ".join(selected_ranges)
     ratings = "No maximum" if cap == "any" else str(cap)
     if state.get("user_profile") == "angel_vc" and state.get("consider_mrr") and cap == "any":
         ratings = "No maximum (high-velocity)"
     rows = [
         ("You:", profile),
         ("App pricing:", pricing or "Not set"),
-        ("Estimated revenue:", revenue),
+        ("MRR ranges:", ranges_label),
         ("ICP:", icp),
         ("Platform:", PLATFORM_LABELS.get(state.get("platforms"), state.get("platforms"))),
-        ("Categories:", ", ".join(categories) or "None"),
+        ("Categories:", ", ".join(categories) or "Any"),
         ("Maximum ratings:", ratings),
     ]
     floor = state.get("min_ratings")
@@ -703,7 +684,6 @@ def describe(state: dict) -> list[tuple[str, str]]:
         [
             ("Maximum app age:", AGE_LABELS.get(state.get("max_app_age"), state.get("max_app_age"))),
             ("Last update:", UPDATE_LABELS.get(state.get("last_update"), state.get("last_update"))),
-            ("Minimum score:", str(state.get("min_score"))),
             ("Target prospects:", str(state.get("target_prospects"))),
         ]
     )

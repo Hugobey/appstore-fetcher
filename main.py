@@ -57,9 +57,19 @@ from modules.enricher import (
     activate_license,
     apply_mrr_rows,
     checkout_url,
+    filter_by_mrr_ranges,
+    hunt_target,
     leads_from_payload,
+    normalize_mrr_ranges,
 )
-from modules.static_demo import choose_demo_categories, load_demo_catalog, load_demo_leads, run_static_demo, seed_demo_cache
+from modules.static_demo import (
+    apply_demo_mrr_filter,
+    choose_demo_categories,
+    load_demo_catalog,
+    load_demo_leads,
+    run_static_demo,
+    seed_demo_cache,
+)
 from modules.telemetry import emit_event
 
 LOGGER = logging.getLogger("prospecting")
@@ -173,7 +183,7 @@ def play_static_demo(prompter=None) -> int:
             duration = 4.0
     catalog = load_demo_catalog()
     categories = choose_demo_categories(prompter, catalog)
-    leads = load_demo_leads(categories=categories)
+    leads = apply_demo_mrr_filter(load_demo_leads(categories=categories))
     if not leads:
         print(f"No demo leads are cached for {', '.join(categories)}.")
         return 1
@@ -407,9 +417,14 @@ def _run_licensed(confirmed: dict, dashboard: AgentDashboard | None, run_id: str
     if dashboard is not None:
         dashboard.focus(2, "Requesting licensed discovery...")
         dashboard.set_scout("Requesting licensed discovery")
-    payload = client.scan(confirmed)
+    ranges = normalize_mrr_ranges(confirmed.get("mrr_ranges"))
+    requested = int(confirmed.get("target_prospects") or 0)
+    scan_targeting = dict(confirmed)
+    if ranges and requested:
+        scan_targeting["target_prospects"] = hunt_target(requested, ranges)
+    payload = client.scan(scan_targeting)
     leads = leads_from_payload(payload)
-    target = int(confirmed.get("target_prospects") or len(leads) or 0)
+    target = requested or len(leads) or 0
     if dashboard is not None:
         dashboard.add_funnel(raw_scanned=len(leads), candidates=len(leads), emails_found=len(leads))
         dashboard.set_qualified(len(leads))
@@ -459,6 +474,10 @@ def _run_licensed(confirmed: dict, dashboard: AgentDashboard | None, run_id: str
         if dashboard is not None:
             dashboard.set_analyst("Revenue analysis skipped")
             dashboard.complete(4, "Skipped revenue analysis")
+    if ranges and mode != "skip":
+        leads = filter_by_mrr_ranges(leads, ranges)
+        if requested:
+            leads = leads[:requested]
     stats = empty_stats()
     stats["discovered"] = len(leads)
     stats["qualified"] = len(leads)
@@ -572,10 +591,17 @@ def _scout_then_analyze(
     saved_rows: dict[str, int] = {}
     template = _selected_template(templates, targeting)
     suppressed = suppressed_addresses(settings)
+    requested = int(targeting.get("target_prospects") or 0)
+    ranges = normalize_mrr_ranges(targeting.get("mrr_ranges"))
+    if revenue_mode_of(targeting) == "skip":
+        ranges = []
+    hunt = dict(targeting)
+    if ranges:
+        hunt["target_prospects"] = hunt_target(requested, ranges)
 
     def on_saved(lead) -> None:
         store.save(lead)
-        if crm is None:
+        if crm is None or ranges:
             return
         row_number = crm.append_one(lead, template, suppressed)
         if row_number:
@@ -598,7 +624,7 @@ def _scout_then_analyze(
         crm.update_estimated_mrr(row_number, lead.app_store_url, lead.estimated_mrr)
 
     discovery = discover(
-        targeting,
+        hunt,
         settings,
         scoring,
         crm_index,
@@ -620,11 +646,24 @@ def _scout_then_analyze(
         dashboard=dashboard,
         narrator=voice,
         run_log=run_log,
-        on_enriched=on_enriched if crm is not None else None,
+        on_enriched=on_enriched if crm is not None and not ranges else None,
         enabled=revenue_mode_of(targeting) != "skip",
         revenue_mode=revenue_mode_of(targeting),
+        mrr_ranges=ranges or None,
     )
     _copy_mrr(discovery.qualified, analyzed)
+    if ranges:
+        kept = {lead.dedup_id() for lead in analyzed}
+        discovery.qualified = [lead for lead in discovery.qualified if lead.dedup_id() in kept]
+        if requested:
+            discovery.qualified = discovery.qualified[:requested]
+        discovery.target = requested
+        discovery.stats["qualified"] = len(discovery.qualified)
+        if crm is not None:
+            for lead in discovery.qualified:
+                row_number = crm.append_one(lead, template, suppressed)
+                if row_number:
+                    saved_rows[lead.dedup_id()] = row_number
     discovery.stats["saved_during_scout"] = len(saved_rows)
     return discovery
 

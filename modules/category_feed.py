@@ -12,6 +12,7 @@ from collections.abc import Callable
 from urllib.parse import quote_plus
 
 from modules.errors import ApifyError
+from modules.labels import ONBOARDING_CATEGORIES
 
 LOGGER = logging.getLogger("prospecting.categories")
 
@@ -49,11 +50,17 @@ LOOKUP_BATCH = 180
 
 
 def category_plan(targeting: dict, settings: dict | None = None, limit: int | None = None) -> list[str]:
-    """Selected store genres, in the order the user picked them. Keywords are ignored."""
+    """Selected store genres, in the order the user picked them.
+
+    An empty selection searches every onboarding category. Keywords are ignored.
+    """
     del settings
     planned: list[str] = []
     seen: set[str] = set()
-    for raw in targeting.get("categories") or []:
+    chosen = targeting.get("categories")
+    if not chosen:
+        chosen = list(ONBOARDING_CATEGORIES)
+    for raw in chosen:
         name = str(raw).strip()
         key = name.lower()
         if not name or key in seen or name not in GENRE_IDS:

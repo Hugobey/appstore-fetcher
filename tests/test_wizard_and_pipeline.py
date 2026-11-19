@@ -23,7 +23,9 @@ from modules.category_feed import category_plan, category_searcher, chart_url, e
 from modules.preview import format_summary
 from modules.scraper import ApifyClient, search_jobs
 from modules.scoring import classify_developer, hard_filter_reason
-from modules.wizard import _ask_consider_mrr, _ask_country, _ask_ratings, _steps, run_wizard
+from modules.enricher import filter_by_mrr_ranges, hunt_target
+from modules.labels import ONBOARDING_CATEGORIES
+from modules.wizard import _ask_category, _ask_country, _ask_mrr_ranges, _ask_ratings, _steps, run_wizard
 
 
 class WizardTests(unittest.TestCase):
@@ -55,8 +57,13 @@ class WizardTests(unittest.TestCase):
                 "freemium",
                 BACK,
                 "freemium",
-                "Health & Fitness",
-                "no",
+                ["Health & Fitness"],
+                [],
+                ["solo"],
+                "any",
+                250,
+                "2y",
+                "180d",
                 "start",
             ]
         )
@@ -75,16 +82,22 @@ class WizardTests(unittest.TestCase):
         self.assertIn(("Indie App Founder / Other", "indie_founder"), shown[0][1])
         self.assertEqual(len(shown[0][1]), 3)
         self.assertEqual(prompter.prompts[1], "💳 App Pricing Model")
-        toggle = next((message, choices) for message, choices in shown if message.startswith("💰"))
-        self.assertEqual(toggle[0], "💰 Consider Estimated Revenue / MRR?")
-        self.assertIn(("Yes (Filter & enrich with AppStoreTracker / Velocity models)", "yes"), toggle[1])
-        self.assertIn(("No (Skip revenue enrichment for faster lead extraction)", "no"), toggle[1])
+        self.assertIn("💰 MRR Ranges", prompter.prompts)
+        self.assertNotIn("💰 Consider Estimated Revenue / MRR?", prompter.prompts)
+        self.assertFalse(any("email template" in prompt.lower() for prompt in prompter.prompts))
+        self.assertFalse(any(prompt.startswith("⚡") for prompt in prompter.prompts))
         self.assertNotIn("💰 Max MRR to include:", prompter.prompts)
-        self.assertFalse(any(prompt.startswith("⭐") for prompt in prompter.prompts))
+        self.assertIn("🎯 Which ICP are you targeting?", prompter.prompts)
+        self.assertIn("⭐ What is the minimum number of ratings an app can have?", prompter.prompts)
+        self.assertIn("⭐ What is the maximum number of ratings an app can have?", prompter.prompts)
+        self.assertIn("📅 How old can the app be?", prompter.prompts)
+        self.assertIn("🔄 How recently must the app have been updated?", prompter.prompts)
+        self.assertNotIn("🚀 How many new prospects should we aim to collect?", prompter.prompts)
         self.assertEqual(result["user_profile"], "indie_founder")
         self.assertEqual(result["pricing_model"], "freemium")
-        self.assertEqual(result["revenue_mode"], "skip")
-        self.assertFalse(result["consider_mrr"])
+        self.assertEqual(result["revenue_mode"], "tracker")
+        self.assertTrue(result["consider_mrr"])
+        self.assertEqual(result["mrr_ranges"], [])
         self.assertEqual(result["categories"], ["Health & Fitness"])
         self.assertEqual(result["custom_keywords"], [])
         self.assertEqual(result["developer_type"], "solo")
@@ -175,23 +188,46 @@ class WizardTests(unittest.TestCase):
         result = run_wizard(ScriptedPrompter(["continue", "cancel"]), saved, self.settings, self.templates, self.summary)
         self.assertIsNone(result)
 
-    def test_mrr_toggle_defaults_follow_the_profile(self):
+    def test_mrr_ranges_checkbox_treats_none_and_all_as_unfiltered(self):
         seen = {}
 
         class Recording(ScriptedPrompter):
-            def select(self, message, choices, default=None):
+            def checkbox(self, message, choices, default=None):
+                seen["message"] = message
+                seen["choices"] = list(choices)
                 seen["default"] = default
-                return super().select(message, choices, default)
+                return super().checkbox(message, choices, default)
 
-        agency = _ask_consider_mrr(Recording(["no"]), {"user_profile": "growth_agency"}, allow_back=False)
-        self.assertEqual(seen["default"], "no")
-        self.assertFalse(agency["consider_mrr"])
-        self.assertIsNone(agency["max_mrr"])
-        angel = _ask_consider_mrr(Recording(["yes"]), {"user_profile": "angel_vc"}, allow_back=False)
-        self.assertEqual(seen["default"], "yes")
-        self.assertTrue(angel["consider_mrr"])
-        self.assertEqual(angel["max_ratings"], "any")
-        self.assertEqual(angel["last_update"], "90d")
+        empty = _ask_mrr_ranges(Recording([[]]), {"user_profile": "growth_agency"}, allow_back=False)
+        self.assertEqual(seen["message"], "💰 MRR Ranges")
+        self.assertEqual(seen["default"], [])
+        self.assertIn(("< $5k MRR", "< $5k MRR"), seen["choices"])
+        self.assertIn(("$5k - $10k MRR", "$5k - $10k MRR"), seen["choices"])
+        self.assertIn(("$10k - $50k MRR", "$10k - $50k MRR"), seen["choices"])
+        self.assertEqual(empty["mrr_ranges"], [])
+        self.assertTrue(empty["consider_mrr"])
+        self.assertEqual(empty["revenue_mode"], "tracker")
+        self.assertIsNone(empty["max_mrr"])
+        picked = _ask_mrr_ranges(
+            ScriptedPrompter([["< $5k MRR", "$10k - $50k MRR"]]),
+            {},
+            allow_back=False,
+        )
+        self.assertEqual(picked["mrr_ranges"], ["< $5k MRR", "$10k - $50k MRR"])
+        everything = [value for _label, value in seen["choices"]]
+        all_selected = _ask_mrr_ranges(ScriptedPrompter([everything]), {}, allow_back=False)
+        self.assertEqual(all_selected["mrr_ranges"], [])
+        kept = filter_by_mrr_ranges(
+            [
+                SimpleNamespace(estimated_mrr="< $5k MRR", mrr_numeric=1000),
+                SimpleNamespace(estimated_mrr="$10k - $50k MRR", mrr_numeric=20000),
+                SimpleNamespace(estimated_mrr="N/A (No IAP)", mrr_numeric=0),
+            ],
+            picked["mrr_ranges"],
+        )
+        self.assertEqual([lead.estimated_mrr for lead in kept], ["< $5k MRR", "$10k - $50k MRR"])
+        self.assertEqual(hunt_target(30, picked["mrr_ranges"]), 75)
+        self.assertEqual(hunt_target(30, []), 30)
 
     def test_agency_path_offers_under_250_and_angel_hides_the_rating_menu(self):
         prompter = ScriptedPrompter([250])
@@ -207,74 +243,111 @@ class WizardTests(unittest.TestCase):
         self.assertEqual(result["max_ratings"], 250)
         self.assertIn(("Under 250 ratings (Recommended)", 250), shown[0][1])
         self.assertIn(("Under 10 ratings", 10), shown[0][1])
+        freemium = [
+            "_ask_profile",
+            "_ask_pricing",
+            "_ask_category",
+            "_ask_mrr_ranges",
+            "_ask_developer",
+            "_ask_min_ratings",
+            "_ask_ratings",
+            "_ask_age",
+            "_ask_update",
+        ]
         names = [step.__name__ for step in _steps({"consider_mrr": True, "user_profile": "angel_vc", "pricing_model": "freemium"})]
-        self.assertNotIn("_ask_ratings", names)
+        self.assertEqual(names, freemium)
+        self.assertNotIn("_ask_score", names)
+        self.assertNotIn("_ask_template", names)
+        self.assertNotIn("_ask_volume", names)
+        self.assertNotIn("_ask_country", names)
         self.assertNotIn("_ask_max_mrr", names)
-        self.assertIn("_ask_consider_mrr", names)
         off = [step.__name__ for step in _steps({"consider_mrr": False, "user_profile": "growth_agency", "pricing_model": "freemium"})]
-        self.assertIn("_ask_min_ratings", off)
-        self.assertIn("_ask_ratings", off)
-        self.assertNotIn("_ask_max_mrr", off)
+        self.assertEqual(off, freemium)
         internal = [step.__name__ for step in _steps({"consider_mrr": True, "user_profile": "angel_vc", "pricing_model": "freemium"}, internal=True)]
-        self.assertIn("_ask_consider_mrr", internal)
-        self.assertNotIn("_ask_min_ratings", internal)
-        self.assertNotIn("_ask_ratings", internal)
-        self.assertNotIn("_ask_max_mrr", internal)
+        self.assertEqual(internal, freemium)
         upfront = [step.__name__ for step in _steps({"pricing_model": "upfront", "user_profile": "angel_vc"})]
-        self.assertNotIn("_ask_consider_mrr", upfront)
+        self.assertEqual(
+            upfront,
+            ["_ask_profile", "_ask_pricing", "_ask_category", "_ask_developer", "_ask_min_ratings", "_ask_ratings", "_ask_age", "_ask_update"],
+        )
 
-    def test_angel_yes_skips_ratings_and_the_mrr_ceiling(self):
-        prompter = ScriptedPrompter(["angel_vc", "freemium", "Finance", "yes", "start"])
+    def test_angel_freemium_keeps_mrr_and_asks_the_rating_filters(self):
+        prompter = ScriptedPrompter(
+            ["angel_vc", "freemium", ["Finance"], ["< $5k MRR"], ["solo"], "any", 250, "2y", "180d", "start"]
+        )
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
         self.assertEqual(result["user_profile"], "angel_vc")
         self.assertEqual(result["pricing_model"], "freemium")
         self.assertEqual(result["revenue_mode"], "tracker")
         self.assertTrue(result["consider_mrr"])
-        self.assertEqual(result["max_ratings"], "any")
-        self.assertEqual(result["last_update"], "90d")
+        self.assertEqual(result["mrr_ranges"], ["< $5k MRR"])
+        self.assertEqual(result["max_ratings"], 250)
+        self.assertEqual(result["last_update"], "180d")
         self.assertEqual(result["categories"], ["Finance"])
+        self.assertEqual(result["developer_types"], ["solo"])
         self.assertIsNone(result["max_mrr"])
-        self.assertFalse(any(prompt.startswith("⭐") for prompt in prompter.prompts))
+        self.assertIn("⭐ What is the maximum number of ratings an app can have?", prompter.prompts)
         self.assertNotIn("💰 Max MRR to include:", prompter.prompts)
+        self.assertNotIn("💰 Consider Estimated Revenue / MRR?", prompter.prompts)
+
+    def test_empty_category_selection_is_unfiltered(self):
+        result = _ask_category(ScriptedPrompter([[]]), {"categories": ["Finance"]}, allow_back=False)
+        self.assertEqual(result["categories"], [])
+        loaded = validate_targeting({"developer_type": "solo", "categories": []})
+        self.assertEqual(loaded["categories"], [])
+        self.assertEqual(category_plan(loaded, self.settings), list(ONBOARDING_CATEGORIES))
 
     def test_upfront_paid_skips_the_mrr_question(self):
-        prompter = ScriptedPrompter(["angel_vc", "upfront", "Finance", "start"])
+        prompter = ScriptedPrompter(
+            ["angel_vc", "upfront", ["Finance"], ["solo"], "any", 250, "2y", "180d", "start"]
+        )
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
         self.assertEqual(result["pricing_model"], "upfront")
         self.assertEqual(result["revenue_mode"], "gross_sales")
         self.assertFalse(result["consider_mrr"])
+        self.assertNotIn("💰 MRR Ranges", prompter.prompts)
         self.assertNotIn("💰 Consider Estimated Revenue / MRR?", prompter.prompts)
 
     def test_ad_supported_skips_the_mrr_question(self):
-        prompter = ScriptedPrompter(["indie_founder", "ad_supported", "Utilities", "start"])
+        prompter = ScriptedPrompter(
+            ["indie_founder", "ad_supported", ["Utilities"], ["solo"], "any", 250, "2y", "180d", "start"]
+        )
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
         self.assertEqual(result["pricing_model"], "ad_supported")
         self.assertEqual(result["revenue_mode"], "no_iap")
         self.assertFalse(result["consider_mrr"])
+        self.assertEqual(result["mrr_ranges"], [])
+        self.assertNotIn("💰 MRR Ranges", prompter.prompts)
         self.assertNotIn("💰 Consider Estimated Revenue / MRR?", prompter.prompts)
 
     def test_agency_freemium_asks_min_and_max_ratings(self):
-        prompter = ScriptedPrompter(["growth_agency", "freemium", "Productivity", "no", "any", 250, "start"])
+        prompter = ScriptedPrompter(
+            ["growth_agency", "freemium", ["Productivity"], [], ["agency"], "any", 250, "2y", "180d", "start"]
+        )
         result = run_wizard(prompter, self.base, self.settings, self.templates, self.summary)
         self.assertEqual(result["user_profile"], "growth_agency")
-        self.assertFalse(result["consider_mrr"])
+        self.assertTrue(result["consider_mrr"])
+        self.assertEqual(result["mrr_ranges"], [])
+        self.assertEqual(result["revenue_mode"], "tracker")
+        self.assertEqual(result["developer_types"], ["agency"])
         self.assertNotIn("min_ratings", result)
         self.assertEqual(result["max_ratings"], 250)
-        self.assertEqual(prompter.prompts[4], "⭐ What is the minimum number of ratings an app can have?")
-        self.assertEqual(prompter.prompts[5], "⭐ What is the maximum number of ratings an app can have?")
+        self.assertEqual(prompter.prompts[5], "⭐ What is the minimum number of ratings an app can have?")
+        self.assertEqual(prompter.prompts[6], "⭐ What is the maximum number of ratings an app can have?")
 
     def test_saved_run_without_a_profile_asks_the_opening_prompts_first(self):
         saved = dict(self.base)
         saved["confirmed"] = True
-        prompter = ScriptedPrompter(["growth_agency", "freemium", "no", "continue", "start"])
+        prompter = ScriptedPrompter(["growth_agency", "freemium", [], "continue", "start"])
         result = run_wizard(prompter, saved, self.settings, self.templates, self.summary)
         self.assertEqual(prompter.prompts[0], "👤 What best describes you?")
         self.assertEqual(prompter.prompts[1], "💳 App Pricing Model")
-        self.assertEqual(prompter.prompts[2], "💰 Consider Estimated Revenue / MRR?")
+        self.assertEqual(prompter.prompts[2], "💰 MRR Ranges")
         self.assertEqual(result["user_profile"], "growth_agency")
         self.assertEqual(result["pricing_model"], "freemium")
-        self.assertEqual(result["revenue_mode"], "skip")
-        self.assertFalse(result["consider_mrr"])
+        self.assertEqual(result["revenue_mode"], "tracker")
+        self.assertTrue(result["consider_mrr"])
+        self.assertEqual(result["mrr_ranges"], [])
         self.assertEqual(result["platforms"], "ios")
         self.assertEqual(result["categories"], ["Productivity", "Health & Fitness"])
 

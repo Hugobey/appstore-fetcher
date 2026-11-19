@@ -312,8 +312,6 @@ def validate_targeting(data: dict) -> dict:
         raise ConfigError("Custom keywords must be a list.")
     merged["custom_keywords"] = [str(item).strip() for item in keywords if str(item).strip()]
     merged["categories"] = list(categories)
-    if not merged["categories"]:
-        raise ConfigError("Select at least one category.")
     country = str(merged.get("country") or "global").strip().lower()
     if country != "global" and (len(country) != 2 or not country.isalpha()):
         raise ConfigError("Storefront country must be a 2-letter code, such as us, or 'global'.")
