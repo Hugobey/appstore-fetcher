@@ -31,7 +31,7 @@ from modules.outreach import (
     sendable_rows,
     suppressed_addresses,
 )
-from modules.pipeline import analyze_saved, discover
+from modules.pipeline import analyze_saved, discover, follow_up_terms
 from modules.run_log import RunLog
 from modules.run_store import RunStore
 from modules.preview import review_prospects
@@ -581,13 +581,16 @@ def _scout_then_analyze(
     on_raw=None,
     itunes_fetcher=None,
     run_id: str = "demo",
+    store=None,
+    mrr_getter=None,
 ):
     """Save qualified leads first. Revenue enrichment starts only after that list is persisted."""
     voice = narrator or Narrator()
     log_path = project_path("logs") / "runs" / f"{run_id}.log"
     # File only. A stderr handler paints over the Rich loading panel.
     run_log = RunLog(run_id, path=None if demo else log_path, console=False)
-    store = RunStore(run_id, directory=None if demo else project_path("data/runs"))
+    if store is None:
+        store = RunStore(run_id, directory=None if demo else project_path("data/runs"))
     saved_rows: dict[str, int] = {}
     template = _selected_template(templates, targeting)
     suppressed = suppressed_addresses(settings)
@@ -643,6 +646,7 @@ def _scout_then_analyze(
     analyzed = analyze_saved(
         store,
         demo=demo,
+        getter=mrr_getter,
         dashboard=dashboard,
         narrator=voice,
         run_log=run_log,
@@ -653,19 +657,103 @@ def _scout_then_analyze(
     )
     _copy_mrr(discovery.qualified, analyzed)
     if ranges:
-        kept = {lead.dedup_id() for lead in analyzed}
-        discovery.qualified = [lead for lead in discovery.qualified if lead.dedup_id() in kept]
-        if requested:
-            discovery.qualified = discovery.qualified[:requested]
+        matched = {lead.dedup_id() for lead in analyzed}
+        chosen = [lead for lead in discovery.qualified if lead.dedup_id() in matched]
+    else:
+        chosen = list(discovery.qualified)
+    if requested:
+        chosen = chosen[:requested]
+    kept: list = list(chosen)
+    seen = {lead.dedup_id() for lead in kept}
+    used = set(discovery.stats.get("searched_terms") or [])
+    empty_rounds = 0
+    while requested and len(kept) < requested and empty_rounds < 2:
+        queue = follow_up_terms(targeting, settings, used)
+        if not queue:
+            break
+        chunk = queue[:4]
+        used.update(term.casefold() for term in chunk)
+        gap = requested - len(kept)
+        goal = hunt_target(gap, ranges) if ranges else gap
+        another = dict(targeting)
+        another["target_prospects"] = goal
+        extra = discover(
+            another,
+            settings,
+            scoring,
+            crm_index,
+            searcher=searcher,
+            enricher=enricher,
+            prior=prior,
+            on_raw=on_raw,
+            prompter=prompter,
+            itunes_fetcher=itunes_fetcher,
+            narrator=voice,
+            demo=demo,
+            dashboard=dashboard,
+            on_saved=on_saved,
+            run_log=run_log,
+            follow_up_terms_for_round=chunk,
+            qualified_base=len(kept),
+        )
+        _merge_discovery_stats(discovery.stats, extra.stats)
+        used.update(str(term).casefold() for term in (extra.stats.get("searched_terms") or []))
+        if not extra.qualified:
+            empty_rounds += 1
+            continue
+        empty_rounds = 0
+        fresh = analyze_saved(
+            store,
+            demo=demo,
+            getter=mrr_getter,
+            dashboard=dashboard,
+            narrator=voice,
+            run_log=run_log,
+            on_enriched=on_enriched if crm is not None and not ranges else None,
+            enabled=revenue_mode_of(targeting) != "skip",
+            revenue_mode=revenue_mode_of(targeting),
+            mrr_ranges=ranges or None,
+            only_pending=True,
+        )
+        _copy_mrr(extra.qualified, fresh)
+        if ranges:
+            matched = {lead.dedup_id() for lead in fresh}
+            batch = [lead for lead in extra.qualified if lead.dedup_id() in matched and lead.dedup_id() not in seen]
+        else:
+            batch = [lead for lead in extra.qualified if lead.dedup_id() not in seen]
+        room = requested - len(kept)
+        batch = batch[:room]
+        kept.extend(batch)
+        seen.update(lead.dedup_id() for lead in batch)
+    if ranges and crm is not None:
+        for lead in kept:
+            row_number = crm.append_one(lead, template, suppressed)
+            if row_number:
+                saved_rows[lead.dedup_id()] = row_number
+    discovery.qualified = kept
+    if requested:
         discovery.target = requested
-        discovery.stats["qualified"] = len(discovery.qualified)
-        if crm is not None:
-            for lead in discovery.qualified:
-                row_number = crm.append_one(lead, template, suppressed)
-                if row_number:
-                    saved_rows[lead.dedup_id()] = row_number
+    discovery.stats["qualified"] = len(kept)
     discovery.stats["saved_during_scout"] = len(saved_rows)
     return discovery
+
+
+def _merge_discovery_stats(base: dict, extra: dict) -> None:
+    for key in (
+        "discovered",
+        "already_in_crm",
+        "filtered_out",
+        "filtered_hard",
+        "filtered_score",
+        "missing_developer_site",
+        "missing_public_email",
+        "enrichment_errors",
+    ):
+        base[key] = int(base.get(key) or 0) + int(extra.get(key) or 0)
+    rejections = base.setdefault("rejections", {})
+    for key, value in (extra.get("rejections") or {}).items():
+        rejections[key] = int(rejections.get(key) or 0) + int(value or 0)
+    base.setdefault("errors", []).extend(extra.get("errors") or [])
 
 
 def _review(discovery, crm, templates, settings, prompter, session, session_path, demo: bool = False, dashboard: AgentDashboard | None = None, saved_during_scout: int = 0) -> int:

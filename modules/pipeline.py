@@ -26,6 +26,7 @@ from modules.scraper import (
     category_phrases,
     fill_from_itunes,
     keyword_plan,
+    long_tail_keywords,
     normalize_app,
     storefronts_for,
     synonym_keywords,
@@ -86,6 +87,7 @@ CRAWL_WAVE = 18
 RELAX_PASS_BUDGET = 4
 RELAX_SEARCH_BUDGET = 8
 _RUN_LOG: contextvars.ContextVar = contextvars.ContextVar("prospecting_run_log", default=None)
+_QUALIFIED_BASE: contextvars.ContextVar = contextvars.ContextVar("prospecting_qualified_base", default=0)
 _MRR_STATUSES = ("pending", "enriched", "unavailable", "rate_limited", "timeout", "error")
 _KEEP_LEAD = {
     "unavailable": "No public MRR listed — keeping lead",
@@ -113,16 +115,6 @@ def _wider_update(current: str) -> str | None:
     if index + 1 >= len(_UPDATE_LADDER):
         return None
     return _UPDATE_LADDER[index + 1]
-
-
-def _wider_ratings(cap):
-    if cap in (None, "any"):
-        return cap
-    amount = int(cap)
-    widened = int(amount * 1.5)
-    if widened <= amount:
-        widened = amount + 1
-    return widened
 
 
 def _deferral_bucket(reason: str) -> str | None:
@@ -212,6 +204,21 @@ def reclassify_store_emails(lead: Lead) -> None:
         email.evidence = prefix + detail
 
 
+def follow_up_terms(targeting: dict, settings: dict, used: list[str] | None = None) -> list[str]:
+    """Phrases and long-tail queries that this run has not searched yet."""
+    phrases = category_phrases(targeting, settings)
+    tails = long_tail_keywords(phrases, list(targeting.get("categories") or []))
+    seen = {str(item).casefold() for item in (used or [])}
+    ordered: list[str] = []
+    for term in phrases + tails:
+        key = term.casefold()
+        if not term or key in seen:
+            continue
+        seen.add(key)
+        ordered.append(term)
+    return ordered
+
+
 def discover(
     targeting: dict,
     settings: dict,
@@ -231,6 +238,8 @@ def discover(
     mrr_getter=None,
     on_saved=None,
     run_log=None,
+    follow_up_terms_for_round: list[str] | None = None,
+    qualified_base: int = 0,
 ) -> Discovery:
     current = today or utc_today()
     stats = empty_stats()
@@ -246,11 +255,14 @@ def discover(
     target = int(targeting["target_prospects"])
     country = str(targeting.get("country") or settings["apify"].get("country") or "us").strip().lower()
     minimum_known = int(scoring.get("minimum_known_max") or 0)
-    jobs = [
-        (platform, keyword, page, front)
-        for platform, keyword, page in discovery_jobs(targeting, settings)
-        for front in storefronts_for(country)
-    ]
+    if follow_up_terms_for_round is None:
+        jobs = [
+            (platform, keyword, page, front)
+            for platform, keyword, page in discovery_jobs(targeting, settings)
+            for front in storefronts_for(country)
+        ]
+    else:
+        jobs = []
     cap = int(settings["apify"]["max_searches_per_run"])
     # Category RSS is free, so the Apify search cap does not stop the chart list.
     # `cap` still marks when the run has moved past the first planned wave.
@@ -462,6 +474,23 @@ def discover(
     def _relax() -> None:
         if len(qualified) >= target:
             return
+        if follow_up_terms_for_round is not None:
+            if not network_ok or not follow_up_terms_for_round:
+                return
+            _say(
+                voice,
+                dashboard,
+                f"Qualified prospects: {qualified_base + len(qualified)}/{qualified_base + target}. "
+                "Searching another round...",
+            )
+            fronts = storefronts_for(country)[:1] or [country]
+            _search_relax(
+                list(follow_up_terms_for_round),
+                fronts,
+                dict(targeting),
+                len(follow_up_terms_for_round),
+            )
+            return
         if not deferred_update and not deferred_ratings and not network_ok:
             return
         _announce_relax()
@@ -471,11 +500,6 @@ def discover(
             extra_fronts = [front for front in ENGLISH_STOREFRONTS if front not in searched_fronts]
             words = used_keywords[:6] or keyword_plan(targeting, settings)[:6]
             _search_relax(words, extra_fronts, active, RELAX_PASS_BUDGET)
-        if len(qualified) < target and deferred_ratings and active.get("max_ratings") != "any":
-            active["max_ratings"] = _wider_ratings(active.get("max_ratings"))
-            pending = list(deferred_ratings)
-            deferred_ratings.clear()
-            _replay(pending, active)
         if network_ok and len(qualified) < target:
             phrases = category_phrases(targeting, settings)
             if not phrases:
@@ -483,7 +507,8 @@ def discover(
                 phrases = synonym_keywords(base_words)
             fronts = storefronts_for(country)[:1] or [country]
             # Chart widening may already have spent RELAX_PASS_BUDGET. Phrases get their own room.
-            _search_relax(phrases, fronts, active, RELAX_PASS_BUDGET + RELAX_SEARCH_BUDGET)
+            # The rating cap stays at the number the user set.
+            _search_relax(phrases, fronts, dict(targeting), RELAX_PASS_BUDGET + RELAX_SEARCH_BUDGET)
 
     def _finish() -> None:
         _flush_deferred()
@@ -494,9 +519,10 @@ def discover(
             candidates = dashboard.funnel["candidates"]
             dashboard.complete(2, f"Scanned {scanned} apps → {candidates} candidates")
             dashboard.complete(3, f"Extracting contacts [{len(qualified)}/{target} qualified]")
-            dashboard.set_qualified(len(qualified))
+            dashboard.set_qualified(qualified_base + len(qualified))
             dashboard.set_scout("Scouting complete")
             dashboard.set_analyst("Waiting to analyze revenue")
+        stats["searched_terms"] = [keyword for _platform, keyword, _front in seen_queries]
         _emit(
             "scouting_completed",
             target=target,
@@ -511,6 +537,7 @@ def discover(
         _check_partition(stats)
 
     log_token = _RUN_LOG.set(run_log)
+    base_token = _QUALIFIED_BASE.set(qualified_base)
     try:
         _emit("scouting_started", target=target, country=country)
         if mrr_getter is not None:
@@ -656,6 +683,7 @@ def discover(
             _finish()
         finally:
             _RUN_LOG.reset(log_token)
+            _QUALIFIED_BASE.reset(base_token)
     return Discovery(
         qualified=qualified,
         missing_email=missing_email,
@@ -831,6 +859,19 @@ def _crawl_and_score(
     ios = [lead for lead in candidates if lead.platform == "ios"]
     if ios:
         fill_from_itunes(ios, settings, itunes_fetcher)
+    still_open: list[Lead] = []
+    for lead in candidates:
+        cap = targeting.get("max_ratings")
+        if cap not in (None, "any") and lead.rating_count is not None and lead.rating_count > int(cap):
+            reason = f"{lead.rating_count} ratings is above the maximum of {cap}"
+            lead.filter_reason = reason
+            stats["filtered_out"] += 1
+            stats["filtered_hard"] += 1
+            _count_rejection(stats, reason)
+            _emit("lead_rejected", lead=lead, reason=reason)
+            continue
+        still_open.append(lead)
+    candidates = still_open
     window: list[Lead] = []
     pending = list(candidates)
 
@@ -977,7 +1018,7 @@ def _score_prepared_lead(
     lead.bayesian_score = bayesian_score(lead.average_rating, lead.rating_count)
     qualified.append(lead)
     if dashboard is not None:
-        dashboard.set_qualified(len(qualified))
+        dashboard.set_qualified(_QUALIFIED_BASE.get() + len(qualified))
         dashboard.set_scout("Scanning category feeds")
         dashboard.note(3, f"Extracting contacts [{len(qualified)}/{target} qualified]...")
     else:
@@ -1039,6 +1080,7 @@ def analyze_saved(
     enabled: bool = True,
     revenue_mode: str | None = None,
     mrr_ranges=None,
+    only_pending: bool = False,
 ) -> list[Lead]:
     """Enrich revenue for leads this run already saved.
 
@@ -1050,6 +1092,8 @@ def analyze_saved(
     """
     voice = narrator or Narrator()
     leads = list(store.load())
+    if only_pending:
+        leads = [lead for lead in leads if (lead.mrr_status or "pending") == "pending"]
     mode = revenue_mode or ("tracker" if enabled else "skip")
     if not enabled or mode == "skip":
         return _skip_revenue_analysis(store, leads, dashboard=dashboard, run_log=run_log)

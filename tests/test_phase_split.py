@@ -118,6 +118,78 @@ class _Sheet:
             self.rows[number - 1][column - 1] = item["values"][0][0]
 
 
+class RefillTests(unittest.TestCase):
+    def test_a_short_enriched_list_searches_another_round_without_raising_the_rating_cap(self):
+        from main import _scout_then_analyze
+
+        settings = _settings()
+        settings["category_keywords"] = {"Productivity": ["focus timer"]}
+        scoring = load_scoring(settings)
+        targeting = _targeting(
+            1,
+            max_ratings=500,
+            mrr_ranges=["$10k - $50k MRR"],
+            consider_mrr=True,
+            revenue_mode="tracker",
+        )
+        calls = []
+
+        def app(app_id: int, name: str, ratings: int) -> dict:
+            item = dict(_clones(1, start=app_id)[0])
+            item["trackId"] = app_id
+            item["trackName"] = name
+            item["trackViewUrl"] = f"https://apps.apple.com/us/app/id{app_id}"
+            item["userRatingCount"] = ratings
+            item["hasInAppPurchases"] = True
+            item["price"] = 0
+            item["releaseDate"] = "2020-01-01T00:00:00Z"
+            return item
+
+        chart = [app(5100 + offset, f"Low Bucket {offset}", 80) for offset in range(3)]
+        chart.append(app(5700, "Too Many Ratings", 700))
+        match = app(5800, "Right Bucket", 80)
+
+        def search(_platform, keyword, _country, page=1):
+            calls.append((keyword, page))
+            if keyword == "Productivity" and page == 1:
+                return list(chart), {"cached": False}
+            if keyword == "focus timer":
+                return [match], {"cached": False}
+            return [], {"cached": False}
+
+        def getter(url, headers=None, timeout=None):
+            amount = "$20,000" if "5800" in str(url) else "$1,000"
+            return SimpleNamespace(status_code=200, text=_owned(url, amount), url=url)
+
+        try:
+            discovery = _scout_then_analyze(
+                targeting,
+                settings,
+                scoring,
+                [],
+                DedupIndex(),
+                searcher=search,
+                enricher=demo_enricher(settings),
+                itunes_fetcher=demo_itunes,
+                narrator=Narrator(),
+                demo=False,
+                dashboard=None,
+                crm=None,
+                run_id="refill-test",
+                store=RunStore("refill-test"),
+                mrr_getter=getter,
+            )
+        finally:
+            log_path = Path(__file__).resolve().parents[1] / "logs" / "runs" / "refill-test.log"
+            if log_path.exists():
+                log_path.unlink()
+        names = [lead.app_name for lead in discovery.qualified]
+        self.assertEqual(names, ["Right Bucket"])
+        self.assertNotIn("Too Many Ratings", names)
+        self.assertIn(("focus timer", 1), calls)
+        self.assertTrue(all((lead.rating_count or 0) <= 500 for lead in discovery.qualified))
+
+
 class PhaseSplitTests(unittest.TestCase):
     def _scout(self, count: int, *, getter=None, dashboard=None, run_log=None, store=None, target=None):
         calls = []

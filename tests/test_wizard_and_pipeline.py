@@ -1034,7 +1034,7 @@ class PipelineTests(unittest.TestCase):
         )
         self.assertEqual(accounted, stats["discovered"])
 
-    def test_rating_ceiling_relaxes_to_one_and_a_half_times(self):
+    def test_rating_ceiling_stays_at_the_number_the_user_set(self):
         settings = load_settings()
         settings["apify"] = dict(settings["apify"], max_searches_per_run=1, end_page=1)
         settings["category_keywords"] = {"Productivity": ["focus timer"]}
@@ -1081,8 +1081,8 @@ class PipelineTests(unittest.TestCase):
             narrator=voice,
             demo=True,
         )
-        self.assertEqual({lead.app_name for lead in discovery.qualified}, {"Near Cap"})
-        self.assertEqual(discovery.stats["rejections"]["ratings_above_cap"], 1)
+        self.assertEqual(discovery.qualified, [])
+        self.assertEqual(discovery.stats["rejections"]["ratings_above_cap"], 2)
         self.assertTrue(any("Widening storefront & keyword net to hit 1/1 target..." in line for line in voice.lines))
         self.assertFalse(discovery.stats["errors"])
 

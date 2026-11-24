@@ -3,7 +3,6 @@
   "developer_type": "solo",
   "developer_types": [
     "solo",
-    "agency",
     "startup"
   ],
   "platforms": "ios",
@@ -25,10 +24,10 @@
   "max_mrr": null,
   "country": "us",
   "template_id": "intro",
-  "saved_at": "2026-11-19T17:30:59+00:00",
+  "saved_at": "2026-11-20T11:15:42+00:00",
   "user_profile": "indie_founder",
   "consider_mrr": true,
-  "min_ratings": 30,
+  "min_ratings": 50,
   "pricing_model": "freemium",
   "revenue_mode": "tracker",
   "mrr_ranges": [
