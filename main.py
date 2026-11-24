@@ -50,6 +50,7 @@ from modules.session import (
     save_session,
     store_discovery,
 )
+from modules.banner import show_banner
 from modules.wizard import run_wizard
 from modules.auth import assert_same_machine, credentials_path, load_credentials
 from modules.enricher import (
@@ -174,6 +175,7 @@ def scrape(
 
 def play_static_demo(prompter=None) -> int:
     """Replay category-matched bundled leads. No Apify, Sheets, RSS, license, or telemetry calls."""
+    show_banner()
     raw = os.environ.get("PROSPECTING_DEMO_SECONDS", "").strip()
     duration = 4.0
     if raw:

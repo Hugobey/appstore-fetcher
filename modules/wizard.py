@@ -20,6 +20,7 @@ from modules.labels import (
     label_for,
 )
 
+from modules.banner import show_banner
 from modules.enricher import _MRR_BUCKETS, normalize_mrr_ranges
 from modules.preview import print_configuration
 from modules.prompts import BACK
@@ -33,6 +34,7 @@ def run_wizard(
     crm_summary: dict,
     internal: bool = False,
 ) -> dict | None:
+    show_banner()
     state = validate_targeting(targeting)
     if state.get("confirmed") and _needs_onboarding(state):
         opened = _ask_missing_onboarding(prompter, state)
